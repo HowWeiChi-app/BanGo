@@ -52,6 +52,10 @@ jobs:
         run: python run.py
 
       - name: 把看過的公告存回 repo
+        # always()：上一步失敗也要執行。手機推播失敗時 run.py 會存好已讀紀錄再回報失敗，
+        # 如果這步被跳過，下次 Discord 就會重複發。
+        # （Discord 發送失敗時 run.py 不會更新已讀紀錄，這裡就沒有東西可以 commit，不會漏發）
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

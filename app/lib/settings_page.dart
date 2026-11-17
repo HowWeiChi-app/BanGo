@@ -49,8 +49,9 @@ class SettingsPage extends StatelessWidget {
             if (data != null)
               ListTile(
                 leading: const Icon(Icons.update),
-                title: const Text('資料更新時間'),
-                subtitle: Text(data!.updated),
+                title: const Text('最後一次有新公告'),
+                // 這個時間只有公告有變動才會更新，所以好幾天沒變不代表壞掉
+                subtitle: Text('${data!.updated}（每 30 分鐘檢查一次校網）'),
               ),
             ListTile(
               leading: const Icon(Icons.code),

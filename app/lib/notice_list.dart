@@ -12,7 +12,12 @@ class NoticeTile extends StatelessWidget {
   final Notice notice;
 
   Future<void> _open(BuildContext context) async {
-    final ok = await launchUrl(Uri.parse(notice.url), mode: LaunchMode.externalApplication);
+    bool ok;
+    try {
+      ok = await launchUrl(Uri.parse(notice.url), mode: LaunchMode.externalApplication);
+    } catch (_) {
+      ok = false; // 例如手機上沒有瀏覽器時會直接丟出錯誤，而不是回傳 false
+    }
     if (!ok && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('打不開這個網址')));
     }
