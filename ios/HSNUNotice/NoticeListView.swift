@@ -35,7 +35,7 @@ struct NoticeTimeline: View {
                 ForEach(shown) { notice in
                     let highlighted = notice.id == lastOpened
                     NoticeRow(notice: notice)
-                        .padding(highlighted ? 16 : 0)
+                        .padding(highlighted ? 16 : 0)  // 卡片內留白，讓文字跟其他公告對齊
                         .background {
                             if highlighted {
                                 RoundedRectangle(cornerRadius: 26).fill(Color.paperChip.opacity(0.75))
@@ -44,9 +44,10 @@ struct NoticeTimeline: View {
                         // 用隱藏的 NavigationLink 蓋在下面，列表右邊才不會多出「>」
                         .background { NavigationLink(value: notice) { EmptyView() }.opacity(0) }
                         .simultaneousGesture(TapGesture().onEnded { lastOpened = notice.id })
+                        // Reeder 左右留白比較寬（約 30pt）；卡片本身離螢幕邊 14pt
                         .listRowInsets(highlighted
-                            ? EdgeInsets(top: 8, leading: 4, bottom: 8, trailing: 4)
-                            : EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20))
+                            ? EdgeInsets(top: 8, leading: 14, bottom: 8, trailing: 14)
+                            : EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
                         .listRowBackground(Color.paper)
                         .listRowSeparatorTint(Color.paperChip)
                         .id(notice.id)
@@ -76,8 +77,9 @@ struct NoticeTimeline: View {
                             Text(subtitle).font(.footnote.weight(.medium)).foregroundStyle(.secondary)
                         }
                         .lineLimit(1)
-                        .frame(maxWidth: 180, alignment: .leading)
-                        .fixedSize(horizontal: false, vertical: true)
+                        // 先限制最寬 190，再用 fixedSize 讓工具列照文字寬度排，不然會被擠到看不見
+                        .frame(maxWidth: 190, alignment: .leading)
+                        .fixedSize()
                         Button {
                             if let first = shown.first {
                                 withAnimation { proxy.scrollTo(first.id, anchor: .top) }
