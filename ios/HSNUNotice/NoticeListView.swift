@@ -1,8 +1,8 @@
 // 公告時間軸、單則公告、公告內頁，以及打開校網原文的 Safari。全部照 Reeder 排版：
 //   - 左上角玻璃膠囊：側邊欄按鈕 ｜ 標題、副標 ｜ 回到最上面；右上角膠囊：重新整理、搜尋
 //   - 每則公告：圓形來源頭像 + 來源名稱 + 分類，右上角是「3h」，下面是粗體標題、灰色摘要、圖片
-//   - 上一次點開的那則用灰色圓角卡片標出來，回來時知道看到哪裡
-//   - 內頁：來源、大標題、日期、圖片、內文，最後是「原文」連結
+//   - 最後看的那則用灰色圓角卡片標出來，回來時知道看到哪裡
+//   - 內頁：來源、大標題、日期、圖片、內文，最後是「原文」連結；往左滑換到上面那則（比較新的）
 // 玻璃效果都是系統的導覽列和工具列自己產生的，沒有自己畫。
 
 import SafariServices
@@ -13,36 +13,35 @@ struct NoticeTimeline: View {
     @Environment(NoticeStore.self) private var store
     @Environment(\.dismiss) private var dismiss
     @Environment(Router.self) private var router
-    let title: String
-    let subtitle: String
-    let notices: [Notice]
-    var emptyTitle = "目前沒有公告"
-    var emptyMessage = "下拉可以重新整理"
+    let filter: NoticeFilter
 
-    @State private var lastOpened: Notice.ID?
     @State private var searching = false
     @State private var query = ""
 
-    /// 搜尋標題和內文
+    /// 這個時間軸的公告；有在搜尋就只留標題或內文符合的
     private var shown: [Notice] {
+        let notices = store.notices(filter)
         let q = query.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return notices }
         return notices.filter { $0.title.localizedCaseInsensitiveContains(q) || $0.content.localizedCaseInsensitiveContains(q) }
     }
 
     var body: some View {
+        let visible = shown  // 每次重畫只篩選一次
+        let title = store.title(filter)
         ScrollViewReader { proxy in
             List {
-                ForEach(shown) { notice in
+                ForEach(visible) { notice in
                     Button {
-                        // 時間軸是第 1 層。已經點進內頁（或正在推進去）就不再推：連點兩下不會疊出兩頁
-                        guard router.path.count == 1 else { return }
-                        lastOpened = notice.id
+                        // 時間軸在第 2 層。已經點進內頁（或正在推進去）就不再推：連點兩下不會疊出兩頁
+                        guard router.path.count == Router.Depth.timeline else { return }
+                        router.readingList = visible  // 內頁往左滑時，要知道上面那則是哪一則
+                        router.lastOpened = notice.id
                         router.path.append(notice)
                     } label: {
                         NoticeRow(notice: notice)
                     }
-                    .buttonStyle(CardPressStyle(highlighted: notice.id == lastOpened))
+                    .buttonStyle(CardPressStyle(highlighted: notice.id == router.lastOpened))
                     // 每一則外面都留 14pt，卡片裡面再留 16pt，所以文字離螢幕邊 30pt（跟 Reeder 一樣）。
                     // 不管有沒有卡片，大小都一樣，點下去排版不會跳。
                     .listRowInsets(EdgeInsets(top: 4, leading: 14, bottom: 4, trailing: 14))
@@ -58,7 +57,12 @@ struct NoticeTimeline: View {
             .paperBackground()
             .swipeBackEnabled()  // 返回鍵換成側邊欄按鈕了，還是要能往右滑回側邊欄
             .refreshable { await store.refresh() }
-            .overlay { placeholder }
+            .overlay { placeholder(isEmpty: visible.isEmpty) }
+            // 在內頁往左滑換到上面那則時，時間軸也跟著捲過去：回到列表就看得到剛剛讀到哪
+            .onChange(of: router.lastOpened) { _, id in
+                guard let id, router.path.count > Router.Depth.timeline else { return }
+                proxy.scrollTo(id, anchor: .center)
+            }
             .modifier(SearchIfNeeded(active: $searching, query: $query))
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
@@ -75,14 +79,14 @@ struct NoticeTimeline: View {
                         Divider().frame(height: 26)
                         VStack(alignment: .leading, spacing: 0) {
                             Text(title).font(.headline).foregroundStyle(Color.ink)
-                            Text(subtitle).font(.footnote.weight(.medium)).foregroundStyle(.secondary)
+                            Text(store.subtitle(filter)).font(.footnote.weight(.medium)).foregroundStyle(.secondary)
                         }
                         .lineLimit(1)
                         // 先限制最寬 190，再用 fixedSize 讓工具列照文字寬度排，不然會被擠到看不見
                         .frame(maxWidth: 190, alignment: .leading)
                         .fixedSize()
                         Button {
-                            if let first = shown.first {
+                            if let first = visible.first {
                                 withAnimation { proxy.scrollTo(first.id, anchor: .top) }
                             }
                         } label: {
@@ -109,7 +113,7 @@ struct NoticeTimeline: View {
         }
     }
 
-    @ViewBuilder private var placeholder: some View {
+    @ViewBuilder private func placeholder(isEmpty: Bool) -> some View {
         if store.data == nil && store.isLoading {
             ProgressView("載入公告中…")
         } else if store.data == nil, let error = store.errorMessage {
@@ -121,7 +125,7 @@ struct NoticeTimeline: View {
                 Button("重試") { Task { await store.refresh() } }
                     .buttonStyle(.glassProminent)
             }
-        } else if store.data != nil && shown.isEmpty {
+        } else if store.data != nil && isEmpty {
             if query.isEmpty {
                 ContentUnavailableView(emptyTitle, systemImage: "tray", description: Text(emptyMessage))
             } else {
@@ -129,9 +133,17 @@ struct NoticeTimeline: View {
             }
         }
     }
+
+    private var emptyTitle: String {
+        filter == .mine && store.subscribed.isEmpty ? "還沒有訂閱任何類別" : "沒有符合的公告"
+    }
+
+    private var emptyMessage: String {
+        filter == .mine ? "到「設定」打開想看的類別" : "下拉可以重新整理"
+    }
 }
 
-/// 公告的點擊效果：按下去或是上次點開的那則，背後出現灰色圓角卡片（Reeder 的樣子）
+/// 公告的點擊效果：按下去或是最後看的那則，背後出現灰色圓角卡片（Reeder 的樣子）
 private struct CardPressStyle: ButtonStyle {
     let highlighted: Bool
 
@@ -241,11 +253,111 @@ struct NoticeRow: View {
     }
 }
 
-/// 公告內頁：照 Reeder 的文章頁
+/// 公告內頁：照 Reeder 的文章頁。
+/// 往左滑會把時間軸上這則「上面」那則（比較新的）從右邊拉進來，跟著手指走，像換頁一樣；
+/// 往右滑還是回到時間軸（換過幾則都一樣，不會一則一則退回去）。
 struct NoticeDetailView: View {
-    let notice: Notice
+    @Environment(Router.self) private var router
+    @State private var current: Notice
+    @State private var incoming: Notice?   // 正在被拉進來的那則
+    @State private var drag: CGFloat = 0   // 往左拉了多少（0 到畫面寬度）
+    @State private var settling = false    // 放手後的動畫還在跑，這時候不能再拉
+    @State private var width: CGFloat = 0
 
-    private var url: URL? { URL(string: notice.url) }
+    init(notice: Notice) {
+        _current = State(initialValue: notice)
+    }
+
+    /// 時間軸上在這則上面的那則（比較新）；已經是最上面一則就是 nil
+    private var newer: Notice? {
+        let list = router.readingList
+        guard let index = list.firstIndex(where: { $0.id == current.id }), index > 0 else { return nil }
+        return list[index - 1]
+    }
+
+    private var url: URL? { URL(string: current.url) }
+
+    var body: some View {
+        ZStack {
+            ForEach(incoming.map { [current, $0] } ?? [current]) { notice in
+                page(notice, isIncoming: notice.id == incoming?.id)
+            }
+        }
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
+        .gesture(LeftSwipeGesture(isEnabled: newer != nil && !settling, onChanged: dragged, onEnded: released))
+        .paperBackground()
+        .swipeBackEnabled()
+        .navigationBarTitleDisplayMode(.inline)  // 標題在內文裡，導覽列不用留大標題的空間
+        .toolbar(removing: .title)
+        .toolbar {
+            if let url {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button { SafariPage.open(url) } label: { Image(systemName: "safari") }
+                        .accessibilityLabel("閱讀原文")
+                    ShareLink(item: url) { Image(systemName: "square.and.arrow.up") }
+                }
+            }
+        }
+        .tint(Color.ink)
+    }
+
+    /// 一頁內文。跟系統換頁一樣：拉進來的那頁從右邊滑進來、左邊有一點陰影；
+    /// 被蓋過去的那頁往左移一點、變暗一點
+    private func page(_ notice: Notice, isIncoming: Bool) -> some View {
+        let progress = width > 0 ? drag / width : 0
+        return NoticeArticle(notice: notice)
+            .equatable()  // 拉的時候每一格畫面都會重畫，內文沒變就不用重排
+            .overlay {
+                Color.black.opacity(isIncoming ? 0 : 0.1 * progress)
+                    .ignoresSafeArea()
+                    .allowsHitTesting(false)
+            }
+            .overlay(alignment: .leading) {
+                if isIncoming {
+                    LinearGradient(colors: [.clear, .black.opacity(0.08)], startPoint: .leading, endPoint: .trailing)
+                        .frame(width: 12)
+                        .offset(x: -12)
+                        .ignoresSafeArea()
+                        .allowsHitTesting(false)
+                }
+            }
+            .offset(x: isIncoming ? width - drag : -drag * 0.3)
+    }
+
+    private func dragged(_ distance: CGFloat) {
+        if incoming == nil { incoming = newer }
+        drag = min(max(distance, 0), width)
+    }
+
+    /// 放手：拉的距離加上甩的速度超過畫面一半，就換到那一則；不然彈回去
+    private func released(_ distance: CGFloat, _ velocity: CGFloat) {
+        guard let next = incoming else { return }
+        settling = true
+        if distance + velocity * 0.15 > width / 2 {
+            withAnimation(.spring(duration: 0.3, bounce: 0)) {
+                drag = width
+            } completion: {
+                // 拉進來的那則變成主角。它的位置沒變，所以看不出有換
+                current = next
+                incoming = nil
+                drag = 0
+                settling = false
+                router.lastOpened = next.id  // 時間軸的灰色卡片跟著換到這則
+            }
+        } else {
+            withAnimation(.spring(duration: 0.3, bounce: 0)) {
+                drag = 0
+            } completion: {
+                incoming = nil
+                settling = false
+            }
+        }
+    }
+}
+
+/// 一則公告的內文：內頁裡上下捲動的那一頁
+private struct NoticeArticle: View, Equatable {
+    let notice: Notice
 
     var body: some View {
         ScrollView {
@@ -293,7 +405,7 @@ struct NoticeDetailView: View {
                         Text(paragraph)
                     }
                     // 「原文」連結，跟 Reeder 一樣用主色
-                    if let url {
+                    if let url = URL(string: notice.url) {
                         Button { SafariPage.open(url) } label: {
                             Text("[原文]").fontWeight(.semibold)
                         }
@@ -313,20 +425,7 @@ struct NoticeDetailView: View {
             .padding(.top, 8)
             .padding(.bottom, 40)
         }
-        .paperBackground()
-        .swipeBackEnabled()
-        .navigationBarTitleDisplayMode(.inline)  // 標題在內文裡，導覽列不用留大標題的空間
-        .toolbar(removing: .title)
-        .toolbar {
-            if let url {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button { SafariPage.open(url) } label: { Image(systemName: "safari") }
-                        .accessibilityLabel("閱讀原文")
-                    ShareLink(item: url) { Image(systemName: "square.and.arrow.up") }
-                }
-            }
-        }
-        .tint(Color.ink)
+        .background { Color.paper.ignoresSafeArea() }  // 不透明：換頁時才蓋得住後面那則
     }
 }
 

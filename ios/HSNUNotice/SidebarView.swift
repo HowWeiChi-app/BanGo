@@ -1,8 +1,9 @@
-// 側邊欄：App 的第一層，照 Reeder 的側邊欄排版。
+// 側邊欄：照 Reeder 的側邊欄排版。
 //
 // 最上面是「我的公告」（像 Reeder 的 Home）和「全部公告」，
 // 下面是類別、主題、來源三段，段落標題右邊的箭頭可以收合，右邊的數字是有幾則。
-// 點任何一項就進到那一種公告的時間軸；左上角是設定，右上角是重新整理。
+// 點任何一項就往右進到那一種公告的時間軸。
+// 設定在側邊欄的左邊：往右滑或按左上角，設定就從左邊滑出來。右上角是重新整理。
 
 import SwiftUI
 
@@ -14,12 +15,15 @@ enum NoticeFilter: Hashable {
     case source(String)   // 來源，例如「重要公告」
 }
 
+/// 側邊欄這一頁。設定是最底層，側邊欄推在它上面，所以在側邊欄往右滑就回到（拉出）左邊的設定
+struct SidebarRoute: Hashable {}
+
 struct SidebarView: View {
     @Environment(NoticeStore.self) private var store
+    @Environment(Router.self) private var router
+    @Environment(\.dismiss) private var dismiss
     @Binding var path: NavigationPath
     @Binding var selected: NoticeFilter
-    @State private var collapsed: Set<String> = []
-    @State private var showSettings = false
 
     var body: some View {
         List {
@@ -69,9 +73,12 @@ struct SidebarView: View {
         .navigationTitle("附中公告")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(removing: .title)
+        .navigationBarBackButtonHidden()  // 左上角放設定按鈕，不放返回鍵
+        .swipeBackEnabled()               // 沒有返回鍵也能往右滑，把左邊的設定拉出來
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button { showSettings = true } label: {
+                // 設定在側邊欄的左邊：按了跟往右滑一樣，從左邊滑出來
+                Button { dismiss() } label: {
                     Image(systemName: "switch.2")
                 }
                 .tint(Color.ink)
@@ -81,24 +88,11 @@ struct SidebarView: View {
                 RefreshButton()
             }
         }
-        .sheet(isPresented: $showSettings) {
-            SettingsView()
-        }
-        .navigationDestination(for: NoticeFilter.self) { filter in
-            NoticeTimeline(
-                title: store.title(filter),
-                subtitle: store.subtitle(filter),
-                notices: store.notices(filter),
-                emptyTitle: filter == .mine && store.subscribed.isEmpty ? "還沒有訂閱任何類別" : "沒有符合的公告",
-                emptyMessage: filter == .mine ? "到「設定」打開想看的類別" : "下拉可以重新整理"
-            )
-        }
-        .navigationDestination(for: Notice.self) { NoticeDetailView(notice: $0) }
     }
 
     private func open(_ filter: NoticeFilter) {
-        // 側邊欄是最底層。已經推進時間軸（或正在推進去）就不再推：連點兩下不會疊出兩個時間軸
-        guard path.isEmpty else { return }
+        // 側邊欄在第 1 層。已經推進時間軸（或正在推進去）就不再推：連點兩下不會疊出兩個時間軸
+        guard path.count == Router.Depth.sidebar else { return }
         selected = filter
         path.append(filter)
     }
@@ -118,10 +112,14 @@ struct SidebarView: View {
     /// 可以收合的一段：粗體標題 + 右邊的箭頭
     @ViewBuilder
     private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
-        let isCollapsed = collapsed.contains(title)
+        let isCollapsed = router.collapsedSections.contains(title)
         Button {
             withAnimation(.snappy) {
-                if isCollapsed { collapsed.remove(title) } else { collapsed.insert(title) }
+                if isCollapsed {
+                    router.collapsedSections.remove(title)
+                } else {
+                    router.collapsedSections.insert(title)
+                }
             }
         } label: {
             HStack {
