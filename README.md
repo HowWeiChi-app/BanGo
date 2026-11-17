@@ -23,8 +23,9 @@ app/：Android App 下載 notices.json 顯示
 | `scraper/filters.py` | 分類和排除規則。**要調整關鍵字改這裡最上面的表** |
 | `scraper/run.py` | 排程每次執行的完整流程 |
 | `scraper/data/` | 爬蟲的資料（GitHub Actions 自動更新，不要手動改） |
-| `app/lib/` | Flutter App 的程式碼 |
-| `.github/workflows/` | 兩個自動化流程：抓公告、編譯 App |
+| `app/lib/` | Android App（Flutter）的程式碼 |
+| `ios/HSNUNotice/` | iPhone App（原生 SwiftUI、Liquid Glass）的程式碼 |
+| `.github/workflows/` | 三個自動化流程：抓公告、編譯 Android App、編譯 iPhone App |
 
 ## 爬蟲
 
@@ -78,24 +79,22 @@ GitHub Actions 會自動編譯，並在 Releases 頁面建立「附中公告 v0.
 3. 接上手機或開模擬器，執行 `flutter run`。
 4. 跑測試：`flutter test`
 
-### iOS 版（裝到自己的 iPhone）
+### iPhone 版（`ios/`，原生 SwiftUI）
 
-iOS 版跟 Android 用同一份程式碼，**還沒有推播**。GitHub Actions 只確認能編譯，
-要裝到手機上得在自己的 Mac 用 Xcode 簽名：
+iPhone 版**另外用 SwiftUI 寫**，不是 Flutter。畫面用 iOS 26 起蘋果官方的 Liquid Glass：
+分頁列、導覽列、工具列由系統自動變成玻璃，「全部公告」上方的篩選按鈕用官方的
+`GlassEffectContainer` 和 `.glassEffect()`，沒有自己畫玻璃效果。資料跟 Android 一樣讀同一份 `notices.json`。
+**還沒有推播**，要打開 App 下拉更新。需要 iOS 26 以上。
 
-1. 安裝 [Flutter](https://docs.flutter.dev/get-started/install/macos)（Xcode 已經有了）。
-2. 產生 iOS 專案檔並打開 Xcode：
-   ```bash
-   cd app
-   bash tool/prepare_ios.sh
-   open ios/Runner.xcworkspace
-   ```
-3. 在 Xcode 左邊點「Runner」→「Signing & Capabilities」→ Team 選你自己的 Apple ID（Personal Team）。
+GitHub Actions 只確認能編譯，要裝到手機上得在自己的 Mac 用 Xcode 簽名：
+
+1. 用 Xcode（26 以上）打開 `ios/HSNUNotice.xcodeproj`。
+2. 左邊點「HSNUNotice」→「Signing & Capabilities」→ Team 選你自己的 Apple ID（Personal Team）。
    Bundle Identifier 如果顯示已被使用，在後面加幾個字改成獨一無二的。
-4. iPhone 接上 Mac，執行 `flutter run --release`（或在 Xcode 選你的 iPhone 按 ▶︎）。
-5. 第一次打開會顯示「未受信任的開發者」：iPhone「設定」→「一般」→「VPN 與裝置管理」→ 信任你的 Apple ID。
+3. iPhone 接上 Mac，上方選你的 iPhone，按 ▶︎。
+4. 第一次打開會顯示「未受信任的開發者」：iPhone「設定」→「一般」→「VPN 與裝置管理」→ 信任你的 Apple ID。
 
-⚠️ 免費 Apple ID 簽的 App **7 天後會打不開**，要重新執行第 4 步。
+⚠️ 免費 Apple ID 簽的 App **7 天後會打不開**，要重新按一次 ▶︎。
 要發給其他同學（TestFlight）需要 US$99/年的 Apple 開發者帳號，見 PLAN.md 第 6 節。
 
 ### 畫面
@@ -104,7 +103,8 @@ iOS 版跟 Android 用同一份程式碼，**還沒有推播**。GitHub Actions 
 - **全部公告**：所有公告，上面可以點類別或主題篩選；跟學生無關的公告預設隱藏
 - **設定**：開關要訂閱的類別和主題
 
-點任何一則公告會用瀏覽器打開校網原文。
+點任何一則公告會打開校網原文（iPhone 版在 App 裡直接開，往下滑關掉）。
+兩個版本畫面一樣。
 
 ## 給同學試用
 
@@ -113,4 +113,4 @@ iOS 版跟 Android 用同一份程式碼，**還沒有推播**。GitHub Actions 
 ## 還沒做的
 
 - 手機推播（需要建立 Firebase 專案，見 PLAN.md）
-- iOS 版
+- iPhone 版的推播（需要 Apple 付費開發者帳號）

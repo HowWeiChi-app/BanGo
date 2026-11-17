@@ -1,4 +1,5 @@
-# 自動編譯 App（Android + iOS）：app/ 資料夾有變動就會執行。
+# 自動編譯 Android App（Flutter）：app/ 資料夾有變動就會執行。
+# iPhone 版是另外寫的原生 App，在 ios/，由 build-ios.yml 編譯。
 # 跑完後，在這次執行的頁面最下面「Artifacts」可以下載 APK（要登入 GitHub，30 天後刪除）。
 #
 # 要發給同學時，推一個 v 開頭的標籤，就會自動建立 GitHub Release 並附上 APK，
@@ -6,7 +7,7 @@
 #   git tag v0.1.0
 #   git push origin v0.1.0
 
-name: 編譯 App
+name: 編譯 Android App
 
 on:
   push:
@@ -75,28 +76,3 @@ jobs:
           gh release create "$GITHUB_REF_NAME" "hsnu-notice-${GITHUB_REF_NAME}.apk" \
             --title "附中公告 ${GITHUB_REF_NAME}" \
             --notes "下載下面的 .apk 檔，傳到 Android 手機上安裝（要允許「安裝不明來源的應用程式」）。"
-
-  # iOS：只確認能編譯成功，不產生可以安裝的檔案。
-  # 要裝到 iPhone 上需要用 Apple ID 簽名，只能在自己的 Mac 上用 Xcode 裝（見 README）。
-  build-ios:
-    runs-on: macos-latest
-    timeout-minutes: 30
-    defaults:
-      run:
-        working-directory: app
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: 產生 iOS 專案檔
-        run: bash tool/prepare_ios.sh
-
-      - name: 下載套件
-        run: flutter pub get
-
-      - name: 編譯 iOS（不簽名）
-        run: flutter build ios --release --no-codesign

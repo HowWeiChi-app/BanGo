@@ -1,0 +1,48 @@
+// 主畫面：下方三個分頁。
+//
+// iOS 26 的 TabView 用 Tab(...) 寫法，系統會自動畫成 Liquid Glass 分頁列，
+// 往下捲動時分頁列會縮小（tabBarMinimizeBehavior），讓出更多空間給公告。
+
+import SwiftUI
+
+struct ContentView: View {
+    @State private var store = NoticeStore()
+
+    var body: some View {
+        TabView {
+            Tab("我的公告", systemImage: "bell") {
+                MyNoticesView()
+            }
+            Tab("全部公告", systemImage: "list.bullet") {
+                AllNoticesView()
+            }
+            Tab("設定", systemImage: "gearshape") {
+                SettingsView()
+            }
+        }
+        .tabBarMinimizeBehavior(.onScrollDown)
+        .environment(store)
+        .task { await store.refresh() }
+    }
+}
+
+/// 「我的公告」：只顯示訂閱的類別和主題
+struct MyNoticesView: View {
+    @Environment(NoticeStore.self) private var store
+
+    var body: some View {
+        NavigationStack {
+            NoticeListView(
+                notices: store.myNotices,
+                emptyTitle: store.subscribed.isEmpty ? "還沒有訂閱任何類別" : "目前沒有符合的公告",
+                emptyMessage: "到「設定」打開想看的類別"
+            )
+            .navigationTitle("我的公告")
+            .navigationSubtitle("訂閱 \(store.subscribed.count) 個類別")
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}

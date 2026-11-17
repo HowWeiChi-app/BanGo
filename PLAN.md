@@ -50,7 +50,9 @@
   - 注意：颱風假通常是臺北市政府宣布，校網不一定會發公告，不能只靠這個。
 - [ ] 主畫面小工具：顯示最新 3 則公告
 - [ ] iOS 版
-  - 2026-11-17 提前開始（使用者要求）：同一份 Flutter 程式碼編譯成 iOS，**先不做推播**（推播需要 US$99 Apple 開發者帳號）。
+  - 2026-11-17 提前開始（使用者要求），**先不做推播**（推播需要 US$99 Apple 開發者帳號）。
+  - 2026-11-17 改為**另外用原生 SwiftUI 寫**（`ios/`），使用 iOS 26 官方 Liquid Glass API（系統分頁列、`glassEffect`、`GlassEffectContainer`），不自己畫玻璃效果。Flutter 只負責 Android。兩邊讀同一份 `notices.json`，畫面和訂閱邏輯保持一樣。
+  - 只支援 iOS 26 以上。
   - 免費 Apple ID 可以用 Xcode 裝到自己的 iPhone，但 7 天後要重裝；發給其他同學仍需要付費帳號（TestFlight）。
 - [ ] 支援其他學校（先確認其他學校是否用同一套網站系統）
 
@@ -82,7 +84,7 @@
 | 爬蟲 | Python，跑在 GitHub Actions 排程 | 免費額度內 |
 | 資料儲存 | Firebase Firestore | 免費額度內 |
 | 推播 | Firebase Cloud Messaging (FCM) | 免費 |
-| App | Flutter | 免費 |
+| App | Android：Flutter；iPhone：原生 SwiftUI | 免費 |
 
 ### 目前的過渡做法（2026-11-17）
 
