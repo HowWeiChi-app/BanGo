@@ -169,12 +169,18 @@ class DiscordMessageTest(unittest.TestCase):
         self.assertIn("教務 · #考試", text)
         self.assertIn(f"<{n.url}>", text)
 
+    def test_urgent_notice_stands_out(self):
+        n = classify(make("颱風來襲，明日（11/18）停課一天"))
+        self.assertIn("停課", n.topics)
+        self.assertTrue(format_notice(n).startswith("🚨"))
+        self.assertTrue(format_notice(classify(make("期中考考試範圍"))).startswith("📢"))
+
     def test_split_under_limit(self):
         notices = [classify(make(f"第{i}則期中考公告" + "很長" * 30)) for i in range(40)]
         messages = build_messages(notices)
         self.assertGreater(len(messages), 1)  # 太長要拆成好幾則
         self.assertTrue(all(len(m) <= MAX_LEN for m in messages))
-        self.assertEqual(sum(m.count("📢") for m in messages), 40)  # 一則都沒漏
+        self.assertEqual(sum(m.count("**第") for m in messages), 40)  # 一則都沒漏
 
 
 if __name__ == "__main__":

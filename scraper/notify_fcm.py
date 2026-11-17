@@ -24,6 +24,7 @@ FCM_TOPICS = {
     "獎學金": "scholarship",
     "比賽": "competition",
     "考試": "exam",
+    "停課": "class-suspension",
 }
 
 MAX_CONDITION_TOPICS = 5  # FCM 的 condition 最多只能寫 5 個主題

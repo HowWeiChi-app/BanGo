@@ -21,6 +21,7 @@ FCM 有一個功能叫 topic（主題）：App 在手機上訂閱幾個主題，
 | 獎學金 | `scholarship` |
 | 比賽 | `competition` |
 | #考試 | `exam` |
+| #停課 | `class-suspension` |
 
 （FCM 主題名稱只能用英文、數字和 `-_.~%`，所以要對照。）
 

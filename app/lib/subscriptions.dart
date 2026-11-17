@@ -10,7 +10,8 @@ class Subscriptions extends ChangeNotifier {
 
   /// 第一次打開 App 時預設訂閱的項目。
   /// 企劃的原則是「預設只開最重要的類別」，避免一開始就太吵，其他讓使用者自己打開。
-  static const defaults = {'教務', '學務', '考試'};
+  /// 「停課」是緊急公告（停課、颱風），一定要預設打開。
+  static const defaults = {'教務', '學務', '考試', '停課'};
 
   Set<String> _items = {...defaults};
   Set<String> get items => _items;

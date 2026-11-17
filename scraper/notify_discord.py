@@ -9,6 +9,7 @@ import json
 import time
 import urllib.request
 
+from filters import URGENT_TOPICS
 from notice import Notice
 
 MAX_LEN = 2000  # Discord 單則訊息的字數上限
@@ -16,8 +17,10 @@ MAX_LEN = 2000  # Discord 單則訊息的字數上限
 
 def format_notice(n: Notice) -> str:
     tags = " · ".join(n.categories + ["#" + t for t in n.topics])
+    # 緊急公告（停課、颱風）用不同的開頭，在頻道裡一眼就看得到
+    icon = "🚨 **【緊急】**" if URGENT_TOPICS & set(n.topics) else "📢"
     # 網址包在 <> 裡，Discord 就不會展開一大塊預覽圖
-    return f"📢 **{n.title}**\n{tags} · {n.date}\n<{n.url}>"
+    return f"{icon} **{n.title}**\n{tags} · {n.date}\n<{n.url}>"
 
 
 def build_messages(notices: list[Notice]) -> list[str]:

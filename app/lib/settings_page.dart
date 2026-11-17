@@ -8,7 +8,7 @@ import 'subscriptions.dart';
 
 // 還沒載入到資料時用的預設清單（跟爬蟲 filters.py 的類別、主題一致）
 const _fallbackCategories = ['教務', '學務', '輔導', '獎學金', '比賽'];
-const _fallbackTopics = ['考試'];
+const _fallbackTopics = ['考試', '停課'];
 
 const repoUrl = 'https://github.com/cyy-615/hsnu-notice';
 
