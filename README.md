@@ -86,6 +86,10 @@ GitHub Actions 會自動編譯，並在 Releases 頁面建立「附中公告 v0.
 
 點任何一則公告會用瀏覽器打開校網原文。
 
+## 給同學試用
+
+使用說明在 [docs/for-classmates.md](docs/for-classmates.md)（發出去前要先填 Discord 邀請連結和回饋方式）。
+
 ## 還沒做的
 
 - 手機推播（需要建立 Firebase 專案，見 PLAN.md）
