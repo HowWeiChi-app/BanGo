@@ -63,6 +63,10 @@ class TopicTest(unittest.TestCase):
         self.assertEqual(classify(make("115學年第1學期_第二次期中考_考試範圍")).topics, ["考試"])
         self.assertEqual(classify(make("115學年度第1學期期末考試日程表")).topics, ["考試"])
         self.assertEqual(classify(make("115學年度補考名單及時間")).topics, ["考試"])
+        # 學期行事曆有考試日期；暑假、圖書館的行事曆沒有
+        self.assertEqual(classify(make("115學年度第1學期行事曆")).topics, ["考試"])
+        self.assertEqual(classify(make("115學年度暑假行事曆")).topics, [])
+        self.assertEqual(classify(make("113學年度第2學期圖書館行事曆")).topics, [])
         # 學測報名不是校內考試日程，不收進來
         self.assertEqual(classify(make("【重要】檢核學測、英語第二次及術科考試報名結果")).topics, [])
 
