@@ -13,6 +13,8 @@ class Notice:
     categories: list[str] = field(default_factory=list)  # 過濾後填入，例如 ["教務", "獎學金"]
     topics: list[str] = field(default_factory=list)      # 比類別更細的主題，例如 ["考試"]
     for_students: bool = True  # False 表示跟學生無關（標案、教師甄選…），不推播
+    content: str = ""  # 公告內文（純文字，段落用換行分開），App 顯示摘要和內頁用
+    image: str = ""    # 內文裡第一張圖片的完整網址，沒有就是空字串
 
     def to_dict(self) -> dict:
         return asdict(self)

@@ -6,7 +6,9 @@
 
 import html
 import time
+import urllib.parse
 import urllib.request
+from html.parser import HTMLParser
 import xml.etree.ElementTree as ET
 
 from notice import Notice
@@ -27,6 +29,46 @@ FEEDS = {
 
 # 標明自己是誰，讓學校看得出這不是攻擊
 USER_AGENT = "SchoolNoticeBot/0.1 (student project; polls every 10+ min)"
+
+
+MAX_CONTENT = 3000  # 內文最多存幾個字，避免 notices.json 太大、App 下載變慢
+
+
+class _TextExtractor(HTMLParser):
+    """把公告內文的 HTML 轉成純文字，同時記下第一張圖片。"""
+
+    BLOCKS = {"p", "br", "div", "li", "tr", "h1", "h2", "h3", "h4", "h5", "h6"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)  # 自動把 &amp; 這類符號轉回正常文字
+        self.parts: list[str] = []
+        self.image = ""
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self.BLOCKS:
+            self.parts.append("\n")
+        if tag == "img" and not self.image:
+            self.image = dict(attrs).get("src") or ""
+
+    def handle_endtag(self, tag):
+        if tag in self.BLOCKS:
+            self.parts.append("\n")
+
+    def handle_data(self, data):
+        self.parts.append(data)
+
+
+def html_to_text(description: str) -> tuple[str, str]:
+    """RSS 的 <description> 是一段 HTML，回傳 (純文字內文, 第一張圖片的完整網址)。"""
+    extractor = _TextExtractor()
+    extractor.feed(description)
+    # 每行去掉多餘空白（包括全形空白和 &nbsp;），空行拿掉
+    lines = (" ".join(line.split()) for line in "".join(extractor.parts).split("\n"))
+    text = "\n".join(line for line in lines if line)
+    if len(text) > MAX_CONTENT:
+        text = text[:MAX_CONTENT].rstrip() + "…"
+    image = urllib.parse.urljoin(BASE + "/", extractor.image) if extractor.image else ""
+    return text, image
 
 
 class ParseError(Exception):
@@ -59,6 +101,7 @@ def parse_rss(xml_bytes: bytes, source: str) -> list[Notice]:
       <item>
         <title>115學年第1學期_第二次期中考_考試範圍</title>
         <link>https://www.hs.ntnu.edu.tw/content?a=...</link>
+        <description>&lt;p&gt;內文（HTML）…&lt;/p&gt;</description>
         <pubDate>2026-11-16 15:16:47</pubDate>
       </item>
     """
@@ -78,6 +121,7 @@ def parse_rss(xml_bytes: bytes, source: str) -> list[Notice]:
         pub = (item.findtext("pubDate") or "").strip()
         if not title or not link:
             raise ParseError(f"{source}：有公告缺少標題或連結")
+        content, image = html_to_text(item.findtext("description") or "")
         notices.append(Notice(
             title=html.unescape(title),  # 把 &amp; 這類符號轉回正常文字
             # 師大附中的 pubDate 是 "2026-11-16 15:16:47"（不是標準 RSS 格式），取到分鐘就好
@@ -85,6 +129,8 @@ def parse_rss(xml_bytes: bytes, source: str) -> list[Notice]:
             dept="",
             url=link,
             source=source,
+            content=content,
+            image=image,
         ))
     return notices
 

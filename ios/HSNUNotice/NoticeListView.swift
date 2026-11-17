@@ -1,8 +1,8 @@
-// 公告時間軸、單則公告、公告內頁，以及打開校網原文的 Safari。
-// 排版參考 RSS 閱讀器 Reeder：
-//   - 左上角一顆玻璃膠囊放側邊欄按鈕、標題、副標和「回到最上面」，右上角放重新整理
-//   - 每則公告：圓形來源頭像 + 來源名稱 + 分類，右上角是多久以前，下面是粗體標題
-//   - 點公告先進到內頁（大標題、日期、分類），再按「閱讀原文」打開校網
+// 公告時間軸、單則公告、公告內頁，以及打開校網原文的 Safari。全部照 Reeder 排版：
+//   - 左上角玻璃膠囊：側邊欄按鈕 ｜ 標題、副標 ｜ 回到最上面；右上角膠囊：重新整理、搜尋
+//   - 每則公告：圓形來源頭像 + 來源名稱 + 分類，右上角是「3h」，下面是粗體標題、灰色摘要、圖片
+//   - 上一次點開的那則用灰色圓角卡片標出來，回來時知道看到哪裡
+//   - 內頁：來源、大標題、日期、圖片、內文，最後是「原文」連結
 // 玻璃效果都是系統的導覽列和工具列自己產生的，沒有自己畫。
 
 import SafariServices
@@ -18,16 +18,37 @@ struct NoticeTimeline: View {
     var emptyTitle = "目前沒有公告"
     var emptyMessage = "下拉可以重新整理"
 
+    @State private var lastOpened: Notice.ID?
+    @State private var searching = false
+    @State private var query = ""
+
+    /// 搜尋標題和內文
+    private var shown: [Notice] {
+        let q = query.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return notices }
+        return notices.filter { $0.title.localizedCaseInsensitiveContains(q) || $0.content.localizedCaseInsensitiveContains(q) }
+    }
+
     var body: some View {
         ScrollViewReader { proxy in
             List {
-                ForEach(notices) { notice in
-                    // 用隱藏的 NavigationLink 蓋在下面，列表右邊才不會多出「>」
+                ForEach(shown) { notice in
+                    let highlighted = notice.id == lastOpened
                     NoticeRow(notice: notice)
+                        .padding(highlighted ? 16 : 0)
+                        .background {
+                            if highlighted {
+                                RoundedRectangle(cornerRadius: 26).fill(Color.paperChip.opacity(0.75))
+                            }
+                        }
+                        // 用隱藏的 NavigationLink 蓋在下面，列表右邊才不會多出「>」
                         .background { NavigationLink(value: notice) { EmptyView() }.opacity(0) }
-                        .listRowInsets(EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20))
+                        .simultaneousGesture(TapGesture().onEnded { lastOpened = notice.id })
+                        .listRowInsets(highlighted
+                            ? EdgeInsets(top: 8, leading: 4, bottom: 8, trailing: 4)
+                            : EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20))
                         .listRowBackground(Color.paper)
-                        .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+                        .listRowSeparatorTint(Color.paperChip)
                         .id(notice.id)
                 }
             }
@@ -36,6 +57,7 @@ struct NoticeTimeline: View {
             .background(Color.paper)
             .refreshable { await store.refresh() }
             .overlay { placeholder }
+            .modifier(SearchIfNeeded(active: $searching, query: $query))
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(removing: .title)  // 標題改放在左上角的膠囊裡
@@ -48,30 +70,39 @@ struct NoticeTimeline: View {
                             Image(systemName: "sidebar.left")
                         }
                         .accessibilityLabel("側邊欄")
-                        .tint(Color.ink)
-                        Divider().frame(height: 24)
+                        Divider().frame(height: 26)
                         VStack(alignment: .leading, spacing: 0) {
-                            Text(title).font(.headline)
-                            Text(subtitle).font(.caption).foregroundStyle(.secondary)
+                            Text(title).font(.headline).foregroundStyle(Color.ink)
+                            Text(subtitle).font(.footnote.weight(.medium)).foregroundStyle(.secondary)
                         }
                         .lineLimit(1)
-                        .fixedSize()  // 不然工具列會把文字擠到看不見
+                        .frame(maxWidth: 180, alignment: .leading)
+                        .fixedSize(horizontal: false, vertical: true)
                         Button {
-                            if let first = notices.first {
+                            if let first = shown.first {
                                 withAnimation { proxy.scrollTo(first.id, anchor: .top) }
                             }
                         } label: {
                             Image(systemName: "arrow.up.circle")
                         }
+                        .foregroundStyle(.tertiary)
                         .accessibilityLabel("回到最上面")
-                        .tint(Color.ink)
                     }
                     .padding(.horizontal, 6)
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                // 兩個按鈕放在同一個 ToolbarItemGroup，系統會把它們包在同一顆玻璃膠囊裡
+                ToolbarItemGroup(placement: .topBarTrailing) {
                     RefreshButton()
+                    Button {
+                        withAnimation { searching.toggle() }
+                        if !searching { query = "" }
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                    }
+                    .accessibilityLabel("搜尋")
                 }
             }
+            .tint(Color.ink)  // 工具列圖示用深灰色，跟 Reeder 一樣
         }
     }
 
@@ -87,8 +118,28 @@ struct NoticeTimeline: View {
                 Button("重試") { Task { await store.refresh() } }
                     .buttonStyle(.glassProminent)
             }
-        } else if store.data != nil && notices.isEmpty {
-            ContentUnavailableView(emptyTitle, systemImage: "tray", description: Text(emptyMessage))
+        } else if store.data != nil && shown.isEmpty {
+            if query.isEmpty {
+                ContentUnavailableView(emptyTitle, systemImage: "tray", description: Text(emptyMessage))
+            } else {
+                ContentUnavailableView.search(text: query)
+            }
+        }
+    }
+}
+
+/// 按了搜尋按鈕才出現搜尋框（系統的 searchable）
+private struct SearchIfNeeded: ViewModifier {
+    @Binding var active: Bool
+    @Binding var query: String
+
+    func body(content: Content) -> some View {
+        if active {
+            content.searchable(text: $query, isPresented: $active,
+                               placement: .navigationBarDrawer(displayMode: .always),
+                               prompt: "搜尋標題和內文")
+        } else {
+            content
         }
     }
 }
@@ -108,7 +159,7 @@ struct RefreshButton: View {
             }
         }
         .disabled(store.isLoading)
-        .tint(Color.ink)  // 工具列圖示用深灰色，跟 Reeder 一樣
+        .tint(Color.ink)
         .accessibilityLabel("重新整理")
     }
 }
@@ -118,31 +169,46 @@ struct NoticeRow: View {
     let notice: Notice
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .center, spacing: 12) {
-                SourceAvatar(source: notice.source)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
+                SourceAvatar(source: notice.source, size: 44)
                 VStack(alignment: .leading, spacing: 1) {
                     Text(SourceStyle.name(notice.source))
                         .font(.headline)
                         .foregroundStyle(Color.ink)
                     Text(subtitle)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.tertiary)
                         .lineLimit(1)
                 }
+                .padding(.top, 2)
                 Spacer(minLength: 8)
                 Text(notice.relativeTime)
-                    .font(.subheadline)
+                    .font(.subheadline.weight(.medium))
                     .foregroundStyle(.tertiary)
-                    .frame(maxHeight: .infinity, alignment: .top)
+                    .padding(.top, 2)
             }
-            .fixedSize(horizontal: false, vertical: true)
 
-            Text(notice.title)
-                .font(.headline)
-                .foregroundStyle(notice.isUrgent ? Color.red : Color.ink)
-                .multilineTextAlignment(.leading)
-                .lineLimit(4)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(notice.title)
+                    .font(.headline)
+                    .foregroundStyle(notice.isUrgent ? Color.red : Color.ink)
+                    .lineLimit(4)
+                if !notice.summary.isEmpty {
+                    Text(notice.summary)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(4)
+                }
+            }
+            .multilineTextAlignment(.leading)
+
+            if let url = notice.imageURL {
+                NoticeImage(url: url)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 200)
+                    .clipShape(.rect(cornerRadius: 12))
+            }
         }
         // 跟學生無關的公告整則淡一點
         .opacity(notice.forStudents ? 1 : 0.5)
@@ -159,7 +225,25 @@ struct NoticeRow: View {
     }
 }
 
-/// 公告內頁：校網的 RSS 只有標題，所以這裡顯示標題、日期、分類，按「閱讀原文」看全文
+/// 公告裡的圖片：下載中顯示灰色底，載入失敗就整塊不顯示
+struct NoticeImage: View {
+    let url: URL
+
+    var body: some View {
+        AsyncImage(url: url) { phase in
+            switch phase {
+            case .success(let image):
+                image.resizable().scaledToFill()
+            case .failure:
+                Color.clear
+            default:
+                Color.paperChip
+            }
+        }
+    }
+}
+
+/// 公告內頁：照 Reeder 的文章頁
 struct NoticeDetailView: View {
     let notice: Notice
     @State private var showOriginal = false
@@ -168,13 +252,14 @@ struct NoticeDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 10) {
-                    SourceAvatar(source: notice.source, size: 30)
+                    SourceAvatar(source: notice.source, size: 34)
                     Text("hs.ntnu.edu.tw")
                         .font(.headline)
                         .foregroundStyle(Color.ink)
                 }
+                .padding(.bottom, 14)
 
                 Text(notice.title)
                     .font(.largeTitle.bold())
@@ -187,41 +272,50 @@ struct NoticeDetailView: View {
                 }
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
+                .padding(.top, 8)
 
-                if !notice.tags.isEmpty || !notice.forStudents {
+                if !notice.tags.isEmpty {
                     VStack(alignment: .leading, spacing: 6) {
                         ForEach(notice.tags, id: \.self) { tag in
                             Label(tag, systemImage: "circle.fill")
                                 .labelStyle(BulletLabelStyle())
-                                .foregroundStyle(Color.brand)
-                        }
-                        if !notice.forStudents {
-                            Label("爬蟲判斷這則跟學生無關", systemImage: "circle.fill")
-                                .labelStyle(BulletLabelStyle())
-                                .foregroundStyle(.secondary)
                         }
                     }
                     .font(.body.weight(.semibold))
-                    .padding(.top, 8)
+                    .foregroundStyle(Color.brand)
+                    .padding(.top, 24)
                 }
 
-                Button {
-                    showOriginal = true
-                } label: {
-                    Label("閱讀原文", systemImage: "safari")
+                if let imageURL = notice.imageURL {
+                    NoticeImage(url: imageURL)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 6)
+                        .frame(height: 220)
+                        .clipShape(.rect(cornerRadius: 12))
+                        .padding(.top, 24)
                 }
-                .buttonStyle(.glassProminent)
-                .tint(Color.brand)
-                .padding(.top, 16)
 
-                Text("校網的通知只提供標題，完整內容和附件要看原文。")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 14) {
+                    ForEach(Array(notice.content.split(separator: "\n").enumerated()), id: \.offset) { _, paragraph in
+                        Text(paragraph)
+                    }
+                    // 「原文」連結，跟 Reeder 一樣用主色
+                    Button { showOriginal = true } label: {
+                        Text("[原文]").fontWeight(.semibold)
+                    }
+                    .foregroundStyle(Color.brand)
+                    Text("附件和完整格式要看原文。")
+                        .font(.footnote)
+                        .foregroundStyle(.tertiary)
+                }
+                .font(.body)
+                .foregroundStyle(Color.ink.opacity(0.85))
+                .lineSpacing(5)
+                .textSelection(.enabled)
+                .padding(.top, 24)
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 22)
+            .padding(.top, 8)
+            .padding(.bottom, 40)
         }
         .background(Color.paper)
         .toolbar(removing: .title)
@@ -230,12 +324,11 @@ struct NoticeDetailView: View {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showOriginal = true } label: { Image(systemName: "safari") }
                         .accessibilityLabel("閱讀原文")
-                        .tint(Color.ink)
                     ShareLink(item: url) { Image(systemName: "square.and.arrow.up") }
-                        .tint(Color.ink)
                 }
             }
         }
+        .tint(Color.ink)
         .sheet(isPresented: $showOriginal) {
             if let url { SafariView(url: url).ignoresSafeArea() }
         }

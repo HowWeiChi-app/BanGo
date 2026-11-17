@@ -10,7 +10,7 @@ from export import load_notices, merge, save_notices
 from filters import KEYWORD_CATEGORIES, TOPICS, classify, should_push
 from notify_fcm import FCM_TOPICS, build_message
 from notice import Notice
-from parser import FetchError, ParseError, parse_rss
+from parser import FetchError, ParseError, html_to_text, parse_rss
 from notify_discord import MAX_LEN, build_messages, format_notice
 from store import TAIPEI, find_new, is_recent, load_seen, save_seen
 
@@ -116,6 +116,17 @@ class ParserTest(unittest.TestCase):
             with self.assertRaises(FetchError):
                 p.fetch("https://example.edu.tw/rss")
         self.assertEqual(len(calls), 3)
+
+    def test_html_to_text(self):
+        text, image = html_to_text(
+            '<p>一、報到時間：&nbsp;上午8時</p><p><img src="/static/a.png">'
+            '二、詳見<a href="https://x.tw">網站</a>。</p><p> </p>'
+        )
+        self.assertEqual(text, "一、報到時間： 上午8時\n二、詳見網站。")
+        self.assertEqual(image, "https://www.hs.ntnu.edu.tw/static/a.png")
+
+    def test_empty_description(self):
+        self.assertEqual(html_to_text(""), ("", ""))
 
     def test_broken_rss_raises(self):
         with self.assertRaises(ParseError):

@@ -12,6 +12,12 @@ struct Notice: Codable, Identifiable, Hashable {
     var categories: [String] = []
     var topics: [String] = []
     var forStudents: Bool = true  // false = 爬蟲判定跟學生無關（教師研習、標案…）
+    var content: String = ""  // 公告內文（純文字，段落用換行分開），舊資料可能是空的
+    var image: String = ""    // 內文裡第一張圖片的網址
+
+    /// 列表上的摘要：內文的前幾段接在一起
+    var summary: String { content.split(separator: "\n").joined(separator: " ") }
+    var imageURL: URL? { image.isEmpty ? nil : URL(string: image) }
 
     var id: String { url }
 
@@ -32,15 +38,15 @@ struct Notice: Codable, Identifiable, Hashable {
     /// 把 "2026-11-16 15:16"（台灣時間）轉成 Date，格式不對時是 nil
     var postedAt: Date? { Notice.dateParser.date(from: date) }
 
-    /// 列表右上角的時間，像 Reeder 一樣很短：「剛剛」「5 分」「3 小時」「2 天」，超過一週顯示「11/3」
+    /// 列表右上角的時間，跟 Reeder 一樣很短：「now」「5m」「3h」「2d」，超過一週顯示「11/3」
     var relativeTime: String {
         guard let posted = postedAt else { return "" }
         let minutes = max(0, Int(Date.now.timeIntervalSince(posted) / 60))
         switch minutes {
-        case ..<1: return "剛剛"
-        case ..<60: return "\(minutes) 分"
-        case ..<(60 * 24): return "\(minutes / 60) 小時"
-        case ..<(60 * 24 * 7): return "\(minutes / 60 / 24) 天"
+        case ..<1: return "now"
+        case ..<60: return "\(minutes)m"
+        case ..<(60 * 24): return "\(minutes / 60)h"
+        case ..<(60 * 24 * 7): return "\(minutes / 60 / 24)d"
         default:
             let parts = date.prefix(10).split(separator: "-").compactMap { Int($0) }
             return parts.count == 3 ? "\(parts[1])/\(parts[2])" : ""
@@ -64,7 +70,7 @@ struct Notice: Codable, Identifiable, Hashable {
     }()
 
     enum CodingKeys: String, CodingKey {
-        case title, date, url, dept, source, categories, topics
+        case title, date, url, dept, source, categories, topics, content, image
         case forStudents = "for_students"
     }
 
@@ -79,6 +85,8 @@ struct Notice: Codable, Identifiable, Hashable {
         categories = try c.decodeIfPresent([String].self, forKey: .categories) ?? []
         topics = try c.decodeIfPresent([String].self, forKey: .topics) ?? []
         forStudents = try c.decodeIfPresent(Bool.self, forKey: .forStudents) ?? true
+        content = try c.decodeIfPresent(String.self, forKey: .content) ?? ""
+        image = try c.decodeIfPresent(String.self, forKey: .image) ?? ""
     }
 
     init(title: String, date: String, url: String, source: String = "",
