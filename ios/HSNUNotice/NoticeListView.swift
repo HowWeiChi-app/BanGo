@@ -36,6 +36,7 @@ struct NoticeTimeline: View {
             .refreshable { await store.refresh() }
             .overlay { placeholder }
             .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar(removing: .title)  // 標題改放在左上角的膠囊裡
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -45,6 +46,7 @@ struct NoticeTimeline: View {
                             Text(subtitle).font(.caption).foregroundStyle(.secondary)
                         }
                         .lineLimit(1)
+                        .fixedSize()  // 不然工具列會把文字擠到看不見
                         Button {
                             if let first = notices.first {
                                 withAnimation { proxy.scrollTo(first.id, anchor: .top) }
@@ -53,6 +55,7 @@ struct NoticeTimeline: View {
                             Image(systemName: "arrow.up.circle")
                         }
                         .accessibilityLabel("回到最上面")
+                        .tint(Color.ink)
                     }
                     .padding(.horizontal, 6)
                 }
@@ -97,6 +100,7 @@ struct RefreshButton: View {
             }
         }
         .disabled(store.isLoading)
+        .tint(Color.ink)  // 工具列圖示用深灰色，跟 Reeder 一樣
         .accessibilityLabel("重新整理")
     }
 }
@@ -218,7 +222,9 @@ struct NoticeDetailView: View {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showOriginal = true } label: { Image(systemName: "safari") }
                         .accessibilityLabel("閱讀原文")
+                        .tint(Color.ink)
                     ShareLink(item: url) { Image(systemName: "square.and.arrow.up") }
+                        .tint(Color.ink)
                 }
             }
         }

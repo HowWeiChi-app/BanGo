@@ -77,6 +77,7 @@ struct AllNoticesView: View {
             .background(Color.paper)
             .foregroundStyle(Color.ink)
             .navigationTitle("全部公告")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar(removing: .title)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -86,6 +87,7 @@ struct AllNoticesView: View {
                         Image(systemName: "switch.2")
                     }
                     .accessibilityLabel("顯示選項")
+                    .tint(Color.ink)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     RefreshButton()
