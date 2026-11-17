@@ -83,7 +83,8 @@ struct NoticeImage: View {
     }
 }
 
-/// 全螢幕看圖：黑底，可以兩指縮放、點兩下放大，往下拉或按 X 關閉。
+/// 全螢幕看圖：畫面上只有圖片，純黑底，沒有任何按鈕。
+/// 兩指縮放、點兩下放大；點一下或往下拉關閉。
 /// 打開和關閉的動畫是系統的 zoom 轉場（在 ContentView 設定），不是從下面彈出的卡片。
 struct ImageViewer: View {
     let url: URL
@@ -97,7 +98,7 @@ struct ImageViewer: View {
     }
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
+        ZStack {
             Color.black.ignoresSafeArea()
 
             if let image {
@@ -108,26 +109,10 @@ struct ImageViewer: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
 
-            HStack {
-                Button { dismiss() } label: {
-                    Image(systemName: "xmark")
-                        .font(.title3.weight(.semibold))
-                        .frame(width: 30, height: 30)
-                }
-                .accessibilityLabel("關閉")
-                Spacer()
-                ShareLink(item: url) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.title3.weight(.semibold))
-                        .frame(width: 30, height: 30)
-                }
-            }
-            .buttonStyle(.glass)  // 官方的 Liquid Glass 按鈕
-            .tint(.white)
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
         }
         .statusBarHidden()
+        .persistentSystemOverlays(.hidden)  // 連下方的橫條也藏起來，只剩圖片
+        .accessibilityAction(.escape) { dismiss() }  // 用 VoiceOver 時兩指畫 Z 關閉
         .task { if image == nil { image = await ImageCache.shared.load(url) } }
     }
 }
@@ -142,6 +127,7 @@ private struct ZoomableImage: UIViewRepresentable {
     func makeUIView(context: Context) -> ZoomScrollView {
         let view = ZoomScrollView(image: image)
         view.delegate = context.coordinator
+        view.onSingleTap = onDismiss
         return view
     }
 
@@ -174,6 +160,8 @@ private final class ZoomScrollView: UIScrollView {
     let imageView: UIImageView
     private var lastBoundsSize: CGSize = .zero
 
+    var onSingleTap: () -> Void = {}
+
     init(image: UIImage) {
         imageView = UIImageView(image: image)
         super.init(frame: .zero)
@@ -190,6 +178,11 @@ private final class ZoomScrollView: UIScrollView {
         let doubleTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
         doubleTap.numberOfTapsRequired = 2
         addGestureRecognizer(doubleTap)
+
+        // 點一下關閉；要等確定不是點兩下才算點一下
+        let singleTap = UITapGestureRecognizer(target: self, action: #selector(handleSingleTap))
+        singleTap.require(toFail: doubleTap)
+        addGestureRecognizer(singleTap)
     }
 
     required init?(coder: NSCoder) { fatalError("不支援從 storyboard 建立") }
@@ -208,6 +201,8 @@ private final class ZoomScrollView: UIScrollView {
         let vertical = max(0, (bounds.height - imageView.frame.height) / 2)
         contentInset = UIEdgeInsets(top: vertical, left: horizontal, bottom: vertical, right: horizontal)
     }
+
+    @objc private func handleSingleTap() { onSingleTap() }
 
     @objc private func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
         if zoomScale > minimumZoomScale {
