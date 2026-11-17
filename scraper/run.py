@@ -72,7 +72,14 @@ def main() -> int:
 
     if to_send:
         if webhook:
-            send(webhook, to_send)
+            try:
+                send(webhook, to_send)
+            except Exception as e:
+                # 不存檔就結束：這幾則還是「沒看過」，下次排程會再發一次
+                # （GitHub 會自動把 webhook 網址遮掉，這裡也只印錯誤種類，不印網址）
+                print(f"Discord 發送失敗，下次排程會再試：{type(e).__name__} {getattr(e, 'code', '')}",
+                      file=sys.stderr)
+                return 1
         else:
             print("（沒設定 DISCORD_WEBHOOK_URL，只印出內容）")
             for msg in build_messages(to_send):
