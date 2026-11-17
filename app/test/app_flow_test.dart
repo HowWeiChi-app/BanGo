@@ -70,9 +70,12 @@ void main() {
     // 到設定打開「獎學金」
     await tester.tap(_navTab('設定'));
     await tester.pumpAndSettle();
-    expect(find.text('2026-11-17 13:06'), findsOneWidget); // 資料更新時間
     await tester.tap(find.widgetWithText(SwitchListTile, '獎學金'));
     await tester.pumpAndSettle();
+
+    // 「資料更新時間」在設定頁下面，要先捲下去才看得到
+    await tester.scrollUntilVisible(find.text('2026-11-17 13:06'), 200);
+    expect(find.text('2026-11-17 13:06'), findsOneWidget);
 
     // 回「我的公告」，獎學金公告出現了
     await tester.tap(_navTab('我的公告'));
