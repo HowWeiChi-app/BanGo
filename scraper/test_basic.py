@@ -3,13 +3,14 @@
 import tempfile
 import unittest
 from datetime import datetime
+from unittest import mock
 from pathlib import Path
 
 from export import load_notices, merge, save_notices
 from filters import KEYWORD_CATEGORIES, TOPICS, classify, should_push
 from notify_fcm import FCM_TOPICS, build_message
 from notice import Notice
-from parser import ParseError, parse_rss
+from parser import FetchError, ParseError, parse_rss
 from notify_discord import MAX_LEN, build_messages, format_notice
 from store import TAIPEI, find_new, is_recent, load_seen, save_seen
 
@@ -97,6 +98,20 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(notices[1].date, "2026-11-16 15:16")
         self.assertEqual(notices[1].source, "重要公告")
         self.assertTrue(notices[1].url.startswith("https://www.hs.ntnu.edu.tw/content?a="))
+
+    def test_fetch_retries_then_gives_up(self):
+        import parser as p
+        calls = []
+
+        def always_fail(req, timeout):
+            calls.append(1)
+            raise OSError("連線逾時")
+
+        with mock.patch.object(p.urllib.request, "urlopen", always_fail), \
+                mock.patch.object(p.time, "sleep", lambda s: None):  # 測試時不要真的等
+            with self.assertRaises(FetchError):
+                p.fetch("https://example.edu.tw/rss")
+        self.assertEqual(len(calls), 3)
 
     def test_broken_rss_raises(self):
         with self.assertRaises(ParseError):

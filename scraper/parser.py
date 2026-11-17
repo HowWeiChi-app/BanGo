@@ -5,6 +5,7 @@
 """
 
 import html
+import time
 import urllib.request
 import xml.etree.ElementTree as ET
 
@@ -32,10 +33,23 @@ class ParseError(Exception):
     """RSS 格式跟預期不同，通常代表校網改版了。"""
 
 
+class FetchError(Exception):
+    """校網連不上（重試幾次都失敗）。通常是校網暫時當機，過一陣子會自己好。"""
+
+
+RETRY_WAIT = [5, 15]  # 失敗後分別等幾秒再試；總共試 3 次
+
+
 def fetch(url: str) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(req, timeout=20) as resp:
-        return resp.read()
+    for attempt in range(len(RETRY_WAIT) + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=20) as resp:
+                return resp.read()
+        except OSError as e:  # 連線失敗、逾時、HTTP 錯誤（例如 500）都算
+            if attempt == len(RETRY_WAIT):
+                raise FetchError(f"試了 {attempt + 1} 次都連不上校網（{e}）") from e
+            time.sleep(RETRY_WAIT[attempt])
 
 
 def parse_rss(xml_bytes: bytes, source: str) -> list[Notice]:

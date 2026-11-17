@@ -12,7 +12,7 @@ from export import load_notices, merge, save_notices
 from filters import KEYWORD_CATEGORIES, TOPICS, classify, should_push
 import notify_fcm
 from notify_discord import build_messages, post, send
-from parser import ParseError, fetch_all
+from parser import FetchError, ParseError, fetch_all
 from store import find_new, is_recent, load_seen, save_seen
 
 SEEN_PATH = Path(__file__).parent / "data" / "seen.json"
@@ -45,6 +45,9 @@ def main() -> int:
         notices = fetch_all()
     except ParseError as e:
         print(f"解析失敗，可能是校網改版：{e}", file=sys.stderr)
+        return 1
+    except FetchError as e:
+        print(f"{e}。這次先跳過，下次排程會再試。", file=sys.stderr)
         return 1
     for n in notices:
         classify(n)

@@ -8,7 +8,7 @@
 import sys
 
 from filters import TOPICS, classify
-from parser import ParseError, fetch_all
+from parser import FetchError, ParseError, fetch_all
 
 
 def main() -> int:
@@ -22,6 +22,10 @@ def main() -> int:
     except ParseError as e:
         print(f"解析失敗，可能是校網改版：{e}", file=sys.stderr)
         return 1  # 非 0 代表失敗，之後 GitHub Actions 會因此寄信通知開發者
+    except FetchError as e:
+        # Mac 上看到 CERTIFICATE_VERIFY_FAILED：指令前面加 SSL_CERT_FILE=/etc/ssl/cert.pem（見 README）
+        print(e, file=sys.stderr)
+        return 1
 
     for n in notices:
         classify(n)
