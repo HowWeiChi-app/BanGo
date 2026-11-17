@@ -1,7 +1,9 @@
 // 公告內頁下面的「參考資料」（附件）和「參考網站」。
-// RSS 裡沒有這兩塊，所以打開內頁時才去抓校網那一頁，從 HTML 裡找出來：
-//   <div class="file_odd"><h3>參考資料</h3> … <a class="download_btn …" href="/static/webroot/….pdf" download="檔名.pdf">
-//   <div class="link_odd"><h3>參考網站</h3> … <a href="https://…" title="名稱">名稱</a>
+// RSS 裡沒有（或不完整），所以打開內頁時才去抓校網那一頁，從 HTML 裡找出來。各校的系統不一樣：
+//   師大附中   <div class="file_odd"><h3>參考資料</h3> … <a class="download_btn …" href="/static/webroot/….pdf" download="檔名.pdf">
+//              <div class="link_odd"><h3>參考網站</h3> … <a href="https://…" title="名稱">名稱</a>
+//   建中（NSS）  附件標題 {{ $t('FEZ012') }} 底下，一個檔案一顆按鈕：<button …><a href="/uploads/….pdf"><span><svg…/> 檔名.pdf</span></a>
+//   北一女、成功、中山（WordPress）  內文裡 <ul class="nojs_modal_list"><li><a href="https://…/wp-content/uploads/….pdf">檔名.pdf</a>
 // 附件在背景下載，PDF 每一頁畫成圖片直接放在頁面上（點了可以放大）；圖片附件直接顯示。
 
 import SwiftUI
@@ -103,7 +105,12 @@ nonisolated final class PDFPages: @unchecked Sendable {
 actor ExtrasLoader {
     static let shared = ExtrasLoader()
 
-    private static let base = URL(string: "https://www.hs.ntnu.edu.tw/")!
+    /// 看得懂附件格式的學校（校網網址）
+    nonisolated static func supports(_ pageURL: String) -> Bool {
+        guard let host = URL(string: pageURL)?.host() else { return false }
+        return ["www.hs.ntnu.edu.tw", "www.ck.tp.edu.tw", "www.fg.tp.edu.tw", "www.cksh.tp.edu.tw", "www.csghs.tp.edu.tw"]
+            .contains(host)
+    }
     private static let maxFileBytes = 15_000_000
 
     private var pages: [String: PageExtras] = [:]
@@ -122,7 +129,7 @@ actor ExtrasLoader {
         guard let url = URL(string: pageURL),
               let (data, _) = try? await session.data(from: url),
               let html = String(data: data, encoding: .utf8) else { return nil }
-        let result = Self.parse(html)
+        let result = Self.parse(html, page: url)
         pages[pageURL] = result
         return result
     }
@@ -145,7 +152,16 @@ actor ExtrasLoader {
 
     // MARK: - 解析 HTML
 
-    nonisolated static func parse(_ html: String) -> PageExtras {
+    nonisolated static func parse(_ html: String, page: URL) -> PageExtras {
+        switch page.host() {
+        case "www.hs.ntnu.edu.tw": parseHSNU(html, base: page)
+        case "www.ck.tp.edu.tw": parseNSS(html, base: page)
+        default: parseWordPress(html, base: page)
+        }
+    }
+
+    /// 師大附中：參考資料、參考網站兩塊
+    private nonisolated static func parseHSNU(_ html: String, base: URL) -> PageExtras {
         var extras = PageExtras()
         if let block = section(html, className: "file_odd") {
             for tag in block.matches(of: /<a\b[^>]*download_btn[^>]*>/) {
@@ -161,13 +177,61 @@ actor ExtrasLoader {
                 let attrs = String(match.output.1)
                 guard let href = attribute("href", in: attrs),
                       let url = URL(string: decode(href), relativeTo: base)?.absoluteURL else { continue }
-                let text = decode(String(match.output.2).replacing(/<[^>]+>/, with: ""))
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                let text = plainText(String(match.output.2))
                 let title = text.isEmpty ? (attribute("title", in: attrs).map(decode) ?? url.absoluteString) : text
                 extras.links.append(RefLink(title: title, url: url))
             }
         }
         return extras
+    }
+
+    /// 建中（NSS）：附件標題 FEZ012、相關連結標題 FEZ013，兩塊在同一條 <hr> 之前；每個 <a> 是一個檔案／連結
+    private nonisolated static func parseNSS(_ html: String, base: URL) -> PageExtras {
+        var extras = PageExtras()
+        let fileMark = html.range(of: "FEZ012"), linkMark = html.range(of: "FEZ013")
+        guard let first = [fileMark, linkMark].compactMap({ $0 }).min(by: { $0.lowerBound < $1.lowerBound }),
+              let end = html.range(of: "<hr", range: first.upperBound..<html.endIndex) else { return extras }
+        if let fileMark, fileMark.upperBound < end.lowerBound {
+            let stop = linkMark.map { $0.lowerBound > fileMark.upperBound ? min($0.lowerBound, end.lowerBound) : end.lowerBound }
+                ?? end.lowerBound
+            extras.files = files(in: html[fileMark.upperBound..<stop], base: base)
+        }
+        if let linkMark, linkMark.upperBound < end.lowerBound {
+            extras.links = files(in: html[linkMark.upperBound..<end.lowerBound], base: base)
+                .map { RefLink(title: $0.name, url: $0.url) }
+        }
+        return extras
+    }
+
+    /// WordPress 三校：每個附件一個 <ul class="nojs_modal_list">（沒開 JavaScript 時顯示的清單，裡面就是下載連結）
+    private nonisolated static func parseWordPress(_ html: String, base: URL) -> PageExtras {
+        var extras = PageExtras()
+        var rest = html[...]
+        while let start = rest.range(of: "nojs_modal_list"),
+              let end = rest.range(of: "</ul>", range: start.upperBound..<rest.endIndex) {
+            extras.files += files(in: rest[start.upperBound..<end.lowerBound], base: base)
+            rest = rest[end.upperBound...]
+        }
+        // 同一個檔案可能出現兩次，去掉重複的
+        var seen = Set<URL>()
+        extras.files = extras.files.filter { seen.insert($0.url).inserted }
+        return extras
+    }
+
+    /// 一段 HTML 裡的每個 <a href>：連結 → 附件，連結文字（沒有就用網址最後一段）→ 檔名
+    private nonisolated static func files(in block: Substring, base: URL) -> [Attachment] {
+        block.matches(of: /<a\b([^>]*)>(.*?)<\/a>/.dotMatchesNewlines()).compactMap { match in
+            guard let href = attribute("href", in: String(match.output.1)),
+                  let url = URL(string: decode(href), relativeTo: base)?.absoluteURL else { return nil }
+            let text = plainText(String(match.output.2))
+            return Attachment(name: text.isEmpty ? url.lastPathComponent : text, url: url)
+        }
+    }
+
+    /// 拿掉標籤（含 <svg> 圖示）、轉回特殊符號、去掉前後空白
+    private nonisolated static func plainText(_ html: String) -> String {
+        decode(html.replacing(/<svg.*?<\/svg>/.dotMatchesNewlines(), with: "").replacing(/<[^>]+>/, with: ""))
+            .split(whereSeparator: \.isWhitespace).joined(separator: " ")
     }
 
     /// 從 <div class="名稱"> 到它後面第一個 </ul>（兩塊裡面都只有一個清單）
@@ -192,6 +256,10 @@ actor ExtrasLoader {
             .replacingOccurrences(of: "&lt;", with: "<")
             .replacingOccurrences(of: "&gt;", with: ">")
             .replacingOccurrences(of: "&nbsp;", with: " ")
+            // &#8211; 這種數字編號的符號
+            .replacing(/&#(\d+);/) { match in
+                Int(match.output.1).flatMap(UnicodeScalar.init).map { String(Character($0)) } ?? ""
+            }
     }
 }
 

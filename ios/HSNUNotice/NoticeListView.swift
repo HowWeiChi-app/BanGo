@@ -494,9 +494,9 @@ private struct NoticeArticle: View, Equatable {
                 .textSelection(.enabled)
                 .padding(.top, 24)
 
-                // 校網內頁的「參考資料」（PDF 每頁直接放上來）和「參考網站」。
-                // 只有附中的內頁格式看得懂；其他學校的附件連結在內文裡
-                if URL(string: notice.url)?.host() == "www.hs.ntnu.edu.tw" {
+                // 校網內頁的附件（PDF 每頁直接放上來）和參考網站。
+                // 五間學校的內頁格式都看得懂（ExtrasLoader.supports）
+                if ExtrasLoader.supports(notice.url) {
                     NoticeExtrasView(pageURL: notice.url)
                 }
             }
