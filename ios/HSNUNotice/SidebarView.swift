@@ -64,7 +64,7 @@ struct SidebarView: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .background(Color.paper)
+        .paperBackground()
         .foregroundStyle(Color.ink)
         .navigationTitle("附中公告")
         .navigationBarTitleDisplayMode(.inline)

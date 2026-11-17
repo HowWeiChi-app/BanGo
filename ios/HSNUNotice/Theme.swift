@@ -79,3 +79,14 @@ enum TagStyle {
         }
     }
 }
+
+extension View {
+    /// 米白紙張底色，連上下的安全區域（瀏海、底部橫條那邊）一起蓋滿。
+    /// containerBackground(for: .navigation) 是系統導覽容器自己的底色，
+    /// 沒設的話換頁、往右滑返回時，邊緣會露出系統預設的白色。
+    func paperBackground() -> some View {
+        self
+            .background { Color.paper.ignoresSafeArea() }
+            .containerBackground(Color.paper, for: .navigation)
+    }
+}

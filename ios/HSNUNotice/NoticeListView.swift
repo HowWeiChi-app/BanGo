@@ -53,7 +53,7 @@ struct NoticeTimeline: View {
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
-            .background(Color.paper)
+            .paperBackground()
             .refreshable { await store.refresh() }
             .overlay { placeholder }
             .modifier(SearchIfNeeded(active: $searching, query: $query))
@@ -309,7 +309,7 @@ struct NoticeDetailView: View {
             .padding(.top, 8)
             .padding(.bottom, 40)
         }
-        .background(Color.paper)
+        .paperBackground()
         .toolbar(removing: .title)
         .toolbar {
             if let url {

@@ -9,20 +9,63 @@
 import SwiftUI
 import UIKit
 
-/// 下載過的圖片暫存在記憶體（App 關掉就清掉）
+/// 一張下載好的圖片：放大用的原圖，和列表用的縮小版
+final class LoadedImage {
+    let full: UIImage       // 原圖（已經解壓好，放大時直接用）
+    let thumbnail: UIImage  // 縮小到寬 1000 像素，列表和內頁用
+
+    init(full: UIImage, thumbnail: UIImage) {
+        self.full = full
+        self.thumbnail = thumbnail
+    }
+
+    /// 寬除以高
+    var ratio: CGFloat { full.size.width / max(full.size.height, 1) }
+}
+
+/// 下載過的圖片暫存在記憶體（App 關掉就清掉）。
+///
+/// 校網的圖片很大（例如 2481×3508 像素，解壓後一張 35MB），直接顯示會讓捲動很卡。
+/// 所以下載後在背景執行緒先解壓好，再做一張縮小版給列表用，主執行緒只負責顯示。
 final class ImageCache {
     static let shared = ImageCache()
-    private let cache = NSCache<NSURL, UIImage>()
+    private let cache = NSCache<NSURL, LoadedImage>()
 
-    func cached(_ url: URL) -> UIImage? { cache.object(forKey: url as NSURL) }
-
-    func load(_ url: URL) async -> UIImage? {
-        if let image = cached(url) { return image }
-        guard let (data, _) = try? await URLSession.shared.data(from: url),
-              let image = UIImage(data: data) else { return nil }
-        cache.setObject(image, forKey: url as NSURL)
-        return image
+    init() {
+        cache.totalCostLimit = 150 * 1024 * 1024  // 最多佔 150MB 記憶體，超過會自動丟掉舊的
     }
+
+    func cached(_ url: URL) -> LoadedImage? { cache.object(forKey: url as NSURL) }
+
+    func load(_ url: URL) async -> LoadedImage? {
+        if let loaded = cached(url) { return loaded }
+        guard let (data, _) = try? await URLSession.shared.data(from: url),
+              let loaded = await Self.decode(data) else { return nil }
+        let pixels = loaded.full.size.width * loaded.full.size.height * loaded.full.scale * loaded.full.scale
+        cache.setObject(loaded, forKey: url as NSURL, cost: Int(pixels) * 4)
+        return loaded
+    }
+
+    /// 在背景執行緒解壓圖片、做縮小版（@concurrent：不要在主執行緒跑）
+    @concurrent
+    nonisolated private static func decode(_ data: Data) async -> LoadedImage? {
+        guard let image = UIImage(data: data) else { return nil }
+        let full = image.preparingForDisplay() ?? image
+        let width = image.size.width * image.scale
+        let thumbnail: UIImage
+        if width > 1000 {
+            let size = CGSize(width: 1000, height: image.size.height * image.scale * 1000 / width)
+            thumbnail = image.preparingThumbnail(of: size) ?? full
+        } else {
+            thumbnail = full
+        }
+        return LoadedImage(full: full, thumbnail: thumbnail)
+    }
+}
+
+/// 記住圖片在螢幕上的位置。用 class 存，改了不會讓畫面重畫（捲動時位置每一幀都在變）
+final class FrameTracker {
+    var rect: CGRect = .zero
 }
 
 /// 正在放大的圖片：哪一張、從畫面上哪個位置放大
@@ -39,30 +82,30 @@ struct NoticeImage: View {
     let url: URL
     var cropTall = false
 
-    @State private var image: UIImage?
+    @State private var image: LoadedImage?
     @State private var failed = false
-    @State private var frame: CGRect = .zero   // 目前在螢幕上的位置，放大時從這裡開始
+    @State private var tracker = FrameTracker()  // 目前在螢幕上的位置，放大時從這裡開始
     @State private var id = UUID()
 
     var body: some View {
         Group {
             if let image {
-                let ratio = image.size.width / max(image.size.height, 1)
+                let ratio = image.ratio
                 // 先用原比例（或裁切後的比例）佔好位置，圖片疊在上面、從上面對齊，多的裁掉
                 Color.paperChip
                     .aspectRatio(cropTall ? max(ratio, 3.0 / 4.0) : ratio, contentMode: .fit)
                     .frame(maxWidth: .infinity)
                     .overlay(alignment: .top) {
-                        Image(uiImage: image).resizable().scaledToFill()
+                        Image(uiImage: image.thumbnail).resizable().scaledToFill()
                     }
                     .clipShape(.rect(cornerRadius: 12))
-                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame = $0 }
+                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { tracker.rect = $0 }
                     // 放大的時候原位置的圖片先藏起來
                     .opacity(router.zoomed?.sourceID == id ? 0 : 1)
                     .contentShape(.rect)
                     // 用 highPriorityGesture：圖片在可以點的公告裡面，點圖片時只放大，不要進到內頁
                     .highPriorityGesture(TapGesture().onEnded {
-                        router.zoomed = ZoomedImage(sourceID: id, image: image, from: frame)
+                        router.zoomed = ZoomedImage(sourceID: id, image: image.full, from: tracker.rect)
                     })
                     .accessibilityAddTraits(.isButton)
                     .accessibilityLabel("公告圖片，點兩下放大")

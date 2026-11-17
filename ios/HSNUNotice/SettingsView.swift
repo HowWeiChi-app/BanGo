@@ -53,7 +53,7 @@ struct SettingsView: View {
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
-            .background(Color.paper)
+            .paperBackground()
             .foregroundStyle(Color.ink)
             .navigationTitle("設定")
             .toolbar {
