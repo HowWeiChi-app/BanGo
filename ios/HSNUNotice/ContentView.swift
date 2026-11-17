@@ -9,7 +9,7 @@ import SwiftUI
 @Observable
 final class Router {
     var path: NavigationPath
-    var zoomed: ZoomedImage?  // 正在全螢幕看的圖片，任何頁面點圖片都設定這個
+    var zoomed: ZoomedImage?  // 正在放大的圖片，任何頁面點圖片都設定這個
 
     init() {
         // 打開 App 時直接停在「我的公告」
@@ -24,17 +24,20 @@ struct ContentView: View {
     @State private var selected: NoticeFilter = .mine
 
     var body: some View {
-        NavigationStack(path: $router.path) {
-            SidebarView(path: $router.path, selected: $selected)
+        ZStack {
+            NavigationStack(path: $router.path) {
+                SidebarView(path: $router.path, selected: $selected)
+            }
+            // 點圖片放大：直接蓋在 App 最上面，不是打開新畫面
+            if let zoomed = router.zoomed {
+                ImageOverlay(zoomed: zoomed) { router.zoomed = nil }
+            }
         }
+        .statusBarHidden(router.zoomed != nil)
+        .persistentSystemOverlays(router.zoomed != nil ? .hidden : .automatic)
         .tint(Color.brand)
         .environment(store)
         .environment(router)
-        .fullScreenCover(item: $router.zoomed) { zoomed in
-            ImageViewer(url: zoomed.url)
-                // 官方的縮放轉場：從被點的圖片位置放大，不是從下面彈出卡片
-                .navigationTransition(.zoom(sourceID: zoomed.url, in: zoomed.namespace))
-        }
         .task { await store.refresh() }
     }
 }

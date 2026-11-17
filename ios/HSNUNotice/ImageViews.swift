@@ -1,7 +1,10 @@
-// 公告裡的圖片：照原比例顯示、點了全螢幕放大。
+// 公告裡的圖片：照原比例顯示、點了直接在畫面上放大。
 //
 // 系統的 AsyncImage 拿不到圖片原本的寬高，所以自己下載：拿到 UIImage 就知道寬高比，
-// 下載過的圖片存在記憶體裡，列表和內頁、放大畫面共用，不會重複下載。
+// 下載過的圖片存在記憶體裡，列表和內頁共用，不會重複下載。
+//
+// 放大不是打開新畫面：App 最上層蓋一層（ImageOverlay），黑底淡入，
+// 圖片從它在列表裡的位置和大小，用動畫變大到全螢幕；關閉時再縮回原位。
 
 import SwiftUI
 import UIKit
@@ -14,7 +17,6 @@ final class ImageCache {
     func cached(_ url: URL) -> UIImage? { cache.object(forKey: url as NSURL) }
 
     func load(_ url: URL) async -> UIImage? {
-        // 放大畫面打開時，圖片通常已經下載過了，直接拿暫存的
         if let image = cached(url) { return image }
         guard let (data, _) = try? await URLSession.shared.data(from: url),
               let image = UIImage(data: data) else { return nil }
@@ -23,15 +25,14 @@ final class ImageCache {
     }
 }
 
-/// 要放大的圖片（給 fullScreenCover 用，需要 Identifiable）。
-/// namespace 是被點的那張圖片自己的，放大畫面要用同一個，系統才知道要從哪裡放大、縮回哪裡。
-struct ZoomedImage: Identifiable {
-    let url: URL
-    let namespace: Namespace.ID
-    var id: URL { url }
+/// 正在放大的圖片：哪一張、從畫面上哪個位置放大
+struct ZoomedImage {
+    let sourceID: UUID      // 被點的那個圖片元件，放大時把它藏起來，看起來像圖片被拿起來
+    let image: UIImage
+    let from: CGRect        // 圖片在螢幕上的位置（整個螢幕的座標）
 }
 
-/// 公告裡的圖片，照原比例顯示，點了全螢幕放大。
+/// 公告裡的圖片，照原比例顯示，點了就地放大。
 /// cropTall = true（時間軸）：太長的直式圖最多顯示到 3:4，下面多的裁掉；內頁則顯示完整圖片。
 struct NoticeImage: View {
     @Environment(Router.self) private var router
@@ -40,7 +41,8 @@ struct NoticeImage: View {
 
     @State private var image: UIImage?
     @State private var failed = false
-    @Namespace private var zoom
+    @State private var frame: CGRect = .zero   // 目前在螢幕上的位置，放大時從這裡開始
+    @State private var id = UUID()
 
     var body: some View {
         Group {
@@ -54,12 +56,13 @@ struct NoticeImage: View {
                         Image(uiImage: image).resizable().scaledToFill()
                     }
                     .clipShape(.rect(cornerRadius: 12))
-                    // 官方的縮放轉場：點了之後圖片從這個位置直接放大成全螢幕，關掉時縮回這裡
-                    .matchedTransitionSource(id: url, in: zoom) { $0.clipShape(.rect(cornerRadius: 12)) }
+                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame = $0 }
+                    // 放大的時候原位置的圖片先藏起來
+                    .opacity(router.zoomed?.sourceID == id ? 0 : 1)
                     .contentShape(.rect)
                     // 用 highPriorityGesture：圖片在可以點的公告裡面，點圖片時只放大，不要進到內頁
                     .highPriorityGesture(TapGesture().onEnded {
-                        router.zoomed = ZoomedImage(url: url, namespace: zoom)
+                        router.zoomed = ZoomedImage(sourceID: id, image: image, from: frame)
                     })
                     .accessibilityAddTraits(.isButton)
                     .accessibilityLabel("公告圖片，點兩下放大")
@@ -83,59 +86,88 @@ struct NoticeImage: View {
     }
 }
 
-/// 全螢幕看圖：畫面上只有圖片，純黑底，沒有任何按鈕。
-/// 兩指縮放、點兩下放大；點一下或往下拉關閉。
-/// 打開和關閉的動畫是系統的 zoom 轉場（在 ContentView 設定），不是從下面彈出的卡片。
-struct ImageViewer: View {
-    let url: URL
-    @Environment(\.dismiss) private var dismiss
-    @State private var image: UIImage?
+/// 放大中的圖片：蓋在整個 App 最上面，只有圖片和純黑底。
+/// 兩指縮放、點兩下放大；點一下或往下拉就縮回原位。
+struct ImageOverlay: View {
+    let zoomed: ZoomedImage
+    let onClosed: () -> Void
 
-    init(url: URL) {
-        self.url = url
-        // 先拿暫存的圖片，放大動畫一開始就有圖，不會先閃一下轉圈圈
-        _image = State(initialValue: ImageCache.shared.cached(url))
-    }
+    @State private var expanded = false     // false = 在列表裡的位置，true = 全螢幕
+    @State private var interactive = false  // 放大動畫結束後才換成可以縮放的版本
+    @State private var pull: CGFloat = 0    // 往下拉了多少，黑底跟著變淡
 
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
+        GeometryReader { geo in
+            let target = fitted(zoomed.image.size, in: geo.size).offsetBy(dx: 0, dy: pull)
+            let rect = expanded ? target : zoomed.from
 
-            if let image {
-                ZoomableImage(image: image) { dismiss() }
-                    .ignoresSafeArea()
-            } else {
-                ProgressView().tint(.white)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            ZStack(alignment: .topLeading) {
+                Color.black
+                    .opacity(expanded ? 1 - min(abs(pull) / 400, 0.6) : 0)
+
+                if interactive {
+                    ZoomableImage(image: zoomed.image, onTap: close, onPull: { pull = $0 }, onPullRelease: close)
+                } else {
+                    // 動畫用的圖片：位置、大小、圓角從列表裡的樣子變成全螢幕
+                    Image(uiImage: zoomed.image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: rect.width, height: rect.height, alignment: .top)
+                        .clipShape(.rect(cornerRadius: expanded ? 0 : 12))
+                        .offset(x: rect.minX, y: rect.minY)
+                }
             }
-
         }
-        .statusBarHidden()
-        .persistentSystemOverlays(.hidden)  // 連下方的橫條也藏起來，只剩圖片
-        .accessibilityAction(.escape) { dismiss() }  // 用 VoiceOver 時兩指畫 Z 關閉
-        .task { if image == nil { image = await ImageCache.shared.load(url) } }
+        .ignoresSafeArea()
+        .accessibilityAction(.escape) { close() }  // 用 VoiceOver 時兩指畫 Z 關閉
+        .onAppear {
+            withAnimation(.spring(duration: 0.38, bounce: 0.12)) {
+                expanded = true
+            } completion: {
+                interactive = true
+            }
+        }
+    }
+
+    private func close() {
+        interactive = false
+        withAnimation(.spring(duration: 0.32)) {
+            expanded = false
+            pull = 0
+        } completion: {
+            onClosed()
+        }
+    }
+
+    /// 照原比例塞進螢幕的大小，置中
+    private func fitted(_ size: CGSize, in screen: CGSize) -> CGRect {
+        let scale = min(screen.width / size.width, screen.height / size.height)
+        let w = size.width * scale, h = size.height * scale
+        return CGRect(x: (screen.width - w) / 2, y: (screen.height - h) / 2, width: w, height: h)
     }
 }
 
 /// 可以縮放的圖片。用系統的 UIScrollView 做縮放，手感跟「照片」App 一樣。
 private struct ZoomableImage: UIViewRepresentable {
     let image: UIImage
-    let onDismiss: () -> Void
+    let onTap: () -> Void
+    let onPull: (CGFloat) -> Void
+    let onPullRelease: () -> Void
 
-    func makeCoordinator() -> Coordinator { Coordinator(onDismiss: onDismiss) }
+    func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
 
     func makeUIView(context: Context) -> ZoomScrollView {
         let view = ZoomScrollView(image: image)
         view.delegate = context.coordinator
-        view.onSingleTap = onDismiss
+        view.onSingleTap = onTap
         return view
     }
 
     func updateUIView(_ view: ZoomScrollView, context: Context) {}
 
     final class Coordinator: NSObject, UIScrollViewDelegate {
-        let onDismiss: () -> Void
-        init(onDismiss: @escaping () -> Void) { self.onDismiss = onDismiss }
+        let parent: ZoomableImage
+        init(parent: ZoomableImage) { self.parent = parent }
 
         func viewForZooming(in scrollView: UIScrollView) -> UIView? {
             (scrollView as? ZoomScrollView)?.imageView
@@ -145,12 +177,22 @@ private struct ZoomableImage: UIViewRepresentable {
             scrollView.setNeedsLayout()
         }
 
-        /// 沒有放大時往下拉超過一段距離（或往下甩）就關閉
+        private func pulled(_ scrollView: UIScrollView) -> CGFloat {
+            guard scrollView.zoomScale <= scrollView.minimumZoomScale + 0.01 else { return 0 }
+            return -(scrollView.contentOffset.y + scrollView.contentInset.top)
+        }
+
+        /// 沒放大時往上下拉，告訴外面拉了多少（黑底跟著變淡）
+        func scrollViewDidScroll(_ scrollView: UIScrollView) {
+            parent.onPull(pulled(scrollView))
+        }
+
+        /// 放手時拉得夠遠（或甩得夠快）就縮回原位
         func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint,
                                        targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-            let pulledDown = scrollView.contentOffset.y + scrollView.adjustedContentInset.top
-            if scrollView.zoomScale <= scrollView.minimumZoomScale + 0.01 && (pulledDown < -90 || velocity.y < -1.8) {
-                onDismiss()
+            let distance = pulled(scrollView)
+            if abs(distance) > 90 || (scrollView.zoomScale <= scrollView.minimumZoomScale + 0.01 && abs(velocity.y) > 1.8) {
+                parent.onPullRelease()
             }
         }
     }
@@ -158,9 +200,8 @@ private struct ZoomableImage: UIViewRepresentable {
 
 private final class ZoomScrollView: UIScrollView {
     let imageView: UIImageView
-    private var lastBoundsSize: CGSize = .zero
-
     var onSingleTap: () -> Void = {}
+    private var lastBoundsSize: CGSize = .zero
 
     init(image: UIImage) {
         imageView = UIImageView(image: image)
@@ -174,6 +215,7 @@ private final class ZoomScrollView: UIScrollView {
         showsHorizontalScrollIndicator = false
         contentInsetAdjustmentBehavior = .never
         decelerationRate = .fast
+        backgroundColor = .clear
 
         let doubleTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
         doubleTap.numberOfTapsRequired = 2
