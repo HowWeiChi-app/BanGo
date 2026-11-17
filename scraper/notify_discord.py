@@ -38,13 +38,18 @@ def send(webhook_url: str, notices: list[Notice]) -> None:
     for i, text in enumerate(build_messages(notices)):
         if i:
             time.sleep(1)  # Discord 有發送頻率限制，慢慢發
-        body = json.dumps({
-            "content": text,
-            # 不讓訊息觸發任何 @提及，就算公告標題裡剛好有 @everyone 也不會吵到全頻道
-            "allowed_mentions": {"parse": []},
-        }).encode("utf-8")
-        req = urllib.request.Request(webhook_url, data=body, method="POST", headers={
-            "Content-Type": "application/json",
-            "User-Agent": "SchoolNoticeBot/0.1",  # Discord 會擋沒有 User-Agent 的請求
-        })
-        urllib.request.urlopen(req, timeout=20).close()  # 失敗會丟出例外，run.py 就不會存檔
+        post(webhook_url, text)
+
+
+def post(webhook_url: str, text: str) -> None:
+    """發一則文字訊息到 Discord。"""
+    body = json.dumps({
+        "content": text,
+        # 不讓訊息觸發任何 @提及，就算公告標題裡剛好有 @everyone 也不會吵到全頻道
+        "allowed_mentions": {"parse": []},
+    }).encode("utf-8")
+    req = urllib.request.Request(webhook_url, data=body, method="POST", headers={
+        "Content-Type": "application/json",
+        "User-Agent": "SchoolNoticeBot/0.1",  # Discord 會擋沒有 User-Agent 的請求
+    })
+    urllib.request.urlopen(req, timeout=20).close()  # 失敗會丟出例外，run.py 就不會存檔

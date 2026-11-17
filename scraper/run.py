@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from filters import KEYWORD_CATEGORIES, TOPICS, classify, should_push
-from notify_discord import build_messages, send
+from notify_discord import build_messages, post, send
 from parser import ParseError, fetch_all
 from store import find_new, load_seen, save_seen
 
@@ -26,6 +26,17 @@ def main() -> int:
         # 不擋下來的話，會把新公告記成看過，卻沒發出去
         print("GitHub Secrets 裡沒有設定 DISCORD_WEBHOOK_URL", file=sys.stderr)
         return 1
+
+    # 手動執行時勾選「發一則測試訊息」才會有這個變數，用來確認 webhook 設定正確
+    if webhook and os.environ.get("SEND_TEST") == "true":
+        try:
+            post(webhook, "✅ 校網公告機器人連線測試：看到這則訊息，代表 Discord 設定成功了")
+        except Exception as e:
+            # 不印出網址本身，避免 webhook 網址出現在公開的執行紀錄裡
+            print(f"測試訊息發送失敗，請檢查 DISCORD_WEBHOOK_URL 是否完整：{type(e).__name__} {getattr(e, 'code', '')}",
+                  file=sys.stderr)
+            return 1
+        print("測試訊息已發送")
 
     try:
         notices = fetch_all()

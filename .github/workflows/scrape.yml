@@ -12,6 +12,11 @@ on:
     # 如果 repo 是 public，沒有分鐘數限制，可以改成每 15 分鐘（但不要短於 10 分鐘）。
     - cron: "7,37 * * * *"
   workflow_dispatch: # 讓你可以在 GitHub 網頁的 Actions 分頁手動按「Run workflow」
+    inputs:
+      send_test:
+        description: "發一則測試訊息到 Discord（確認 webhook 設定正確）"
+        type: boolean
+        default: false
 
 permissions:
   contents: write # 要把 data/seen.json commit 回 repo
@@ -39,6 +44,7 @@ jobs:
         working-directory: scraper
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          SEND_TEST: ${{ inputs.send_test }} # 排程自動執行時是空的，不會發測試訊息
         run: python run.py
 
       - name: 把看過的公告存回 repo
