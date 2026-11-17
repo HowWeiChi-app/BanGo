@@ -1,0 +1,22 @@
+name: hsnu_notice
+description: 師大附中校網公告通知 App
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0                # 下載公告資料
+  shared_preferences: ^2.3.0  # 記住訂閱設定、離線時顯示上次的公告
+  url_launcher: ^6.3.0        # 點公告時用瀏覽器打開校網原文
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
