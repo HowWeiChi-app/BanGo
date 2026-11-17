@@ -1,0 +1,78 @@
+"""師大附中公告抓取與解析。校網改版時，通常只需要改這個檔案。
+
+師大附中的公告列表頁是用 JavaScript 載入的，直接抓 HTML 拿不到公告，
+所以改用校網提供的 RSS。RSS 是固定格式的 XML，比 HTML 穩定，也不用另外裝套件。
+"""
+
+import html
+import urllib.request
+import xml.etree.ElementTree as ET
+
+from notice import Notice
+
+BASE = "https://www.hs.ntnu.edu.tw"
+
+# 公告分類名稱 → RSS 網址（從校網首頁各分類旁的「RSS 訂閱」按鈕取得）
+FEEDS = {
+    "重要公告": BASE + "/rssfeeds?a=T0RESTEyNTIxODAyNTk2MjI2MVRDaW50ZWx5&b=T0RESTYyaW50ZWx5&c=T0RESU1EVTNOakl5TXpjPXdBek55SWpOeElrVGludGVseQ==",
+    "來文公告": BASE + "/rssfeeds?a=T0RESTk5ODEzMzE2Mzk2MjI2MVRDaW50ZWx5&b=T0RESTYyaW50ZWx5&c=T0RESU1EVTNOakl5TXpjPXdBek55SWpOeElrVGludGVseQ==",
+}
+
+# 標明自己是誰，讓學校看得出這不是攻擊
+USER_AGENT = "SchoolNoticeBot/0.1 (student project; polls every 10+ min)"
+
+
+class ParseError(Exception):
+    """RSS 格式跟預期不同，通常代表校網改版了。"""
+
+
+def fetch(url: str) -> bytes:
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        return resp.read()
+
+
+def parse_rss(xml_bytes: bytes, source: str) -> list[Notice]:
+    """把 RSS 的 XML 轉成 Notice 陣列。
+
+    每則公告長這樣：
+      <item>
+        <title>115學年第1學期_第二次期中考_考試範圍</title>
+        <link>https://www.hs.ntnu.edu.tw/content?a=...</link>
+        <pubDate>2026-11-16 15:16:47</pubDate>
+      </item>
+    """
+    try:
+        root = ET.fromstring(xml_bytes)
+    except ET.ParseError as e:
+        raise ParseError(f"{source}：不是合法的 XML（{e}）") from e
+
+    items = root.findall("./channel/item")
+    if not items:
+        raise ParseError(f"{source}：RSS 裡找不到任何 <item>")
+
+    notices = []
+    for item in items:
+        title = (item.findtext("title") or "").strip()
+        link = (item.findtext("link") or "").strip()
+        pub = (item.findtext("pubDate") or "").strip()
+        if not title or not link:
+            raise ParseError(f"{source}：有公告缺少標題或連結")
+        notices.append(Notice(
+            title=html.unescape(title),  # 把 &amp; 這類符號轉回正常文字
+            # 師大附中的 pubDate 是 "2026-11-16 15:16:47"（不是標準 RSS 格式），取到分鐘就好
+            date=pub[:16],
+            dept="",
+            url=link,
+            source=source,
+        ))
+    return notices
+
+
+def fetch_all() -> list[Notice]:
+    """抓所有分類，合併、去除重複，依時間由新到舊排序。"""
+    by_url: dict[str, Notice] = {}
+    for source, url in FEEDS.items():
+        for n in parse_rss(fetch(url), source):
+            by_url.setdefault(n.url, n)  # 同一則出現在兩個分類時，保留先抓到的
+    return sorted(by_url.values(), key=lambda n: n.date, reverse=True)
