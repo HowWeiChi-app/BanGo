@@ -24,6 +24,10 @@ final class NoticeStore {
     var isLoading = false
     var errorMessage: String?
 
+    @ObservationIgnored private var shownBytes: Data?            // 現在顯示的資料的原始檔，用來判斷下載到的有沒有變
+    @ObservationIgnored private var lastAttempt: Date?           // 上一次開始更新的時間
+    @ObservationIgnored private var running: Task<Void, Never>?  // 正在進行的更新
+
     var subscribed: Set<String> {
         didSet { UserDefaults.standard.set(Array(subscribed), forKey: Self.subscriptionsKey) }
     }
@@ -38,7 +42,12 @@ final class NoticeStore {
         let saved = UserDefaults.standard.stringArray(forKey: Self.subscriptionsKey)
         subscribed = saved.map(Set.init) ?? Self.defaultSubscriptions
         showUnrelated = UserDefaults.standard.bool(forKey: Self.showUnrelatedKey)
-        data = Self.loadCache()
+        // 打開 App 時先顯示上次的資料。這裡故意不放到背景：第一個畫面就要有公告，不要先閃一下空白
+        if let bytes = try? Data(contentsOf: Self.cacheURL),
+           let cached = try? JSONDecoder().decode(NoticeData.self, from: bytes) {
+            data = cached
+            shownBytes = bytes
+        }
     }
 
     // MARK: - 給畫面用的資料
@@ -94,7 +103,26 @@ final class NoticeStore {
 
     // MARK: - 下載
 
+    /// 打開 App、從背景回到 App 時用：距離上次更新不到 10 分鐘就不重新下載
+    func refreshIfStale() async {
+        if let lastAttempt, Date.now.timeIntervalSince(lastAttempt) < 10 * 60 { return }
+        await refresh()
+    }
+
+    /// 重新下載。已經在下載了就等那一次，不會同時下載兩份
     func refresh() async {
+        if let running {
+            await running.value
+            return
+        }
+        lastAttempt = .now
+        let task = Task { await load() }
+        running = task
+        await task.value
+        running = nil
+    }
+
+    private func load() async {
         isLoading = true
         defer { isLoading = false }
         do {
@@ -104,22 +132,27 @@ final class NoticeStore {
             guard (response as? HTTPURLResponse)?.statusCode == 200 else {
                 throw URLError(.badServerResponse)
             }
-            data = try JSONDecoder().decode(NoticeData.self, from: bytes)
             errorMessage = nil
-            try? bytes.write(to: Self.cacheURL, options: .atomic)
+            // 跟現在顯示的一模一樣（大部分時候都是）：不用重新解析，畫面也不用重畫
+            guard bytes != shownBytes else { return }
+            data = try await Self.decodeAndSave(bytes)
+            shownBytes = bytes
         } catch {
             errorMessage = "更新失敗，請檢查網路"
         }
     }
 
-    // MARK: - 存在手機上的備份
-
-    private static var cacheURL: URL {
-        URL.cachesDirectory.appending(path: "notices.json")
+    /// 在背景執行緒解析 JSON、存備份。公告內文很多，放在主執行緒解析會讓畫面頓一下
+    @concurrent
+    nonisolated private static func decodeAndSave(_ bytes: Data) async throws -> NoticeData {
+        let decoded = try JSONDecoder().decode(NoticeData.self, from: bytes)
+        try? bytes.write(to: cacheURL, options: .atomic)  // 解析成功才存，壞掉的資料不會蓋掉備份
+        return decoded
     }
 
-    private static func loadCache() -> NoticeData? {
-        guard let bytes = try? Data(contentsOf: cacheURL) else { return nil }
-        return try? JSONDecoder().decode(NoticeData.self, from: bytes)
+    // MARK: - 存在手機上的備份
+
+    nonisolated private static var cacheURL: URL {
+        URL.cachesDirectory.appending(path: "notices.json")
     }
 }

@@ -19,6 +19,7 @@ final class ImageCache {
     private let thumbnails = NSCache<NSURL, UIImage>()  // 縮小版（已經解開，可以直接顯示）
     private let files = NSCache<NSURL, NSData>()         // 下載的原始檔（壓縮過的，小很多）
     private var ratios: [String: Double]                 // 圖片網址 → 寬除以高
+    private var loading: [URL: Task<UIImage?, Never>] = [:]  // 正在下載的圖：同一張不會同時下載兩次
     private static let ratiosKey = "imageRatios"
 
     init() {
@@ -36,11 +37,18 @@ final class ImageCache {
     /// 列表和內頁用的縮小版
     func thumbnail(_ url: URL) async -> UIImage? {
         if let image = cachedThumbnail(url) { return image }
-        guard let data = await file(url),
-              let decoded = await Self.decode(data, maxPixelSize: 1400) else { return nil }
-        thumbnails.setObject(decoded.image, forKey: url as NSURL, cost: decoded.bytes)
-        remember(decoded.ratio, for: url)
-        return decoded.image
+        if let task = loading[url] { return await task.value }  // 已經在下載了：等同一個
+        // 下載不跟著畫面取消：很快捲過去又捲回來時，接著用同一個下載，不會從頭再下載一次
+        let task = Task { () -> UIImage? in
+            defer { loading[url] = nil }
+            guard let data = await file(url),
+                  let decoded = await Self.decode(data, maxPixelSize: 1400) else { return nil }
+            thumbnails.setObject(decoded.image, forKey: url as NSURL, cost: decoded.bytes)
+            remember(decoded.ratio, for: url)
+            return decoded.image
+        }
+        loading[url] = task
+        return await task.value
     }
 
     /// 放大用的高解析度圖（最長邊 4096 像素），不放進暫存
@@ -172,6 +180,22 @@ struct NoticeImage: View {
     private func zoom(from frame: CGRect) {
         guard let image else { return }  // 還在下載就先不放大
         router.zoomed = ZoomedImage(sourceID: id, url: url, preview: image, from: frame)
+    }
+}
+
+/// 放大圖片的那一層，蓋在整個 App 最上面（導覽列也在它下面）。
+/// 單獨拆成一個畫面：打開、關閉放大時只有這一層重畫，後面的列表和導覽列不會跟著重畫。
+struct ZoomLayer: View {
+    @Environment(Router.self) private var router
+
+    var body: some View {
+        ZStack {
+            if let zoomed = router.zoomed {
+                ImageOverlay(zoomed: zoomed) { router.zoomed = nil }
+            }
+        }
+        .statusBarHidden(router.zoomed != nil)
+        .persistentSystemOverlays(router.zoomed != nil ? .hidden : .automatic)
     }
 }
 

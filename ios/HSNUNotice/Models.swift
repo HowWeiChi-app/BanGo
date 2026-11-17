@@ -3,7 +3,9 @@
 
 import Foundation
 
-struct Notice: Codable, Identifiable, Hashable {
+// nonisolated：這兩個資料格式不屬於主執行緒，才能在背景執行緒解析 JSON（見 NoticeStore）
+
+nonisolated struct Notice: Codable, Identifiable, Hashable {
     let title: String
     let date: String          // "2026-11-16 15:16"
     let url: String           // 校網原文網址，也是公告的唯一 ID
@@ -64,13 +66,18 @@ struct Notice: Codable, Identifiable, Hashable {
         return posted.formatted(style)
     }
 
-    private static let dateParser: DateFormatter = {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "en_US_POSIX")
-        f.timeZone = TimeZone(identifier: "Asia/Taipei")
-        f.dateFormat = "yyyy-MM-dd HH:mm"
-        return f
+    private static let taipei: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Taipei")!
+        return calendar
     }()
+
+    /// "2026-11-16 15:16"（台灣時間）→ Date。直接拆數字，比 DateFormatter 快，也可以在背景執行緒用
+    private static func parseDate(_ text: String) -> Date? {
+        let n = text.split { !$0.isASCII || !$0.isNumber }.compactMap { Int($0) }
+        guard n.count >= 5 else { return nil }
+        return taipei.date(from: DateComponents(year: n[0], month: n[1], day: n[2], hour: n[3], minute: n[4]))
+    }
 
     enum CodingKeys: String, CodingKey {
         case title, date, url, dept, source, categories, topics, content, image
@@ -107,14 +114,14 @@ struct Notice: Codable, Identifiable, Hashable {
 
     /// 先算好列表要用的資料
     private mutating func prepare() {
-        postedAt = Notice.dateParser.date(from: date)
+        postedAt = Notice.parseDate(date)
         imageURL = image.isEmpty ? nil : URL(string: image)
         let joined = content.split(separator: "\n").joined(separator: " ")
         summary = joined.count > 150 ? String(joined.prefix(150)) + "…" : joined
     }
 }
 
-struct NoticeData: Codable {
+nonisolated struct NoticeData: Codable {
     var updated: String = ""          // 最後一次有新公告的時間
     var categories: [String] = []     // 所有類別，設定頁用來產生開關
     var topics: [String] = []         // 所有主題

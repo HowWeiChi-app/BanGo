@@ -97,6 +97,8 @@ struct SidebarView: View {
     }
 
     private func open(_ filter: NoticeFilter) {
+        // 側邊欄是最底層。已經推進時間軸（或正在推進去）就不再推：連點兩下不會疊出兩個時間軸
+        guard path.isEmpty else { return }
         selected = filter
         path.append(filter)
     }

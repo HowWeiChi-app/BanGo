@@ -35,6 +35,8 @@ struct NoticeTimeline: View {
             List {
                 ForEach(shown) { notice in
                     Button {
+                        // 時間軸是第 1 層。已經點進內頁（或正在推進去）就不再推：連點兩下不會疊出兩頁
+                        guard router.path.count == 1 else { return }
                         lastOpened = notice.id
                         router.path.append(notice)
                     } label: {
@@ -54,6 +56,7 @@ struct NoticeTimeline: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
             .paperBackground()
+            .swipeBackEnabled()  // 返回鍵換成側邊欄按鈕了，還是要能往右滑回側邊欄
             .refreshable { await store.refresh() }
             .overlay { placeholder }
             .modifier(SearchIfNeeded(active: $searching, query: $query))
@@ -241,7 +244,6 @@ struct NoticeRow: View {
 /// 公告內頁：照 Reeder 的文章頁
 struct NoticeDetailView: View {
     let notice: Notice
-    @State private var showOriginal = false
 
     private var url: URL? { URL(string: notice.url) }
 
@@ -291,10 +293,12 @@ struct NoticeDetailView: View {
                         Text(paragraph)
                     }
                     // 「原文」連結，跟 Reeder 一樣用主色
-                    Button { showOriginal = true } label: {
-                        Text("[原文]").fontWeight(.semibold)
+                    if let url {
+                        Button { SafariPage.open(url) } label: {
+                            Text("[原文]").fontWeight(.semibold)
+                        }
+                        .foregroundStyle(Color.brand)
                     }
-                    .foregroundStyle(Color.brand)
                     Text("附件和完整格式要看原文。")
                         .font(.footnote)
                         .foregroundStyle(.tertiary)
@@ -310,20 +314,19 @@ struct NoticeDetailView: View {
             .padding(.bottom, 40)
         }
         .paperBackground()
+        .swipeBackEnabled()
+        .navigationBarTitleDisplayMode(.inline)  // 標題在內文裡，導覽列不用留大標題的空間
         .toolbar(removing: .title)
         .toolbar {
             if let url {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button { showOriginal = true } label: { Image(systemName: "safari") }
+                    Button { SafariPage.open(url) } label: { Image(systemName: "safari") }
                         .accessibilityLabel("閱讀原文")
                     ShareLink(item: url) { Image(systemName: "square.and.arrow.up") }
                 }
             }
         }
         .tint(Color.ink)
-        .sheet(isPresented: $showOriginal) {
-            if let url { SafariView(url: url).ignoresSafeArea() }
-        }
     }
 }
 
@@ -337,13 +340,19 @@ private struct BulletLabelStyle: LabelStyle {
     }
 }
 
-/// 在 App 裡用 Safari 打開校網原文，看完往下滑就回到 App
-struct SafariView: UIViewControllerRepresentable {
-    let url: URL
-
-    func makeUIViewController(context: Context) -> SFSafariViewController {
-        SFSafariViewController(url: url)
+/// 在 App 裡用 Safari 打開校網原文。
+/// 照 Reeder：原文是公告內頁的下一層，從右邊推進來，不是從下面彈出來的卡片；
+/// 看完按左上角，或從螢幕左邊緣往右滑，就回到公告。
+enum SafariPage {
+    static func open(_ url: URL) {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
+        guard var top = scene?.keyWindow?.rootViewController else { return }
+        while let presented = top.presentedViewController { top = presented }
+        guard !(top is SFSafariViewController) else { return }  // 連點兩下不會開兩個
+        let safari = SFSafariViewController(url: url)
+        safari.preferredControlTintColor = UIColor(Color.brand)
+        // 系統預設的開法就是從右邊推進來（跟換頁一樣），不要包成 sheet
+        top.present(safari, animated: true)
     }
-
-    func updateUIViewController(_ controller: SFSafariViewController, context: Context) {}
 }
