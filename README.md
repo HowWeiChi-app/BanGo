@@ -6,7 +6,7 @@
 ## 怎麼運作
 
 ```
-師大附中校網 RSS（重要公告、來文公告）
+師大附中校網 RSS（重要公告、學生、來文公告、行事曆）
   ↓ GitHub Actions 每 30 分鐘抓一次（.github/workflows/scrape.yml）
 scraper/：分類、排除跟學生無關的、找出新公告
   ├→ Discord 頻道：發新公告

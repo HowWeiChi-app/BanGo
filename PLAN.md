@@ -123,6 +123,14 @@ Firebase 專案還沒建立，所以先用免費、不用帳號設定的方式�
 | 第 5 週 | 發給班上同學試用，收集回饋 | 至少 10 位同學實際使用 |
 | 第 6 週 | 修 bug、改善過濾規則、加第二階段功能 | 穩定運作一週以上 |
 
+### 目前進度（2026-11-17）
+
+- 第 1 週 ✅ 爬蟲能印出最新 20 則（`scraper/main.py`）
+- 第 2 週 ✅ GitHub Actions 每 30 分鐘執行，新公告發到 Discord（已用真實公告驗證）
+- 第 3 週 ✅ App 能顯示公告列表（資料先用 GitHub 上的 notices.json，不是 Firebase；還沒在實機上測過）
+- 第 4 週 ⏳ 設定頁完成；手機推播要等 Firebase 專案（見 `docs/firebase-setup.md`）
+- 第 5 週：可以先用 Discord 頻道和 APK 給同學試用
+
 ## 8. 分工建議
 
 - **A：後端**（爬蟲、過濾規則、GitHub Actions、Firebase）
