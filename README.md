@@ -78,6 +78,26 @@ GitHub Actions 會自動編譯，並在 Releases 頁面建立「附中公告 v0.
 3. 接上手機或開模擬器，執行 `flutter run`。
 4. 跑測試：`flutter test`
 
+### iOS 版（裝到自己的 iPhone）
+
+iOS 版跟 Android 用同一份程式碼，**還沒有推播**。GitHub Actions 只確認能編譯，
+要裝到手機上得在自己的 Mac 用 Xcode 簽名：
+
+1. 安裝 [Flutter](https://docs.flutter.dev/get-started/install/macos)（Xcode 已經有了）。
+2. 產生 iOS 專案檔並打開 Xcode：
+   ```bash
+   cd app
+   bash tool/prepare_ios.sh
+   open ios/Runner.xcworkspace
+   ```
+3. 在 Xcode 左邊點「Runner」→「Signing & Capabilities」→ Team 選你自己的 Apple ID（Personal Team）。
+   Bundle Identifier 如果顯示已被使用，在後面加幾個字改成獨一無二的。
+4. iPhone 接上 Mac，執行 `flutter run --release`（或在 Xcode 選你的 iPhone 按 ▶︎）。
+5. 第一次打開會顯示「未受信任的開發者」：iPhone「設定」→「一般」→「VPN 與裝置管理」→ 信任你的 Apple ID。
+
+⚠️ 免費 Apple ID 簽的 App **7 天後會打不開**，要重新執行第 4 步。
+要發給其他同學（TestFlight）需要 US$99/年的 Apple 開發者帳號，見 PLAN.md 第 6 節。
+
 ### 畫面
 
 - **我的公告**：只顯示你在設定裡訂閱的類別或主題（預設：教務、學務、#考試、#停課）
