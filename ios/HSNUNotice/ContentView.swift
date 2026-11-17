@@ -1,7 +1,7 @@
 // 主畫面：下方三個分頁。
 //
-// iOS 26 的 TabView 用 Tab(...) 寫法，系統會自動畫成 Liquid Glass 分頁列，
-// 往下捲動時分頁列會縮小（tabBarMinimizeBehavior），讓出更多空間給公告。
+// iOS 26 的 TabView 用 Tab(...) 寫法，系統會自動畫成 Liquid Glass 分頁列。
+// 分頁列固定不縮小（tabBarMinimizeBehavior(.never)），捲動時一直都看得到三個分頁。
 
 import SwiftUI
 
@@ -20,7 +20,7 @@ struct ContentView: View {
                 SettingsView()
             }
         }
-        .tabBarMinimizeBehavior(.onScrollDown)
+        .tabBarMinimizeBehavior(.never)
         .environment(store)
         .task { await store.refresh() }
     }

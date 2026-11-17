@@ -29,6 +29,17 @@ struct Notice: Codable, Identifiable, Hashable {
     /// 是不是緊急公告（停課、颱風）
     var isUrgent: Bool { topics.contains("停課") }
 
+    /// 把 "2026-11-16 15:16"（台灣時間）轉成 Date，格式不對時是 nil
+    var postedAt: Date? { Notice.dateParser.date(from: date) }
+
+    private static let dateParser: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone(identifier: "Asia/Taipei")
+        f.dateFormat = "yyyy-MM-dd HH:mm"
+        return f
+    }()
+
     enum CodingKeys: String, CodingKey {
         case title, date, url, dept, source, categories, topics
         case forStudents = "for_students"
