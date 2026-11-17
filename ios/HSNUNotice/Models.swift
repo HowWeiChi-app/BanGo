@@ -15,9 +15,15 @@ struct Notice: Codable, Identifiable, Hashable {
     var content: String = ""  // 公告內文（純文字，段落用換行分開），舊資料可能是空的
     var image: String = ""    // 內文裡第一張圖片的網址
 
-    /// 列表上的摘要：內文的前幾段接在一起
-    var summary: String { content.split(separator: "\n").joined(separator: " ") }
-    var imageURL: URL? { image.isEmpty ? nil : URL(string: image) }
+    // 下面三個在解碼時就先算好存起來。列表捲動時每一則都會重畫很多次，
+    // 每次都重新處理整篇內文、重新解析日期會讓捲動變卡。
+
+    /// 列表上的摘要：內文前 150 個字（段落接在一起）。畫面上最多只顯示 4 行，
+    /// 只留 150 字讓文字排版快很多；完整內文在內頁看。
+    private(set) var summary = ""
+    private(set) var imageURL: URL?
+    /// 把 "2026-11-16 15:16"（台灣時間）轉成 Date，格式不對時是 nil
+    private(set) var postedAt: Date?
 
     var id: String { url }
 
@@ -34,9 +40,6 @@ struct Notice: Codable, Identifiable, Hashable {
 
     /// 是不是緊急公告（停課、颱風）
     var isUrgent: Bool { topics.contains("停課") }
-
-    /// 把 "2026-11-16 15:16"（台灣時間）轉成 Date，格式不對時是 nil
-    var postedAt: Date? { Notice.dateParser.date(from: date) }
 
     /// 列表右上角的時間，跟 Reeder 一樣很短：「now」「5m」「3h」「2d」，超過一週顯示「11/3」
     var relativeTime: String {
@@ -87,6 +90,7 @@ struct Notice: Codable, Identifiable, Hashable {
         forStudents = try c.decodeIfPresent(Bool.self, forKey: .forStudents) ?? true
         content = try c.decodeIfPresent(String.self, forKey: .content) ?? ""
         image = try c.decodeIfPresent(String.self, forKey: .image) ?? ""
+        prepare()
     }
 
     init(title: String, date: String, url: String, source: String = "",
@@ -98,6 +102,15 @@ struct Notice: Codable, Identifiable, Hashable {
         self.categories = categories
         self.topics = topics
         self.forStudents = forStudents
+        prepare()
+    }
+
+    /// 先算好列表要用的資料
+    private mutating func prepare() {
+        postedAt = Notice.dateParser.date(from: date)
+        imageURL = image.isEmpty ? nil : URL(string: image)
+        let joined = content.split(separator: "\n").joined(separator: " ")
+        summary = joined.count > 150 ? String(joined.prefix(150)) + "…" : joined
     }
 }
 

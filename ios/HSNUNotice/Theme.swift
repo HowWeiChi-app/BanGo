@@ -55,11 +55,13 @@ struct SourceAvatar: View {
     var body: some View {
         Image(systemName: SourceStyle.symbol(source))
             .font(.system(size: size * 0.42, weight: .semibold))
-            .foregroundStyle(SourceStyle.color(source).gradient)
+            .foregroundStyle(SourceStyle.color(source))
             .frame(width: size, height: size)
             .background(Color(UIColor.secondarySystemGroupedBackground), in: .circle)
             .overlay(Circle().strokeBorder(.primary.opacity(0.08)))
-            .shadow(color: .black.opacity(0.08), radius: 1.5, y: 1)
+            // 底下墊一個往下偏 1pt 的淡色圓，看起來像陰影。
+            // 不用 .shadow：模糊陰影每個頭像都要另外算一次，列表捲很快時會卡
+            .background(Circle().fill(.black.opacity(0.07)).offset(y: 1))
             .accessibilityHidden(true)
     }
 }
