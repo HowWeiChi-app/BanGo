@@ -1,6 +1,6 @@
 // 公告時間軸、單則公告、公告內頁，以及打開校網原文的 Safari。
 // 排版參考 RSS 閱讀器 Reeder：
-//   - 左上角一顆玻璃膠囊放標題、副標和「回到最上面」，右上角放重新整理
+//   - 左上角一顆玻璃膠囊放側邊欄按鈕、標題、副標和「回到最上面」，右上角放重新整理
 //   - 每則公告：圓形來源頭像 + 來源名稱 + 分類，右上角是多久以前，下面是粗體標題
 //   - 點公告先進到內頁（大標題、日期、分類），再按「閱讀原文」打開校網
 // 玻璃效果都是系統的導覽列和工具列自己產生的，沒有自己畫。
@@ -11,6 +11,7 @@ import SwiftUI
 /// 公告時間軸，可以下拉更新。沒資料、載入中、載入失敗時顯示對應的提示。
 struct NoticeTimeline: View {
     @Environment(NoticeStore.self) private var store
+    @Environment(\.dismiss) private var dismiss
     let title: String
     let subtitle: String
     let notices: [Notice]
@@ -38,9 +39,17 @@ struct NoticeTimeline: View {
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(removing: .title)  // 標題改放在左上角的膠囊裡
+            .navigationBarBackButtonHidden()  // 用左上角的側邊欄按鈕代替返回鍵
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     HStack(spacing: 14) {
+                        // 回到側邊欄（Reeder 在這裡放的是側邊欄圖示，不是返回箭頭）
+                        Button { dismiss() } label: {
+                            Image(systemName: "sidebar.left")
+                        }
+                        .accessibilityLabel("側邊欄")
+                        .tint(Color.ink)
+                        Divider().frame(height: 24)
                         VStack(alignment: .leading, spacing: 0) {
                             Text(title).font(.headline)
                             Text(subtitle).font(.caption).foregroundStyle(.secondary)
@@ -63,7 +72,6 @@ struct NoticeTimeline: View {
                     RefreshButton()
                 }
             }
-            .navigationDestination(for: Notice.self) { NoticeDetailView(notice: $0) }
         }
     }
 

@@ -28,9 +28,16 @@ final class NoticeStore {
         didSet { UserDefaults.standard.set(Array(subscribed), forKey: Self.subscriptionsKey) }
     }
 
+    /// 全部公告裡要不要顯示跟學生無關的（教師研習、標案…），預設不顯示
+    var showUnrelated: Bool {
+        didSet { UserDefaults.standard.set(showUnrelated, forKey: Self.showUnrelatedKey) }
+    }
+    private static let showUnrelatedKey = "showUnrelated"
+
     init() {
         let saved = UserDefaults.standard.stringArray(forKey: Self.subscriptionsKey)
         subscribed = saved.map(Set.init) ?? Self.defaultSubscriptions
+        showUnrelated = UserDefaults.standard.bool(forKey: Self.showUnrelatedKey)
         data = Self.loadCache()
     }
 
@@ -41,6 +48,43 @@ final class NoticeStore {
 
     /// 「我的公告」：符合訂閱的
     var myNotices: [Notice] { (data?.notices ?? []).filter { $0.matches(subscribed) } }
+
+    /// 側邊欄每一項對應的公告
+    func notices(_ filter: NoticeFilter) -> [Notice] {
+        let visible = (data?.notices ?? []).filter { showUnrelated || $0.forStudents }
+        return switch filter {
+        case .mine: myNotices
+        case .all: visible
+        case .tag(let name): visible.filter { $0.has(name) }
+        case .source(let source): visible.filter { $0.source == source }
+        }
+    }
+
+    /// 資料裡出現過的來源，照第一次出現的順序
+    var sources: [String] {
+        var seen: [String] = []
+        for notice in data?.notices ?? [] where !seen.contains(notice.source) {
+            seen.append(notice.source)
+        }
+        return seen
+    }
+
+    func title(_ filter: NoticeFilter) -> String {
+        switch filter {
+        case .mine: "我的公告"
+        case .all: "全部公告"
+        case .tag(let name): topics.contains(name) ? "#\(name)" : name
+        case .source(let source): SourceStyle.name(source)
+        }
+    }
+
+    func subtitle(_ filter: NoticeFilter) -> String {
+        switch filter {
+        case .mine: "訂閱 \(subscribed.count) 個類別"
+        case .all: showUnrelated ? "所有公告" : "跟學生有關的公告"
+        default: "\(notices(filter).count) 則公告"
+        }
+    }
 
     func isSubscribed(_ name: String) -> Bool { subscribed.contains(name) }
 

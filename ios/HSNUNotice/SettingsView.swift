@@ -1,10 +1,12 @@
 // 設定頁：選擇要訂閱的類別和主題。
-// 排版參考 Reeder 的設定頁：米白底色、大標題，每一行是灰色圖示加粗體文字，沒有白色卡片。
+// 照 Reeder：從側邊欄左上角打開的彈出頁，左上角 X 關閉；米白底色、大標題，
+// 每一行是灰色圖示加粗體文字，沒有白色卡片。
 
 import SwiftUI
 
 struct SettingsView: View {
     @Environment(NoticeStore.self) private var store
+    @Environment(\.dismiss) private var dismiss
     private let repoURL = URL(string: "https://github.com/cyy-615/hsnu-notice")!
 
     var body: some View {
@@ -24,6 +26,23 @@ struct SettingsView: View {
                     header("主題")
                 } footer: {
                     footer("比類別更細，把同一件事的公告收在一起。#停課 是緊急公告，建議保持開啟。")
+                }
+
+                Section {
+                    Toggle(isOn: Binding(get: { store.showUnrelated }, set: { store.showUnrelated = $0 })) {
+                        Label {
+                            Text("顯示跟學生無關的公告").font(.headline)
+                        } icon: {
+                            Image(systemName: "eye").foregroundStyle(.secondary)
+                        }
+                    }
+                    .tint(Color.brand)
+                    .listRowBackground(Color.paper)
+                    .listRowSeparator(.hidden)
+                } header: {
+                    header("顯示")
+                } footer: {
+                    footer("例如教師研習、標案。打開後會出現在「全部公告」，顏色比較淡。")
                 }
 
                 Section {
@@ -48,6 +67,13 @@ struct SettingsView: View {
             .background(Color.paper)
             .foregroundStyle(Color.ink)
             .navigationTitle("設定")
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { dismiss() } label: { Image(systemName: "xmark") }
+                        .tint(Color.ink)
+                        .accessibilityLabel("關閉")
+                }
+            }
         }
     }
 

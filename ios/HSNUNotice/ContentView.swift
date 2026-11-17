@@ -1,46 +1,40 @@
-// 主畫面：下方三個分頁。
-//
-// iOS 26 的 TabView 用 Tab(...) 寫法，系統會自動畫成 Liquid Glass 分頁列。
-// 分頁列固定不縮小（tabBarMinimizeBehavior(.never)），捲動時一直都看得到三個分頁。
+// 主畫面：照 Reeder 的結構，沒有下方分頁列，一層一層點進去：
+//   側邊欄 → 公告時間軸 → 公告內頁
+// 打開 App 時直接停在「我的公告」的時間軸，按左上角的側邊欄按鈕回到側邊欄。
+// 導覽列、工具列的 Liquid Glass 都是系統內建的。
 
 import SwiftUI
 
 struct ContentView: View {
     @State private var store = NoticeStore()
+    @State private var path = ContentView.startPath
+    @State private var selected: NoticeFilter = .mine
+
+    private static var startPath: NavigationPath {
+        var path = NavigationPath()
+        path.append(NoticeFilter.mine)
+        return path
+    }
 
     var body: some View {
-        TabView {
-            Tab("我的公告", systemImage: "bell") {
-                MyNoticesView()
-            }
-            Tab("全部公告", systemImage: "list.bullet") {
-                AllNoticesView()
-            }
-            Tab("設定", systemImage: "gearshape") {
-                SettingsView()
-            }
+        NavigationStack(path: $path) {
+            SidebarView(path: $path, selected: $selected)
         }
-        .tabBarMinimizeBehavior(.never)
         .tint(Color.brand)
         .environment(store)
         .task { await store.refresh() }
     }
 }
 
-/// 「我的公告」：只顯示訂閱的類別和主題
-struct MyNoticesView: View {
-    @Environment(NoticeStore.self) private var store
+// 時間軸把返回鍵換成側邊欄按鈕後，系統會關掉「從左邊滑回上一頁」的手勢，這裡把它打開
+extension UINavigationController: @retroactive UIGestureRecognizerDelegate {
+    override open func viewDidLoad() {
+        super.viewDidLoad()
+        interactivePopGestureRecognizer?.delegate = self
+    }
 
-    var body: some View {
-        NavigationStack {
-            NoticeTimeline(
-                title: "我的公告",
-                subtitle: "訂閱 \(store.subscribed.count) 個類別",
-                notices: store.myNotices,
-                emptyTitle: store.subscribed.isEmpty ? "還沒有訂閱任何類別" : "目前沒有符合的公告",
-                emptyMessage: "到「設定」打開想看的類別"
-            )
-        }
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        viewControllers.count > 1
     }
 }
 
