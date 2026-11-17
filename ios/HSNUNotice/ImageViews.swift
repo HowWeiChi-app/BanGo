@@ -14,6 +14,7 @@ final class ImageCache {
     func cached(_ url: URL) -> UIImage? { cache.object(forKey: url as NSURL) }
 
     func load(_ url: URL) async -> UIImage? {
+        // 放大畫面打開時，圖片通常已經下載過了，直接拿暫存的
         if let image = cached(url) { return image }
         guard let (data, _) = try? await URLSession.shared.data(from: url),
               let image = UIImage(data: data) else { return nil }
@@ -22,9 +23,11 @@ final class ImageCache {
     }
 }
 
-/// 要放大的圖片（給 fullScreenCover 用，需要 Identifiable）
+/// 要放大的圖片（給 fullScreenCover 用，需要 Identifiable）。
+/// namespace 是被點的那張圖片自己的，放大畫面要用同一個，系統才知道要從哪裡放大、縮回哪裡。
 struct ZoomedImage: Identifiable {
     let url: URL
+    let namespace: Namespace.ID
     var id: URL { url }
 }
 
@@ -37,6 +40,7 @@ struct NoticeImage: View {
 
     @State private var image: UIImage?
     @State private var failed = false
+    @Namespace private var zoom
 
     var body: some View {
         Group {
@@ -50,10 +54,12 @@ struct NoticeImage: View {
                         Image(uiImage: image).resizable().scaledToFill()
                     }
                     .clipShape(.rect(cornerRadius: 12))
+                    // 官方的縮放轉場：點了之後圖片從這個位置直接放大成全螢幕，關掉時縮回這裡
+                    .matchedTransitionSource(id: url, in: zoom) { $0.clipShape(.rect(cornerRadius: 12)) }
                     .contentShape(.rect)
                     // 用 highPriorityGesture：圖片在可以點的公告裡面，點圖片時只放大，不要進到內頁
                     .highPriorityGesture(TapGesture().onEnded {
-                        router.zoomed = ZoomedImage(url: url)
+                        router.zoomed = ZoomedImage(url: url, namespace: zoom)
                     })
                     .accessibilityAddTraits(.isButton)
                     .accessibilityLabel("公告圖片，點兩下放大")
@@ -77,11 +83,18 @@ struct NoticeImage: View {
     }
 }
 
-/// 全螢幕看圖：黑底，可以兩指縮放、點兩下放大，往下拉或按 X 關閉
+/// 全螢幕看圖：黑底，可以兩指縮放、點兩下放大，往下拉或按 X 關閉。
+/// 打開和關閉的動畫是系統的 zoom 轉場（在 ContentView 設定），不是從下面彈出的卡片。
 struct ImageViewer: View {
     let url: URL
     @Environment(\.dismiss) private var dismiss
     @State private var image: UIImage?
+
+    init(url: URL) {
+        self.url = url
+        // 先拿暫存的圖片，放大動畫一開始就有圖，不會先閃一下轉圈圈
+        _image = State(initialValue: ImageCache.shared.cached(url))
+    }
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -115,7 +128,7 @@ struct ImageViewer: View {
             .padding(.top, 8)
         }
         .statusBarHidden()
-        .task { image = await ImageCache.shared.load(url) }
+        .task { if image == nil { image = await ImageCache.shared.load(url) } }
     }
 }
 

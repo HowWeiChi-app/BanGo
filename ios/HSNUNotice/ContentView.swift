@@ -30,7 +30,11 @@ struct ContentView: View {
         .tint(Color.brand)
         .environment(store)
         .environment(router)
-        .fullScreenCover(item: $router.zoomed) { ImageViewer(url: $0.url) }
+        .fullScreenCover(item: $router.zoomed) { zoomed in
+            ImageViewer(url: zoomed.url)
+                // 官方的縮放轉場：從被點的圖片位置放大，不是從下面彈出卡片
+                .navigationTransition(.zoom(sourceID: zoomed.url, in: zoomed.namespace))
+        }
         .task { await store.refresh() }
     }
 }
