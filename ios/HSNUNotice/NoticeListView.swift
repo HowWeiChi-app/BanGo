@@ -220,7 +220,7 @@ struct NoticeRow: View {
             .multilineTextAlignment(.leading)
 
             if let url = notice.imageURL {
-                NoticeImage(url: url, height: 200)
+                NoticeImage(url: url, cropTall: true)
             }
         }
         // 跟學生無關的公告整則淡一點
@@ -235,27 +235,6 @@ struct NoticeRow: View {
         if notice.isUrgent { parts.insert("緊急", at: 0) }
         if !notice.forStudents { parts.append("跟學生無關") }
         return parts.isEmpty ? "師大附中" : parts.joined(separator: " · ")
-    }
-}
-
-/// 公告裡的圖片：固定高度、寬度跟著畫面，圖片太大就裁掉多的部分。
-/// 先放一個固定大小的框，圖片疊在框上面再裁切；直接把圖片 scaledToFill 會把整則公告撐開。
-struct NoticeImage: View {
-    let url: URL
-    let height: CGFloat
-
-    var body: some View {
-        Color.paperChip
-            .frame(maxWidth: .infinity)
-            .frame(height: height)
-            .overlay {
-                AsyncImage(url: url) { phase in
-                    if let image = phase.image {
-                        image.resizable().scaledToFill()
-                    }
-                }
-            }
-            .clipShape(.rect(cornerRadius: 12))
     }
 }
 
@@ -303,7 +282,7 @@ struct NoticeDetailView: View {
                 }
 
                 if let imageURL = notice.imageURL {
-                    NoticeImage(url: imageURL, height: 220)
+                    NoticeImage(url: imageURL)
                         .padding(.top, 24)
                 }
 

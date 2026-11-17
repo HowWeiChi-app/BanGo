@@ -9,6 +9,7 @@ import SwiftUI
 @Observable
 final class Router {
     var path: NavigationPath
+    var zoomed: ZoomedImage?  // 正在全螢幕看的圖片，任何頁面點圖片都設定這個
 
     init() {
         // 打開 App 時直接停在「我的公告」
@@ -29,6 +30,7 @@ struct ContentView: View {
         .tint(Color.brand)
         .environment(store)
         .environment(router)
+        .fullScreenCover(item: $router.zoomed) { ImageViewer(url: $0.url) }
         .task { await store.refresh() }
     }
 }
