@@ -1,5 +1,8 @@
 """排程每次執行的完整流程：抓公告 → 分類 → 找出新公告 → 發到 Discord → 存檔。
 
+Discord 和手機推播只發師大附中（頻道是附中同學在用）。
+其他學校（schools.py）只抓下來、分類、存成 data/<學校>/notices.json 給 App 讀。
+
 GitHub Actions 每 30 分鐘跑一次  python run.py
 在自己電腦上跑時，沒設定 DISCORD_WEBHOOK_URL 就只會印出「本來要發的內容」，不會真的發。
 """
@@ -13,16 +16,37 @@ from filters import KEYWORD_CATEGORIES, TOPICS, classify, should_push
 import notify_fcm
 from notify_discord import build_messages, post, send
 from parser import FetchError, ParseError, fetch_all
+from schools import SCHOOLS
 from store import find_new, is_recent, load_seen, save_seen
 
 SEEN_PATH = Path(__file__).parent / "data" / "seen.json"
-NOTICES_PATH = Path(__file__).parent / "data" / "notices.json"
+DATA_DIR = Path(__file__).parent / "data"
+NOTICES_PATH = DATA_DIR / SCHOOLS["hsnu"]["data"]
 
 # Discord 是全班共用一個頻道，沒辦法每個人設定不同，所以所有類別和主題都發
 CHANNEL_SUBSCRIBED = set(KEYWORD_CATEGORIES) | set(TOPICS)
 
 
+def update_other_schools() -> None:
+    """附中以外的學校：抓、分類、存檔。不推播、不記已讀。
+    一校失敗只跳過那一校（印出原因），不影響附中和其他學校。"""
+    for school, info in SCHOOLS.items():
+        if school == "hsnu":
+            continue
+        try:
+            notices = fetch_all(school)
+        except (ParseError, FetchError) as e:
+            print(f"{info['name']}這次跳過：{e}", file=sys.stderr)
+            continue
+        path = DATA_DIR / info["data"]
+        if save_notices(path, merge(load_notices(path), notices)):
+            print(f"{info['name']}的 notices.json 已更新（這次抓到 {len(notices)} 則）")
+
+
 def main() -> int:
+    # 其他學校先做：附中後面有好幾個地方會提早結束
+    update_other_schools()
+
     webhook = os.environ.get("DISCORD_WEBHOOK_URL", "").strip()
     in_ci = os.environ.get("GITHUB_ACTIONS") == "true"
     if in_ci and not webhook:

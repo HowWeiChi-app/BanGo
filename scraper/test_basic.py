@@ -10,7 +10,7 @@ from export import load_notices, merge, save_notices
 from filters import KEYWORD_CATEGORIES, TOPICS, classify, should_push
 from notify_fcm import FCM_TOPICS, build_message
 from notice import Notice
-from parser import FetchError, ParseError, html_to_text, parse_rss
+from parser import FetchError, ParseError, html_to_text, normalize_date, parse_rss
 from notify_discord import MAX_LEN, build_messages, format_notice
 from store import TAIPEI, find_new, is_recent, load_seen, save_seen
 
@@ -131,6 +131,58 @@ class ParserTest(unittest.TestCase):
     def test_broken_rss_raises(self):
         with self.assertRaises(ParseError):
             parse_rss("<html>網站維護中</html>".encode("utf-8"), "重要公告")
+
+
+
+# 北一女（WordPress）RSS 的一則，結構照 2026-11-17 抓到的真實資料，內容縮短
+WORDPRESS_RSS = """<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>北一女中</title>
+<item>
+  <title>【競賽成績】公告115學年度水彩暨混合媒材繪畫表現創作比賽優勝名單</title>
+  <link>https://www.fg.tp.edu.tw/news/%e3%80%90%e7%ab%b6%e8%b3%bd/</link>
+  <dc:creator><![CDATA[試務組]]></dc:creator>
+  <pubDate>Tue, 17 Nov 2026 11:02:42 +0000</pubDate>
+  <category><![CDATA[最新消息]]></category>
+  <description><![CDATA[一、優勝名單如附件 [&#8230;]]]></description>
+  <content:encoded><![CDATA[<p>一、優勝名單如附件。</p><p><img src="/wp-content/uploads/a.png">二、恭喜得獎同學。</p>]]></content:encoded>
+</item></channel></rss>""".encode("utf-8")
+
+# 建中（NSS）RSS 的一則：日期是 GMT，dc:creator 是帳號 ID
+NSS_RSS = """<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>建中</title>
+<item>
+  <title>數學及自然學科能力競賽得獎名單</title>
+  <description>&lt;p&gt;恭喜獲獎同學!&lt;/p&gt;</description>
+  <link>https://www.ck.tp.edu.tw/nss/main/freeze/5abf/KG5m/6af5</link>
+  <dc:creator>632ac8bb698930d78ec5fe3c</dc:creator>
+  <pubDate>Fri, 13 Nov 2026 16:30:00 GMT</pubDate>
+</item></channel></rss>""".encode("utf-8")
+
+
+class OtherSchoolsTest(unittest.TestCase):
+    def test_normalize_date(self):
+        self.assertEqual(normalize_date("2026-11-16 15:16:47"), "2026-11-16 15:16")  # 附中，照舊
+        self.assertEqual(normalize_date("Tue, 17 Nov 2026 11:02:42 +0000"), "2026-11-17 19:02")  # 轉成台灣時間
+        self.assertEqual(normalize_date("Fri, 13 Nov 2026 16:30:00 GMT"), "2026-11-14 00:30")  # 跨日
+        self.assertEqual(normalize_date("下週一"), "")
+
+    def test_wordpress(self):
+        [n] = parse_rss(WORDPRESS_RSS, "最新消息", "fg")
+        self.assertEqual(n.date, "2026-11-17 19:02")
+        self.assertEqual(n.dept, "試務組")
+        self.assertEqual(n.content, "一、優勝名單如附件。\n二、恭喜得獎同學。")  # 全文，不是摘要
+        self.assertEqual(n.image, "https://www.fg.tp.edu.tw/wp-content/uploads/a.png")  # 用北一女的網址補完整
+
+    def test_nss(self):
+        [n] = parse_rss(NSS_RSS, "重要公告", "ck")
+        self.assertEqual(n.date, "2026-11-14 00:30")
+        self.assertEqual(n.dept, "")  # 帳號 ID 不能當處室
+        self.assertEqual(n.content, "恭喜獲獎同學!")
+
+    def test_bad_date_raises(self):
+        with self.assertRaises(ParseError):
+            parse_rss(NSS_RSS.replace(b"Fri, 13 Nov 2026 16:30:00 GMT", b"???"), "重要公告", "ck")
 
 
 class StoreTest(unittest.TestCase):

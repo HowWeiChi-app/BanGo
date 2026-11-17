@@ -43,15 +43,16 @@ nonisolated struct Notice: Codable, Identifiable, Hashable {
     /// 是不是緊急公告（停課、颱風）
     var isUrgent: Bool { topics.contains("停課") }
 
-    /// 列表右上角的時間，跟 Reeder 一樣很短：「now」「5m」「3h」「2d」，超過一週顯示「11/3」
-    var relativeTime: String {
+    /// 列表右上角的時間，很短。中文：「剛剛」「5 分鐘」「3 小時」「2 天」；
+    /// 英文跟 Reeder 英文版一樣：「now」「5m」「3h」「2d」。超過一週顯示「11/3」
+    @MainActor var relativeTime: String {
         guard let posted = postedAt else { return "" }
         let minutes = max(0, Int(Date.now.timeIntervalSince(posted) / 60))
         switch minutes {
-        case ..<1: return "now"
-        case ..<60: return "\(minutes)m"
-        case ..<(60 * 24): return "\(minutes / 60)h"
-        case ..<(60 * 24 * 7): return "\(minutes / 60 / 24)d"
+        case ..<1: return L("剛剛", "now")
+        case ..<60: return L("\(minutes) 分鐘", "\(minutes)m")
+        case ..<(60 * 24): return L("\(minutes / 60) 小時", "\(minutes / 60)h")
+        case ..<(60 * 24 * 7): return L("\(minutes / 60 / 24) 天", "\(minutes / 60 / 24)d")
         default:
             let parts = date.prefix(10).split(separator: "-").compactMap { Int($0) }
             return parts.count == 3 ? "\(parts[1])/\(parts[2])" : ""
@@ -59,9 +60,10 @@ nonisolated struct Notice: Codable, Identifiable, Hashable {
     }
 
     /// 內頁的完整日期，例如「2026年11月17日 星期二 14:30」
-    var longDate: String {
+    @MainActor var longDate: String {
         guard let posted = postedAt else { return date }
-        var style = Date.FormatStyle(date: .complete, time: .shortened, locale: Locale(identifier: "zh_TW"))
+        let locale = Locale(identifier: AppSettings.shared.isEnglish ? "en_US" : "zh_TW")
+        var style = Date.FormatStyle(date: .complete, time: .shortened, locale: locale)
         style.timeZone = TimeZone(identifier: "Asia/Taipei")!
         return posted.formatted(style)
     }

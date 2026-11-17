@@ -2,8 +2,9 @@
 //
 // 最上面是「我的公告」（像 Reeder 的 Home）和「全部公告」，
 // 下面是類別、主題、來源三段，段落標題右邊的箭頭可以收合，右邊的數字是有幾則。
-// 點任何一項就往右進到那一種公告的時間軸。
-// 設定在側邊欄的左邊：往右滑或按左上角，設定就從左邊滑出來。右上角是重新整理。
+// 點任何一項就進到那一種公告的時間軸；往左拉回到上次看的分類（時間軸跟著手指從右邊拉進來，PageStack.swift），
+// 跟從時間軸往右拉回來剛好相反。
+// 左上角是設定（從下面彈出），右上角是加號（跟 Reeder 一樣，打開設定加訂閱）。
 
 import SwiftUI
 
@@ -15,15 +16,12 @@ enum NoticeFilter: Hashable {
     case source(String)   // 來源，例如「重要公告」
 }
 
-/// 側邊欄這一頁。設定是最底層，側邊欄推在它上面，所以在側邊欄往右滑就回到（拉出）左邊的設定
-struct SidebarRoute: Hashable {}
-
 struct SidebarView: View {
     @Environment(NoticeStore.self) private var store
     @Environment(Router.self) private var router
-    @Environment(\.dismiss) private var dismiss
-    @Binding var path: NavigationPath
-    @Binding var selected: NoticeFilter
+    @State private var collapsed: Set<String> = []
+    @State private var showSettings = false
+    @Bindable private var settings = AppSettings.shared
 
     var body: some View {
         List {
@@ -31,80 +29,100 @@ struct SidebarView: View {
             Group {
                 SidebarRow(filter: .mine, selected: selected, open: open) {
                     HStack(spacing: 12) {
-                        Image(systemName: "bolt.fill")
-                            .font(.title2)
+                        Image(systemName: "star.fill")  // 我的公告：自己訂閱、在意的
+                            .font(.app(.title2))
                             .foregroundStyle(Color.brand)
                             .frame(width: 30)
                         VStack(alignment: .leading, spacing: 0) {
-                            Text("我的公告").font(.title2.bold())
+                            Text(L("我的公告", "My Notices")).font(.app(.title2, .bold))
                             Text(store.subtitle(.mine))
-                                .font(.subheadline.weight(.medium))
-                                .foregroundStyle(.secondary)
+                                .font(.app(.subheadline, .medium))
+                                .foregroundStyle(Color.inkSecondary)
                         }
                     }
                 }
-                row(.all, label: "全部公告", symbol: "tray.full")
+                row(.all, label: L("全部公告", "All Notices"), symbol: "tray.full")
             }
             .padding(.bottom, 4)
 
-            section("類別") {
-                ForEach(store.categories, id: \.self) { row(.tag($0), label: $0, symbol: TagStyle.symbol($0)) }
+            section(L("類別", "Categories")) {
+                ForEach(store.categories, id: \.self) { row(.tag($0), label: TagName.display($0), symbol: TagStyle.symbol($0)) }
             }
 
-            section("主題") {
-                ForEach(store.topics, id: \.self) { row(.tag($0), label: "#\($0)", symbol: TagStyle.symbol($0)) }
+            section(L("主題", "Topics")) {
+                ForEach(store.topics, id: \.self) { row(.tag($0), label: "#\(TagName.display($0))", symbol: TagStyle.symbol($0)) }
             }
 
-            section("來源") {
+            section(L("來源", "Sources")) {
                 ForEach(store.sources, id: \.self) { source in
                     SidebarRow(filter: .source(source), selected: selected, count: store.notices(.source(source)).count, open: open) {
                         HStack(spacing: 12) {
                             SourceAvatar(source: source, size: 30)
-                            Text(SourceStyle.name(source)).font(.headline)
+                            Text(TagName.display(SourceStyle.name(source))).font(.app(.headline))
                         }
                     }
                 }
             }
         }
         .listStyle(.plain)
+        // 工具列跟第一行「我的公告」之間留空，不要貼著工具列
+        .contentMargins(.top, 20, for: .scrollContent)
         .scrollContentBackground(.hidden)
         .paperBackground()
         .foregroundStyle(Color.ink)
-        .navigationTitle("附中公告")
+        .navigationTitle(L("校板", "Campus Board"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(removing: .title)
-        .navigationBarBackButtonHidden()  // 左上角放設定按鈕，不放返回鍵
-        .swipeBackEnabled()               // 沒有返回鍵也能往右滑，把左邊的設定拉出來
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                // 設定在側邊欄的左邊：按了跟往右滑一樣，從左邊滑出來
-                Button { dismiss() } label: {
-                    Image(systemName: "switch.2")
+                Button { showSettings = true } label: {
+                    Image(systemName: "gearshape")
                 }
                 .tint(Color.ink)
-                .accessibilityLabel("設定")
+                .accessibilityLabel(L("設定", "Settings"))
             }
+            // 右上角：切換學校，點了跳出學校清單
             ToolbarItem(placement: .topBarTrailing) {
-                RefreshButton()
+                Menu {
+                    Picker(selection: $settings.schoolID) {
+                        ForEach(School.all) { Text($0.displayName).tag($0.id) }
+                    } label: {
+                        Text(L("切換學校", "Switch School"))
+                    }
+                    .pickerStyle(.inline)
+                } label: {
+                    Image(systemName: "building.columns")
+                }
+                .tint(Color.ink)
+                .accessibilityLabel(L("切換學校", "Switch School"))
+                .accessibilityValue(settings.school.displayName)
             }
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+        }
+        // 換學校：時間軸回到「我的公告」（舊學校的分類在新學校可能沒有），載入那間學校的公告
+        .onChange(of: settings.schoolID) {
+            router.schoolChanged()
+            store.schoolChanged()
         }
     }
 
+    /// 目前在看的分類（灰色卡片標出來）
+    private var selected: NoticeFilter { router.filter }
+
     private func open(_ filter: NoticeFilter) {
-        // 側邊欄在第 1 層。已經推進時間軸（或正在推進去）就不再推：連點兩下不會疊出兩個時間軸
-        guard path.count == Router.Depth.sidebar else { return }
-        selected = filter
-        path.append(filter)
+        router.open(filter)  // 已經在時間軸（或正在過去）就不會再開一次
     }
 
     private func row(_ filter: NoticeFilter, label: String, symbol: String) -> some View {
         SidebarRow(filter: filter, selected: selected, count: store.notices(filter).count, open: open) {
             HStack(spacing: 12) {
                 Image(systemName: symbol)
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
+                    .font(.app(.title3))
+                    .foregroundStyle(Color.inkSecondary)
                     .frame(width: 30)
-                Text(label).font(.headline)
+                Text(label).font(.app(.headline))
             }
         }
     }
@@ -112,22 +130,18 @@ struct SidebarView: View {
     /// 可以收合的一段：粗體標題 + 右邊的箭頭
     @ViewBuilder
     private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
-        let isCollapsed = router.collapsedSections.contains(title)
+        let isCollapsed = collapsed.contains(title)
         Button {
             withAnimation(.snappy) {
-                if isCollapsed {
-                    router.collapsedSections.remove(title)
-                } else {
-                    router.collapsedSections.insert(title)
-                }
+                if isCollapsed { collapsed.remove(title) } else { collapsed.insert(title) }
             }
         } label: {
             HStack {
-                Text(title).font(.title3.bold())
+                Text(title).font(.app(.title3, .bold))
                 Spacer()
                 Image(systemName: "chevron.down")
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
+                    .font(.app(.headline))
+                    .foregroundStyle(Color.inkSecondary)
                     .rotationEffect(.degrees(isCollapsed ? -90 : 0))
             }
             .contentShape(.rect)
@@ -136,7 +150,7 @@ struct SidebarView: View {
         .listRowBackground(Color.paper)
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 24, leading: 20, bottom: 6, trailing: 24))
-        .accessibilityValue(isCollapsed ? "已收合" : "已展開")
+        .accessibilityValue(isCollapsed ? L("已收合", "Collapsed") : L("已展開", "Expanded"))
 
         if !isCollapsed {
             content()
@@ -161,14 +175,16 @@ private struct SidebarRow<Content: View>: View {
                 Spacer()
                 if let count, count > 0 {
                     Text("\(count)")
-                        .font(.subheadline.bold())
+                        .font(.app(.subheadline, .bold))
                         .monospacedDigit()
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.inkSecondary)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
                         .background(Color.paperChip, in: .capsule)
                 }
             }
+            // 每一行一樣高：有數字膠囊、沒有數字的、來源頭像，選中的卡片都一樣大
+            .frame(minHeight: 32)
         }
         .buttonStyle(SidebarPressStyle(selected: filter == selected))
         .listRowBackground(Color.paper)
@@ -177,7 +193,7 @@ private struct SidebarRow<Content: View>: View {
     }
 }
 
-/// 側邊欄的點擊效果：按下去或是目前在看的那一項，背後出現灰色圓角底
+/// 側邊欄的點擊效果：按下去或是目前在看的那一項，背後出現立體的玻璃卡片
 private struct SidebarPressStyle: ButtonStyle {
     let selected: Bool
 
@@ -186,8 +202,9 @@ private struct SidebarPressStyle: ButtonStyle {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.paperChip.opacity(configuration.isPressed ? 1 : selected ? 0.7 : 0))
+                // 跟時間軸一樣的立體玻璃卡片
+                GlassCard(cornerRadius: 16)
+                    .opacity(configuration.isPressed || selected ? 1 : 0)
             }
             .contentShape(.rect(cornerRadius: 16))
             .animation(.easeOut(duration: 0.15), value: configuration.isPressed)

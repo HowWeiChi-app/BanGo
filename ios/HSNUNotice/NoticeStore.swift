@@ -1,6 +1,6 @@
 // 負責拿到公告資料、記住訂閱設定。所有畫面都從這裡讀資料。
 //
-// 資料來源：GitHub 上爬蟲 commit 的 notices.json（跟 Android 版同一份）。
+// 資料來源：GitHub 上爬蟲 commit 的 notices.json（跟 Android 版同一份），每間學校一份（School.dataURL）。
 // 下載成功會存一份在手機上，下次打開或沒網路時先顯示上次的資料。
 
 import Foundation
@@ -8,8 +8,6 @@ import Observation
 
 @Observable
 final class NoticeStore {
-    static let dataURL = URL(string: "https://raw.githubusercontent.com/cyy-615/hsnu-notice/main/scraper/data/notices.json")!
-
     /// 第一次打開 App 時預設訂閱的項目：只開最重要的，避免一開始就太吵。
     /// 「停課」是緊急公告，一定要預設打開。
     static let defaultSubscriptions: Set<String> = ["教務", "學務", "考試", "停課"]
@@ -27,6 +25,7 @@ final class NoticeStore {
     @ObservationIgnored private var shownBytes: Data?            // 現在顯示的資料的原始檔，用來判斷下載到的有沒有變
     @ObservationIgnored private var lastAttempt: Date?           // 上一次開始更新的時間
     @ObservationIgnored private var running: Task<Void, Never>?  // 正在進行的更新
+    @ObservationIgnored private var lastSchool = ""               // 上一次下載的是哪間學校
 
     var subscribed: Set<String> {
         didSet { UserDefaults.standard.set(Array(subscribed), forKey: Self.subscriptionsKey) }
@@ -43,11 +42,27 @@ final class NoticeStore {
         subscribed = saved.map(Set.init) ?? Self.defaultSubscriptions
         showUnrelated = UserDefaults.standard.bool(forKey: Self.showUnrelatedKey)
         // 打開 App 時先顯示上次的資料。這裡故意不放到背景：第一個畫面就要有公告，不要先閃一下空白
-        if let bytes = try? Data(contentsOf: Self.cacheURL),
+        loadCache()
+    }
+
+    /// 先顯示手機上這間學校的備份（沒有就是空的）
+    private func loadCache() {
+        if let bytes = try? Data(contentsOf: AppSettings.shared.school.cacheURL),
            let cached = try? JSONDecoder().decode(NoticeData.self, from: bytes) {
             data = cached
             shownBytes = bytes
+        } else {
+            data = nil
+            shownBytes = nil
         }
+    }
+
+    /// 設定裡換了學校：換成那間學校的備份，再馬上下載最新的
+    func schoolChanged() {
+        loadCache()
+        errorMessage = nil
+        lastAttempt = nil
+        Task { await refresh() }
     }
 
     // MARK: - 給畫面用的資料
@@ -56,11 +71,30 @@ final class NoticeStore {
     var topics: [String] { data?.topics ?? Self.fallbackTopics }
 
     /// 「我的公告」：符合訂閱的
-    var myNotices: [Notice] { (data?.notices ?? []).filter { $0.matches(subscribed) } }
+    /// 只看這學期的公告：上學期從 8/1 開始（到隔年 1 月底），下學期從 2/1 開始（到 7 月底）
+    static func semesterStart(_ now: Date = .now) -> Date {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Taipei")!
+        let year = calendar.component(.year, from: now), month = calendar.component(.month, from: now)
+        let start = switch month {
+        case 8...12: DateComponents(year: year, month: 8, day: 1)
+        case 1: DateComponents(year: year - 1, month: 8, day: 1)
+        default: DateComponents(year: year, month: 2, day: 1)
+        }
+        return calendar.date(from: start) ?? .distantPast
+    }
+
+    /// 這學期的公告（時間看不懂的留著，寧可多顯示也不要漏掉）
+    var semesterNotices: [Notice] {
+        let start = Self.semesterStart()
+        return (data?.notices ?? []).filter { ($0.postedAt ?? .distantFuture) >= start }
+    }
+
+    var myNotices: [Notice] { semesterNotices.filter { $0.matches(subscribed) } }
 
     /// 側邊欄每一項對應的公告
     func notices(_ filter: NoticeFilter) -> [Notice] {
-        let visible = (data?.notices ?? []).filter { showUnrelated || $0.forStudents }
+        let visible = semesterNotices.filter { showUnrelated || $0.forStudents }
         return switch filter {
         case .mine: myNotices
         case .all: visible
@@ -72,7 +106,7 @@ final class NoticeStore {
     /// 資料裡出現過的來源，照第一次出現的順序
     var sources: [String] {
         var seen: [String] = []
-        for notice in data?.notices ?? [] where !seen.contains(notice.source) {
+        for notice in semesterNotices where !seen.contains(notice.source) {
             seen.append(notice.source)
         }
         return seen
@@ -80,18 +114,18 @@ final class NoticeStore {
 
     func title(_ filter: NoticeFilter) -> String {
         switch filter {
-        case .mine: "我的公告"
-        case .all: "全部公告"
-        case .tag(let name): topics.contains(name) ? "#\(name)" : name
-        case .source(let source): SourceStyle.name(source)
+        case .mine: L("我的公告", "My Notices")
+        case .all: L("全部公告", "All Notices")
+        case .tag(let name): topics.contains(name) ? "#\(TagName.display(name))" : TagName.display(name)
+        case .source(let source): TagName.display(SourceStyle.name(source))
         }
     }
 
     func subtitle(_ filter: NoticeFilter) -> String {
         switch filter {
-        case .mine: "訂閱 \(subscribed.count) 個類別"
-        case .all: showUnrelated ? "所有公告" : "跟學生有關的公告"
-        default: "\(notices(filter).count) 則公告"
+        case .mine: L("訂閱 \(subscribed.count) 個類別", "\(subscribed.count) subscriptions")
+        case .all: showUnrelated ? L("所有公告", "Every notice") : L("跟學生有關的公告", "Notices for students")
+        default: L("\(notices(filter).count) 則公告", "\(notices(filter).count) notices")
         }
     }
 
@@ -113,7 +147,8 @@ final class NoticeStore {
     func refresh() async {
         if let running {
             await running.value
-            return
+            // 等的那一次是換學校之前開始的：再抓一次現在這間
+            if lastSchool == AppSettings.shared.schoolID { return }
         }
         lastAttempt = .now
         let task = Task { await load() }
@@ -125,34 +160,34 @@ final class NoticeStore {
     private func load() async {
         isLoading = true
         defer { isLoading = false }
+        let school = AppSettings.shared.school
+        lastSchool = school.id
         do {
             // 不用手機上的網路快取，確保拿到最新的
-            let request = URLRequest(url: Self.dataURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15)
+            let request = URLRequest(url: school.dataURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15)
             let (bytes, response) = try await URLSession.shared.data(for: request)
             guard (response as? HTTPURLResponse)?.statusCode == 200 else {
                 throw URLError(.badServerResponse)
             }
+            // 下載途中換了學校：這份是舊學校的，不要顯示
+            guard school.id == AppSettings.shared.schoolID else { return }
             errorMessage = nil
             // 跟現在顯示的一模一樣（大部分時候都是）：不用重新解析，畫面也不用重畫
             guard bytes != shownBytes else { return }
-            data = try await Self.decodeAndSave(bytes)
+            let decoded = try await Self.decodeAndSave(bytes, to: school.cacheURL)
+            guard school.id == AppSettings.shared.schoolID else { return }
+            data = decoded
             shownBytes = bytes
         } catch {
-            errorMessage = "更新失敗，請檢查網路"
+            errorMessage = L("更新失敗，請檢查網路", "Update failed. Check your connection.")
         }
     }
 
     /// 在背景執行緒解析 JSON、存備份。公告內文很多，放在主執行緒解析會讓畫面頓一下
     @concurrent
-    nonisolated private static func decodeAndSave(_ bytes: Data) async throws -> NoticeData {
+    nonisolated private static func decodeAndSave(_ bytes: Data, to cacheURL: URL) async throws -> NoticeData {
         let decoded = try JSONDecoder().decode(NoticeData.self, from: bytes)
         try? bytes.write(to: cacheURL, options: .atomic)  // 解析成功才存，壞掉的資料不會蓋掉備份
         return decoded
-    }
-
-    // MARK: - 存在手機上的備份
-
-    nonisolated private static var cacheURL: URL {
-        URL.cachesDirectory.appending(path: "notices.json")
     }
 }

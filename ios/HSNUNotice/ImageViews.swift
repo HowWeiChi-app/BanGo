@@ -100,9 +100,21 @@ final class ImageCache {
 /// 正在放大的圖片：哪一張、從畫面上哪個位置放大
 struct ZoomedImage {
     let sourceID: UUID    // 被點的那個圖片元件，放大時把它藏起來，看起來像圖片被拿起來
-    let url: URL
+    let url: URL?         // 網路上的圖；PDF 附件的頁面沒有網址
     let preview: UIImage  // 列表上的縮小版：放大動畫先用它，高解析度的圖在背景載入
     let from: CGRect      // 圖片在螢幕上的位置（整個螢幕的座標）
+    /// 不是網路圖片時（PDF 的頁面），放大後怎麼拿高解析度的版本
+    var loadLarge: (@Sendable () async -> UIImage?)? = nil
+    /// 好幾張可以左右滑的（PDF 的每一頁）；空的就是只有這一張
+    var gallery: [GalleryPage] = []
+    var startIndex = 0
+}
+
+/// 相簿裡的一張：列表上已經畫好的縮圖（可能還沒有）、寬高比、怎麼拿高解析度的
+struct GalleryPage: @unchecked Sendable {
+    let preview: UIImage?
+    let ratio: CGFloat
+    let load: @Sendable () async -> UIImage?
 }
 
 /// 記住圖片的大小。用 class 存，改了不會讓畫面重畫
@@ -155,8 +167,8 @@ struct NoticeImage: View {
                 .highPriorityGesture(tap)
                 .accessibilityElement()
                 .accessibilityAddTraits(.isButton)
-                .accessibilityLabel("公告圖片")
-                .accessibilityHint("放大圖片")
+                .accessibilityLabel(L("公告圖片", "Notice image"))
+                .accessibilityHint(L("放大圖片", "Zoom image"))
                 .accessibilityAction { zoom(from: CGRect(origin: .zero, size: size.value)) }
                 .task(id: url) {
                     guard image == nil else { return }
@@ -201,9 +213,13 @@ struct ZoomLayer: View {
 
 /// 放大中的圖片：蓋在整個 App 最上面，只有圖片和純黑底。
 /// 兩指縮放、點兩下放大；點一下或往下拉就縮回原位。
+/// 有好幾張（PDF 的每一頁）時左右滑換張，下面顯示第幾張；換到別張再關閉就淡出（不知道別張在列表上的位置）。
 struct ImageOverlay: View {
     let zoomed: ZoomedImage
     let onClosed: () -> Void
+
+    @State private var current = 0          // 相簿現在在第幾張
+    @State private var fading = false       // 換過張再關閉：整層淡出
 
     @State private var expanded = false     // false = 在列表裡的位置，true = 全螢幕
     @State private var interactive = false  // 放大動畫結束後才換成可以縮放的版本
@@ -219,7 +235,28 @@ struct ImageOverlay: View {
                 Color.black
                     .opacity(expanded ? 1 - min(abs(pull) / 400, 0.6) : 0)
 
-                if interactive {
+                if interactive && zoomed.gallery.count > 1 {
+                    TabView(selection: $current) {
+                        ForEach(zoomed.gallery.indices, id: \.self) { i in
+                            GalleryPageView(page: zoomed.gallery[i],
+                                            first: i == zoomed.startIndex ? (large ?? zoomed.preview) : nil,
+                                            onTap: close, onPull: { pull = $0 }, onPullRelease: close)
+                                .tag(i)
+                        }
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .overlay(alignment: .bottom) {
+                        Text("\(current + 1) / \(zoomed.gallery.count)")
+                            .font(.app(.footnote, .semibold))
+                            .monospacedDigit()
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(.white.opacity(0.15), in: .capsule)
+                            .padding(.bottom, 44)
+                            .opacity(pull == 0 ? 1 : 0)
+                    }
+                } else if interactive {
                     ZoomableImage(image: large ?? zoomed.preview, onTap: close, onPull: { pull = $0 }, onPullRelease: close)
                 } else {
                     // 動畫用的圖片：位置、大小、圓角從列表裡的樣子變成全螢幕
@@ -233,18 +270,28 @@ struct ImageOverlay: View {
             }
         }
         .ignoresSafeArea()
+        .opacity(fading ? 0 : 1)
         .accessibilityAction(.escape) { close() }  // 用 VoiceOver 時兩指畫 Z 關閉
         .onAppear {
+            current = zoomed.startIndex
             withAnimation(.spring(duration: 0.38, bounce: 0.12)) {
                 expanded = true
             } completion: {
                 interactive = true
             }
         }
-        .task { large = await ImageCache.shared.largeImage(zoomed.url) }
+        .task {
+            if let load = zoomed.loadLarge { large = await load() }
+            else if let url = zoomed.url { large = await ImageCache.shared.largeImage(url) }
+        }
     }
 
     private func close() {
+        // 換到別張了：縮回去的位置不對，直接淡出
+        if current != zoomed.startIndex {
+            withAnimation(.easeOut(duration: 0.22)) { fading = true } completion: { onClosed() }
+            return
+        }
         interactive = false
         withAnimation(.spring(duration: 0.32)) {
             expanded = false
@@ -259,6 +306,31 @@ struct ImageOverlay: View {
         let scale = min(screen.width / max(size.width, 1), screen.height / max(size.height, 1))
         let w = size.width * scale, h = size.height * scale
         return CGRect(x: (screen.width - w) / 2, y: (screen.height - h) / 2, width: w, height: h)
+    }
+}
+
+/// 相簿的一張：先用縮圖（有的話），高解析度的畫好再換上去
+private struct GalleryPageView: View {
+    let page: GalleryPage
+    let first: UIImage?   // 一開始點的那張：放大動畫已經有圖了，直接用
+    let onTap: () -> Void
+    let onPull: (CGFloat) -> Void
+    let onPullRelease: () -> Void
+
+    @State private var large: UIImage?
+
+    var body: some View {
+        Group {
+            if let image = large ?? first ?? page.preview {
+                ZoomableImage(image: image, onTap: onTap, onPull: onPull, onPullRelease: onPullRelease)
+            } else {
+                ProgressView().tint(.white).frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .task {
+            guard large == nil else { return }
+            large = await page.load()
+        }
     }
 }
 
