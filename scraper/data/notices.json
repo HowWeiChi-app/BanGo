@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-17 13:20",
+ "updated": "2026-11-17 13:41",
  "categories": [
   "教務",
   "學務",
@@ -8,16 +8,29 @@
   "比賽"
  ],
  "topics": [
-  "考試"
+  "考試",
+  "停課"
  ],
  "notices": [
   {
    "title": "國立臺灣藝術教育館「115年教育部文藝創作獎」分享會",
-   "date": "2026-11-17 10:34",
+   "date": "2026-11-17 13:27",
    "dept": "",
    "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRsUk5lRTVVV1RWUFZHYzk1ZEdSUEJ6YTY1RWUwc0dWaW50ZWx5",
    "source": "來文公告",
    "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "朝陽科技大學「2026全國高中職學校小論文競賽－智慧照顧與高齡創新生活」",
+   "date": "2026-11-17 13:24",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVQxUnJNMDlFUlRST2FtTTk1dEdSUEJ6YTY1RWUwc0dWaW50ZWx5",
+   "source": "學生",
+   "categories": [
+    "比賽"
+   ],
    "topics": [],
    "for_students": true
   },
