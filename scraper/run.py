@@ -8,12 +8,14 @@ import os
 import sys
 from pathlib import Path
 
+from export import load_notices, merge, save_notices
 from filters import KEYWORD_CATEGORIES, TOPICS, classify, should_push
 from notify_discord import build_messages, post, send
 from parser import ParseError, fetch_all
 from store import find_new, load_seen, save_seen
 
 SEEN_PATH = Path(__file__).parent / "data" / "seen.json"
+NOTICES_PATH = Path(__file__).parent / "data" / "notices.json"
 
 # Discord 是全班共用一個頻道，沒辦法每個人設定不同，所以所有類別和主題都發
 CHANNEL_SUBSCRIBED = set(KEYWORD_CATEGORIES) | set(TOPICS)
@@ -45,6 +47,10 @@ def main() -> int:
         return 1
     for n in notices:
         classify(n)
+
+    # 給 App 讀的公告清單（跟 Discord 通知無關，先存起來也不會造成重複通知）
+    if save_notices(NOTICES_PATH, merge(load_notices(NOTICES_PATH), notices)):
+        print("notices.json 已更新")
 
     current = {n.url for n in notices}
     seen = load_seen(SEEN_PATH)

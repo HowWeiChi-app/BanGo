@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from export import load_notices, merge, save_notices
 from filters import classify, should_push
 from notice import Notice
 from parser import ParseError, parse_rss
@@ -113,6 +114,21 @@ class StoreTest(unittest.TestCase):
             # 存檔後再比對一次，就不會重複
             save_seen(path, seen | {n.url for n in current})
             self.assertEqual(find_new(current, load_seen(path)), [])
+
+
+class ExportTest(unittest.TestCase):
+    def test_merge_and_save(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "notices.json"
+            old = [Notice("舊的期中考公告", "2026-11-01 08:00", "", "https://x/1")]
+            current = [Notice("新的獎學金公告", "2026-11-17 08:00", "", "https://x/2")]
+            self.assertTrue(save_notices(path, merge(old, current)))
+
+            loaded = load_notices(path)
+            self.assertEqual([n.title for n in loaded], ["新的獎學金公告", "舊的期中考公告"])  # 新的在前
+            self.assertEqual(loaded[1].topics, ["考試"])  # 舊公告也有重新分類
+            # 內容沒變就不寫檔
+            self.assertFalse(save_notices(path, merge(loaded, current)))
 
 
 class DiscordMessageTest(unittest.TestCase):
