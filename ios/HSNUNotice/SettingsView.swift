@@ -1,4 +1,5 @@
-// 設定頁：選擇要訂閱的類別和主題。用系統的 Form，導覽列的玻璃效果由系統自動處理。
+// 設定頁：選擇要訂閱的類別和主題。
+// 排版參考 Reeder 的設定頁：米白底色、大標題，每一行是灰色圖示加粗體文字，沒有白色卡片。
 
 import SwiftUI
 
@@ -8,50 +9,88 @@ struct SettingsView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
+            List {
                 Section {
                     ForEach(store.categories, id: \.self) { toggle($0, label: $0) }
                 } header: {
-                    Text("類別")
+                    header("類別")
                 } footer: {
-                    Text("依公告是哪個處室、哪種事情分類。")
+                    footer("依公告是哪個處室、哪種事情分類。")
                 }
 
                 Section {
                     ForEach(store.topics, id: \.self) { toggle($0, label: "#\($0)") }
                 } header: {
-                    Text("主題")
+                    header("主題")
                 } footer: {
-                    Text("比類別更細，把同一件事的公告收在一起。#停課 是緊急公告，建議保持開啟。")
+                    footer("比類別更細，把同一件事的公告收在一起。#停課 是緊急公告，建議保持開啟。")
                 }
 
                 Section {
-                    Label {
-                        Text("推播通知還沒有，請打開 App 下拉更新。想即時收到通知，可以先加入班上的 Discord 公告頻道。")
-                    } icon: {
-                        Image(systemName: "bell.slash")
-                    }
+                    item("推播通知", symbol: "bell.slash",
+                         detail: "還沒有，請打開 App 下拉更新。想即時收到，可以先加入 Discord 公告頻道。")
                     if let updated = store.data?.updated, !updated.isEmpty {
                         // 這個時間只有公告有變動才會更新，好幾天沒變不代表壞掉
-                        LabeledContent("最後一次有新公告", value: updated)
+                        item("最後一次有新公告", symbol: "clock", detail: updated)
                     }
                     Link(destination: repoURL) {
-                        Label("原始碼", systemImage: "chevron.left.forwardslash.chevron.right")
+                        item("原始碼", symbol: "chevron.left.forwardslash.chevron.right", detail: "github.com/cyy-615/hsnu-notice")
                     }
+                    .listRowBackground(Color.paper)
                 } header: {
-                    Text("關於")
+                    header("關於")
                 } footer: {
-                    Text("只讀取師大附中校網的公開公告，不需要登入，也不會收集任何個人資料。每 30 分鐘檢查一次校網。")
+                    footer("只讀取師大附中校網的公開公告，不需要登入，也不會收集任何個人資料。每 30 分鐘檢查一次校網。")
                 }
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .background(Color.paper)
+            .foregroundStyle(Color.ink)
             .navigationTitle("設定")
         }
     }
 
+    private func header(_ text: String) -> some View {
+        Text(text)
+            .font(.title3.bold())
+            .foregroundStyle(Color.ink)
+            .textCase(nil)
+            .padding(.top, 12)
+    }
+
+    private func footer(_ text: String) -> some View {
+        Text(text)
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+    }
+
     private func toggle(_ name: String, label: String) -> some View {
-        Toggle(label, isOn: Binding(
+        Toggle(isOn: Binding(
             get: { store.isSubscribed(name) },
             set: { store.setSubscribed(name, $0) }
-        ))
+        )) {
+            Label {
+                Text(label).font(.headline)
+            } icon: {
+                Image(systemName: TagStyle.symbol(name)).foregroundStyle(.secondary)
+            }
+        }
+        .tint(Color.brand)
+        .listRowBackground(Color.paper)
+        .listRowSeparator(.hidden)
+    }
+
+    private func item(_ title: String, symbol: String, detail: String) -> some View {
+        Label {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.headline).foregroundStyle(Color.ink)
+                Text(detail).font(.subheadline).foregroundStyle(.secondary)
+            }
+        } icon: {
+            Image(systemName: symbol).foregroundStyle(.secondary)
+        }
+        .listRowBackground(Color.paper)
+        .listRowSeparator(.hidden)
     }
 }

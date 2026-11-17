@@ -21,6 +21,7 @@ struct ContentView: View {
             }
         }
         .tabBarMinimizeBehavior(.never)
+        .tint(Color.brand)
         .environment(store)
         .task { await store.refresh() }
     }
@@ -32,13 +33,13 @@ struct MyNoticesView: View {
 
     var body: some View {
         NavigationStack {
-            NoticeListView(
+            NoticeTimeline(
+                title: "我的公告",
+                subtitle: "訂閱 \(store.subscribed.count) 個類別",
                 notices: store.myNotices,
                 emptyTitle: store.subscribed.isEmpty ? "還沒有訂閱任何類別" : "目前沒有符合的公告",
                 emptyMessage: "到「設定」打開想看的類別"
             )
-            .navigationTitle("我的公告")
-            .navigationSubtitle("訂閱 \(store.subscribed.count) 個類別")
         }
     }
 }

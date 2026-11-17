@@ -32,6 +32,29 @@ struct Notice: Codable, Identifiable, Hashable {
     /// 把 "2026-11-16 15:16"（台灣時間）轉成 Date，格式不對時是 nil
     var postedAt: Date? { Notice.dateParser.date(from: date) }
 
+    /// 列表右上角的時間，像 Reeder 一樣很短：「剛剛」「5 分」「3 小時」「2 天」，超過一週顯示「11/3」
+    var relativeTime: String {
+        guard let posted = postedAt else { return "" }
+        let minutes = max(0, Int(Date.now.timeIntervalSince(posted) / 60))
+        switch minutes {
+        case ..<1: return "剛剛"
+        case ..<60: return "\(minutes) 分"
+        case ..<(60 * 24): return "\(minutes / 60) 小時"
+        case ..<(60 * 24 * 7): return "\(minutes / 60 / 24) 天"
+        default:
+            let parts = date.prefix(10).split(separator: "-").compactMap { Int($0) }
+            return parts.count == 3 ? "\(parts[1])/\(parts[2])" : ""
+        }
+    }
+
+    /// 內頁的完整日期，例如「2026年11月17日 星期二 14:30」
+    var longDate: String {
+        guard let posted = postedAt else { return date }
+        var style = Date.FormatStyle(date: .complete, time: .shortened, locale: Locale(identifier: "zh_TW"))
+        style.timeZone = TimeZone(identifier: "Asia/Taipei")!
+        return posted.formatted(style)
+    }
+
     private static let dateParser: DateFormatter = {
         let f = DateFormatter()
         f.locale = Locale(identifier: "en_US_POSIX")
