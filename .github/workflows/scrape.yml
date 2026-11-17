@@ -36,6 +36,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: 安裝手機推播要用的套件
+        run: pip install --quiet google-auth requests
+
       - name: 跑測試（測試沒過就不發通知）
         working-directory: scraper
         run: python -m unittest
@@ -45,6 +48,7 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           SEND_TEST: ${{ inputs.send_test }} # 排程自動執行時是空的，不會發測試訊息
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }} # 還沒設定時是空的，就不發手機推播
         run: python run.py
 
       - name: 把看過的公告存回 repo

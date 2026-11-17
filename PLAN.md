@@ -31,14 +31,14 @@
 
 ### MVP（第一版必做）
 
-- [ ] 定時抓取校網公告列表：標題、日期、處室、連結
-- [ ] 偵測新公告（跟上次抓到的結果比對）
-- [ ] 公告分類與過濾：
-  - 依處室或類別過濾（教務、學務、輔導、獎學金、比賽）
+- [x] 定時抓取校網公告列表：標題、日期、處室、連結（師大附中沒有處室資訊）
+- [x] 偵測新公告（跟上次抓到的結果比對）
+- [x] 公告分類與過濾：
+  - 依處室或類別過濾（教務、學務、輔導、獎學金、比賽）→ 師大附中改用標題關鍵字
   - 排除跟學生無關的關鍵字（標案、採購、教師甄選、研習）
-- [ ] 推播新公告到手機
-- [ ] App 內公告列表，點進去打開原始校網頁面
-- [ ] 設定頁：選擇要訂閱的類別
+- [ ] 推播新公告到手機（Discord 已完成；手機推播等 Firebase）
+- [x] App 內公告列表，點進去打開原始校網頁面（App 第一版，還沒在實機上測過）
+- [x] 設定頁：選擇要訂閱的類別
 
 ### 第二階段（有時間再做）
 
@@ -79,6 +79,15 @@
 | 資料儲存 | Firebase Firestore | 免費額度內 |
 | 推播 | Firebase Cloud Messaging (FCM) | 免費 |
 | App | Flutter | 免費 |
+
+### 目前的過渡做法（2026-11-17）
+
+Firebase 專案還沒建立，所以先用免費、不用帳號設定的方式：
+
+- **公告資料**：爬蟲把最近 300 則公告寫進 `scraper/data/notices.json`，由 GitHub Actions commit 回 repo；
+  App 直接從 `raw.githubusercontent.com` 下載這個檔案。之後改成 Firestore 時，只要改 `app/lib/repository.dart`。
+- **編譯 App**：開發者電腦還沒裝 Flutter，由 GitHub Actions（`.github/workflows/build-app.yml`）編譯 APK。
+- **手機推播**：還沒有。需要你們用自己的 Google 帳號建立 Firebase 專案，並把 `google-services.json` 給 App。
 
 **注意：** GitHub Actions 的排程不保證準時，可能延遲幾分鐘到更久。一般公告沒問題，但緊急公告不要完全依賴它。
 
@@ -144,4 +153,5 @@
 - [x] App 框架：**Flutter**（FlutterFire 官方 FCM 套件，打包 APK 簡單）
 - [x] 爬蟲語言：**Python**（requests + BeautifulSoup）
 - [x] 第一階段 iPhone 使用者：**Discord webhook**（不用寫機器人；之後要個人化再換 Telegram）
-- [ ] App 名稱
+- [ ] App 名稱（暫定「附中公告」）
+- [ ] 建立 Firebase 專案（手機推播需要）

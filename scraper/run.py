@@ -10,6 +10,7 @@ from pathlib import Path
 
 from export import load_notices, merge, save_notices
 from filters import KEYWORD_CATEGORIES, TOPICS, classify, should_push
+import notify_fcm
 from notify_discord import build_messages, post, send
 from parser import ParseError, fetch_all
 from store import find_new, load_seen, save_seen
@@ -73,9 +74,22 @@ def main() -> int:
             for msg in build_messages(to_send):
                 print("-" * 40 + "\n" + msg)
 
-    # 發送成功才存；沒發成功的話，下次執行會再試一次
+    # 手機推播：有設定 Firebase 金鑰才發。
+    # 失敗時不中斷：Discord 已經發出去了，如果因此不存檔，下次 Discord 會重複發。
+    # 改成照樣存檔、最後回傳失敗，讓 GitHub 寄信通知開發者。
+    fcm_failed = False
+    fcm_key = os.environ.get("FIREBASE_SERVICE_ACCOUNT", "").strip()
+    if to_send and fcm_key:
+        try:
+            print(f"手機推播已發送 {notify_fcm.send(fcm_key, to_send)} 則")
+        except Exception as e:
+            # 只印例外種類和狀態碼，不印內容，避免金鑰相關資訊出現在公開的執行紀錄
+            print(f"手機推播發送失敗：{type(e).__name__} {getattr(e, 'code', '')}", file=sys.stderr)
+            fcm_failed = True
+
+    # Discord 發送成功才存；沒發成功的話，下次執行會再試一次
     save_seen(SEEN_PATH, seen | current)
-    return 0
+    return 1 if fcm_failed else 0
 
 
 if __name__ == "__main__":

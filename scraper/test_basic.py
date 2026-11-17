@@ -5,7 +5,8 @@ import unittest
 from pathlib import Path
 
 from export import load_notices, merge, save_notices
-from filters import classify, should_push
+from filters import KEYWORD_CATEGORIES, TOPICS, classify, should_push
+from notify_fcm import FCM_TOPICS, build_message
 from notice import Notice
 from parser import ParseError, parse_rss
 from notify_discord import MAX_LEN, build_messages, format_notice
@@ -129,6 +130,25 @@ class ExportTest(unittest.TestCase):
             self.assertEqual(loaded[1].topics, ["考試"])  # 舊公告也有重新分類
             # 內容沒變就不寫檔
             self.assertFalse(save_notices(path, merge(loaded, current)))
+
+
+class FcmTest(unittest.TestCase):
+    def test_every_category_and_topic_has_fcm_topic(self):
+        # 新增類別或主題卻忘了加 FCM 主題名稱，訂閱的同學會收不到推播
+        for name in list(KEYWORD_CATEGORIES) + list(TOPICS):
+            self.assertIn(name, FCM_TOPICS)
+        for topic_id in FCM_TOPICS.values():
+            self.assertRegex(topic_id, r"^[a-zA-Z0-9\-_.~%]+$")
+
+    def test_one_message_for_multiple_tags(self):
+        n = classify(make("115學年第1學期_第二次期中考_考試範圍"))
+        msg = build_message(n)["message"]
+        self.assertEqual(msg["condition"], "'academic' in topics || 'exam' in topics")
+        self.assertEqual(msg["notification"]["body"], n.title)
+        self.assertEqual(msg["data"]["url"], n.url)
+
+    def test_no_tags_no_message(self):
+        self.assertIsNone(build_message(classify(make("115年度新購Hyread電子書"))))
 
 
 class DiscordMessageTest(unittest.TestCase):
