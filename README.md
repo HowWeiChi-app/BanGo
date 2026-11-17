@@ -54,6 +54,19 @@ python3 -m unittest -v   # 跑測試
 Actions 分頁 →「編譯 App」→ 點最新一次成功的執行 → 最下面「Artifacts」下載 `hsnu-notice-apk`
 → 解壓縮得到 `app-release.apk`，傳到 Android 手機上安裝（要允許「安裝不明來源的應用程式」）。
 
+### 發給同學（GitHub Release）
+
+Artifacts 要登入 GitHub 才能下載，而且 30 天後會刪除。要發給同學時，推一個版本標籤：
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+GitHub Actions 會自動編譯，並在 Releases 頁面建立「附中公告 v0.1.0」附上 APK，
+同學不用登入就能從 <https://github.com/cyy-615/hsnu-notice/releases/latest> 下載。
+下一版記得改 `app/pubspec.yaml` 的 `version`（例如 `0.2.0+2`，`+` 後面的數字每版都要變大，手機才能直接更新）。
+
 ### 在自己電腦上開發
 
 1. 安裝 [Flutter](https://docs.flutter.dev/get-started/install) 和 Android Studio。
