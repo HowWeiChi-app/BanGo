@@ -1,6 +1,9 @@
 // 設定頁：選擇要訂閱的類別和主題。
 // 照 Reeder：從側邊欄左上角打開的彈出頁，左上角 X 關閉；米白底色、大標題，
-// 每一行是灰色圖示加粗體文字，沒有白色卡片。
+// 每一行是灰色圖示加粗體文字，沒有白色卡片，分組之間用細線隔開。
+//
+// 注意：不用 List 的 Section 標題。純列表樣式的段落標題會黏在上方，而且自帶白色底，
+// 在米白背景上會變成一條白條；所以標題、說明文字都當成普通的一行。
 
 import SwiftUI
 
@@ -12,55 +15,41 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
-                    ForEach(store.categories, id: \.self) { toggle($0, label: $0) }
-                } header: {
-                    header("類別")
-                } footer: {
-                    footer("依公告是哪個處室、哪種事情分類。")
-                }
+                header("類別")
+                ForEach(store.categories, id: \.self) { toggle($0, label: $0) }
+                note("依公告是哪個處室、哪種事情分類。")
+                divider
 
-                Section {
-                    ForEach(store.topics, id: \.self) { toggle($0, label: "#\($0)") }
-                } header: {
-                    header("主題")
-                } footer: {
-                    footer("比類別更細，把同一件事的公告收在一起。#停課 是緊急公告，建議保持開啟。")
-                }
+                header("主題")
+                ForEach(store.topics, id: \.self) { toggle($0, label: "#\($0)") }
+                note("比類別更細，把同一件事的公告收在一起。#停課 是緊急公告，建議保持開啟。")
+                divider
 
-                Section {
+                header("顯示")
+                row {
                     Toggle(isOn: Binding(get: { store.showUnrelated }, set: { store.showUnrelated = $0 })) {
-                        Label {
-                            Text("顯示跟學生無關的公告").font(.headline)
-                        } icon: {
-                            Image(systemName: "eye").foregroundStyle(.secondary)
-                        }
+                        label("顯示跟學生無關的公告", symbol: "eye")
                     }
                     .tint(Color.brand)
-                    .listRowBackground(Color.paper)
-                    .listRowSeparator(.hidden)
-                } header: {
-                    header("顯示")
-                } footer: {
-                    footer("例如教師研習、標案。打開後會出現在「全部公告」，顏色比較淡。")
                 }
+                note("例如教師研習、標案。打開後會出現在「全部公告」，顏色比較淡。")
+                divider
 
-                Section {
-                    item("推播通知", symbol: "bell.slash",
-                         detail: "還沒有，請打開 App 下拉更新。想即時收到，可以先加入 Discord 公告頻道。")
-                    if let updated = store.data?.updated, !updated.isEmpty {
-                        // 這個時間只有公告有變動才會更新，好幾天沒變不代表壞掉
-                        item("最後一次有新公告", symbol: "clock", detail: updated)
-                    }
-                    Link(destination: repoURL) {
-                        item("原始碼", symbol: "chevron.left.forwardslash.chevron.right", detail: "github.com/cyy-615/hsnu-notice")
-                    }
-                    .listRowBackground(Color.paper)
-                } header: {
-                    header("關於")
-                } footer: {
-                    footer("只讀取師大附中校網的公開公告，不需要登入，也不會收集任何個人資料。每 30 分鐘檢查一次校網。")
+                header("關於")
+                row {
+                    label("推播通知", symbol: "bell.slash",
+                          detail: "還沒有，請打開 App 下拉更新。想即時收到，可以先加入 Discord 公告頻道。")
                 }
+                if let updated = store.data?.updated, !updated.isEmpty {
+                    // 這個時間只有公告有變動才會更新，好幾天沒變不代表壞掉
+                    row { label("最後一次有新公告", symbol: "clock", detail: updated) }
+                }
+                row {
+                    Link(destination: repoURL) {
+                        label("原始碼", symbol: "chevron.left.forwardslash.chevron.right", detail: "github.com/cyy-615/hsnu-notice")
+                    }
+                }
+                note("只讀取師大附中校網的公開公告，不需要登入，也不會收集任何個人資料。每 30 分鐘檢查一次校網。")
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
@@ -75,48 +64,63 @@ struct SettingsView: View {
                 }
             }
         }
+        .presentationBackground(Color.paper)  // 彈出頁本身的底色也改成米白，不然邊緣會露出白色
+    }
+
+    // MARK: - 每一行的樣式（都是普通的一行，沒有白色底、沒有分隔線）
+
+    private func row<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        content()
+            .listRowBackground(Color.paper)
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: 10, leading: 22, bottom: 10, trailing: 22))
     }
 
     private func header(_ text: String) -> some View {
-        Text(text)
-            .font(.title3.bold())
-            .foregroundStyle(Color.ink)
-            .textCase(nil)
-            .padding(.top, 12)
-    }
-
-    private func footer(_ text: String) -> some View {
-        Text(text)
-            .font(.footnote)
-            .foregroundStyle(.secondary)
-    }
-
-    private func toggle(_ name: String, label: String) -> some View {
-        Toggle(isOn: Binding(
-            get: { store.isSubscribed(name) },
-            set: { store.setSubscribed(name, $0) }
-        )) {
-            Label {
-                Text(label).font(.headline)
-            } icon: {
-                Image(systemName: TagStyle.symbol(name)).foregroundStyle(.secondary)
-            }
+        row {
+            Text(text)
+                .font(.title3.bold())
+                .padding(.top, 8)
         }
-        .tint(Color.brand)
-        .listRowBackground(Color.paper)
-        .listRowSeparator(.hidden)
     }
 
-    private func item(_ title: String, symbol: String, detail: String) -> some View {
+    private func note(_ text: String) -> some View {
+        row {
+            Text(text)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    /// 分組之間的細線
+    private var divider: some View {
+        row {
+            Rectangle().fill(Color.paperChip).frame(height: 1)
+        }
+    }
+
+    private func label(_ title: String, symbol: String, detail: String? = nil) -> some View {
         Label {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.headline).foregroundStyle(Color.ink)
-                Text(detail).font(.subheadline).foregroundStyle(.secondary)
+                if let detail {
+                    Text(detail).font(.subheadline).foregroundStyle(.secondary)
+                }
             }
         } icon: {
             Image(systemName: symbol).foregroundStyle(.secondary)
         }
-        .listRowBackground(Color.paper)
-        .listRowSeparator(.hidden)
+    }
+
+    private func toggle(_ name: String, label text: String) -> some View {
+        row {
+            Toggle(isOn: Binding(
+                get: { store.isSubscribed(name) },
+                set: { store.setSubscribed(name, $0) }
+            )) {
+                label(text, symbol: TagStyle.symbol(name))
+            }
+            .tint(Color.brand)
+        }
     }
 }

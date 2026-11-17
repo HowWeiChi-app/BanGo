@@ -12,6 +12,7 @@ import SwiftUI
 struct NoticeTimeline: View {
     @Environment(NoticeStore.self) private var store
     @Environment(\.dismiss) private var dismiss
+    @Environment(Router.self) private var router
     let title: String
     let subtitle: String
     let notices: [Notice]
@@ -33,24 +34,21 @@ struct NoticeTimeline: View {
         ScrollViewReader { proxy in
             List {
                 ForEach(shown) { notice in
-                    let highlighted = notice.id == lastOpened
-                    NoticeRow(notice: notice)
-                        .padding(highlighted ? 16 : 0)  // 卡片內留白，讓文字跟其他公告對齊
-                        .background {
-                            if highlighted {
-                                RoundedRectangle(cornerRadius: 26).fill(Color.paperChip.opacity(0.75))
-                            }
-                        }
-                        // 用隱藏的 NavigationLink 蓋在下面，列表右邊才不會多出「>」
-                        .background { NavigationLink(value: notice) { EmptyView() }.opacity(0) }
-                        .simultaneousGesture(TapGesture().onEnded { lastOpened = notice.id })
-                        // Reeder 左右留白比較寬（約 30pt）；卡片本身離螢幕邊 14pt
-                        .listRowInsets(highlighted
-                            ? EdgeInsets(top: 8, leading: 14, bottom: 8, trailing: 14)
-                            : EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
-                        .listRowBackground(Color.paper)
-                        .listRowSeparatorTint(Color.paperChip)
-                        .id(notice.id)
+                    Button {
+                        lastOpened = notice.id
+                        router.path.append(notice)
+                    } label: {
+                        NoticeRow(notice: notice)
+                    }
+                    .buttonStyle(CardPressStyle(highlighted: notice.id == lastOpened))
+                    // 每一則外面都留 14pt，卡片裡面再留 16pt，所以文字離螢幕邊 30pt（跟 Reeder 一樣）。
+                    // 不管有沒有卡片，大小都一樣，點下去排版不會跳。
+                    .listRowInsets(EdgeInsets(top: 4, leading: 14, bottom: 4, trailing: 14))
+                    .listRowBackground(Color.paper)
+                    .listRowSeparatorTint(Color.paperChip)
+                    .alignmentGuide(.listRowSeparatorLeading) { _ in 16 }
+                    .alignmentGuide(.listRowSeparatorTrailing) { $0.width - 16 }
+                    .id(notice.id)
                 }
             }
             .listStyle(.plain)
@@ -130,6 +128,22 @@ struct NoticeTimeline: View {
     }
 }
 
+/// 公告的點擊效果：按下去或是上次點開的那則，背後出現灰色圓角卡片（Reeder 的樣子）
+private struct CardPressStyle: ButtonStyle {
+    let highlighted: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(16)
+            .background {
+                RoundedRectangle(cornerRadius: 26)
+                    .fill(Color.paperChip.opacity(configuration.isPressed ? 1 : highlighted ? 0.75 : 0))
+            }
+            .contentShape(.rect(cornerRadius: 26))
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
 /// 按了搜尋按鈕才出現搜尋框（系統的 searchable）
 private struct SearchIfNeeded: ViewModifier {
     @Binding var active: Bool
@@ -206,10 +220,7 @@ struct NoticeRow: View {
             .multilineTextAlignment(.leading)
 
             if let url = notice.imageURL {
-                NoticeImage(url: url)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 200)
-                    .clipShape(.rect(cornerRadius: 12))
+                NoticeImage(url: url, height: 200)
             }
         }
         // 跟學生無關的公告整則淡一點
@@ -227,21 +238,24 @@ struct NoticeRow: View {
     }
 }
 
-/// 公告裡的圖片：下載中顯示灰色底，載入失敗就整塊不顯示
+/// 公告裡的圖片：固定高度、寬度跟著畫面，圖片太大就裁掉多的部分。
+/// 先放一個固定大小的框，圖片疊在框上面再裁切；直接把圖片 scaledToFill 會把整則公告撐開。
 struct NoticeImage: View {
     let url: URL
+    let height: CGFloat
 
     var body: some View {
-        AsyncImage(url: url) { phase in
-            switch phase {
-            case .success(let image):
-                image.resizable().scaledToFill()
-            case .failure:
-                Color.clear
-            default:
-                Color.paperChip
+        Color.paperChip
+            .frame(maxWidth: .infinity)
+            .frame(height: height)
+            .overlay {
+                AsyncImage(url: url) { phase in
+                    if let image = phase.image {
+                        image.resizable().scaledToFill()
+                    }
+                }
             }
-        }
+            .clipShape(.rect(cornerRadius: 12))
     }
 }
 
@@ -289,10 +303,7 @@ struct NoticeDetailView: View {
                 }
 
                 if let imageURL = notice.imageURL {
-                    NoticeImage(url: imageURL)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 220)
-                        .clipShape(.rect(cornerRadius: 12))
+                    NoticeImage(url: imageURL, height: 220)
                         .padding(.top, 24)
                 }
 

@@ -169,18 +169,27 @@ private struct SidebarRow<Content: View>: View {
                         .background(Color.paperChip, in: .capsule)
                 }
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background {
-                if filter == selected {
-                    RoundedRectangle(cornerRadius: 16).fill(Color.paperChip.opacity(0.7))
-                }
-            }
-            .contentShape(.rect)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(SidebarPressStyle(selected: filter == selected))
         .listRowBackground(Color.paper)
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 12))
+    }
+}
+
+/// 側邊欄的點擊效果：按下去或是目前在看的那一項，背後出現灰色圓角底
+private struct SidebarPressStyle: ButtonStyle {
+    let selected: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background {
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.paperChip.opacity(configuration.isPressed ? 1 : selected ? 0.7 : 0))
+            }
+            .contentShape(.rect(cornerRadius: 16))
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
     }
 }
