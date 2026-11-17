@@ -1,6 +1,6 @@
 // 設定頁：選擇要訂閱的類別和主題。
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'models.dart';

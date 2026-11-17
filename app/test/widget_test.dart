@@ -1,6 +1,6 @@
 // 測試畫面元件。執行：flutter test
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hsnu_notice/models.dart';
 import 'package:hsnu_notice/notice_list.dart';

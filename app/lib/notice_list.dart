@@ -1,6 +1,6 @@
 // 公告列表相關的元件：單則公告、可下拉更新的列表、「全部公告」頁的篩選。
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'models.dart';

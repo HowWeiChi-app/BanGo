@@ -1,6 +1,6 @@
 // 主畫面：下方三個分頁「我的公告」「全部公告」「設定」，並負責載入資料。
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'models.dart';
 import 'notice_list.dart';

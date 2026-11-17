@@ -1,7 +1,7 @@
 // 模擬使用者操作整個 App：打開、切換分頁、改訂閱設定、網路斷掉。
 // 用假的資料來源，不會真的連網路。執行：flutter test
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hsnu_notice/main.dart';
 import 'package:hsnu_notice/models.dart';

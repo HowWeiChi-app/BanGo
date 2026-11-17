@@ -4,11 +4,13 @@ publish_to: "none"
 version: 0.1.0+1
 
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.13.0
+  flutter: ">=3.47.0" # material_ui 需要；電腦上的 Flutter 太舊時，執行 flutter upgrade
 
 dependencies:
   flutter:
     sdk: flutter
+  material_ui: ^1.10.0        # Material 元件（Flutter 3.47 起從 flutter 套件拆出來，官方建議改用這個）
   http: ^1.2.0                # 下載公告資料
   shared_preferences: ^2.3.0  # 記住訂閱設定、離線時顯示上次的公告
   url_launcher: ^6.3.0        # 點公告時用瀏覽器打開校網原文
