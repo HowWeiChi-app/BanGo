@@ -44,6 +44,9 @@ jobs:
       - name: 產生 Android 專案檔
         run: bash tool/prepare_android.sh
 
+      - name: 確認網路權限有加上（沒有的話 App 會抓不到公告）
+        run: grep -q 'android.permission.INTERNET' android/app/src/main/AndroidManifest.xml
+
       - name: 下載套件
         run: flutter pub get
 
