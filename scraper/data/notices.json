@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-17 13:06",
+ "updated": "2026-11-17 13:20",
  "categories": [
   "教務",
   "學務",
@@ -26,10 +26,20 @@
    "date": "2026-11-17 09:49",
    "dept": "",
    "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRVUk5lVTlFYTNsTmVtczkzZEdSUEJ6YTY1RWUwc0dWaW50ZWx5",
-   "source": "來文公告",
+   "source": "學生",
    "categories": [
     "比賽"
    ],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "公告財團法人金車文教基金會【文化任意門—邁向遠方，走向自己：西班牙聖雅各之路 × 日本熊野古道】線上講座",
+   "date": "2026-11-17 09:19",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRXcEZNazFxWjNoTlJHczkwTUdSUEJ6YTY1RWUwc0dWaW50ZWx5",
+   "source": "學生",
+   "categories": [],
    "topics": [],
    "for_students": true
   },
@@ -96,7 +106,7 @@
    "date": "2026-11-16 13:26",
    "dept": "",
    "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRucFpNMDE2U1hwUFZGRTl5RUVSUEJ6YTY1RWUwc0dWaW50ZWx5",
-   "source": "來文公告",
+   "source": "學生",
    "categories": [],
    "topics": [],
    "for_students": true
@@ -120,6 +130,18 @@
    "categories": [],
    "topics": [],
    "for_students": false
+  },
+  {
+   "title": "【校內獎學金】115學年度第1學期：公告本學期校內獎學金得獎名單",
+   "date": "2026-11-16 09:59",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRXcEZNVTFFU1RSTlZHTTl3c21lT0J6YTY1RWUwc0dWaW50ZWx5",
+   "source": "學生",
+   "categories": [
+    "獎學金"
+   ],
+   "topics": [],
+   "for_students": true
   },
   {
    "title": "轉知台灣人權促進會與東吳人權學程共同辦理「《風吹 Breaking The Wall》紀錄片放映暨映後座談」活動資訊",
@@ -265,7 +287,7 @@
    "date": "2026-11-13 07:56",
    "dept": "",
    "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRtcFplazU2VFhkTlJFRTl6a0VWT0J6YTY1RWUwc0dWaW50ZWx5",
-   "source": "來文公告",
+   "source": "學生",
    "categories": [
     "教務"
    ],
@@ -437,6 +459,18 @@
    "for_students": true
   },
   {
+   "title": "【公告】國立清華大學辦理科普活動競賽「吉娃斯愛科學決戰」體驗賽",
+   "date": "2026-11-11 16:39",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRXcG5NMDFxVVRKUFZHczl5Y21lTkJ6YTY1RWUwc0dWaW50ZWx5",
+   "source": "學生",
+   "categories": [
+    "比賽"
+   ],
+   "topics": [],
+   "for_students": true
+  },
+  {
    "title": "【轉知】國立臺北藝術大學116學年度學士班單獨招生訊息",
    "date": "2026-11-11 15:41",
    "dept": "",
@@ -445,6 +479,16 @@
    "categories": [
     "輔導"
    ],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "嶺東科大「AI智慧辦公與數位轉型實戰班」",
+   "date": "2026-11-11 15:30",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRVUlZNazU2V1hoT2Ftczk1ZG1lTkJ6YTY1RWUwc0dWaW50ZWx5",
+   "source": "學生",
+   "categories": [],
    "topics": [],
    "for_students": true
   },
@@ -493,6 +537,18 @@
    "for_students": true
   },
   {
+   "title": "【校外獎學金】115學年度第1學期：王禪老祖獎助學金",
+   "date": "2026-11-10 16:06",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRtcFplazE2UVhoTlZFazl5c21hTkJ6YTY1RWUwc0dWaW50ZWx5",
+   "source": "學生",
+   "categories": [
+    "獎學金"
+   ],
+   "topics": [],
+   "for_students": true
+  },
+  {
    "title": "115年11月15日-愛校服務(週輔)暨改過銷過名單",
    "date": "2026-11-10 14:26",
    "dept": "",
@@ -529,6 +585,18 @@
    "for_students": true
   },
   {
+   "title": "佛光大學2026「三好AI創新應用競賽」",
+   "date": "2026-11-10 09:25",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRsUkpNMDVxU1hsT2FsVTk2Tm1hTkJ6YTY1RWUwc0dWaW50ZWx5",
+   "source": "學生",
+   "categories": [
+    "比賽"
+   ],
+   "topics": [],
+   "for_students": true
+  },
+  {
    "title": "2026年本校校內推薦日本早稻田大學審查結果",
    "date": "2026-11-09 16:32",
    "dept": "",
@@ -536,6 +604,18 @@
    "source": "重要公告",
    "categories": [
     "教務"
+   ],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "臺北市115學年度中等學校運動會",
+   "date": "2026-11-09 13:34",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRrUkpkMDVxWjNkT2Fsazk1RmthTkJ6YTY1RWUwc0dWaW50ZWx5",
+   "source": "學生",
+   "categories": [
+    "學務"
    ],
    "topics": [],
    "for_students": true
@@ -553,6 +633,28 @@
    "for_students": true
   },
   {
+   "title": "【轉知】香港中文大學（CUHK）2027年本科入學申請開放及入學全額獎學金資訊",
+   "date": "2026-11-09 09:49",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRucFJOVTFxYTNoT2VsRTkwY0dWTkJ6YTY1RWUwc0dWaW50ZWx5",
+   "source": "學生",
+   "categories": [
+    "獎學金"
+   ],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "轉知 [香港浸會大學線上講座] Step-by-Step Guide to HKBU Admissions",
+   "date": "2026-11-09 09:43",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRrUlJOVTFxV1hsT1JGRTkwY0dWTkJ6YTY1RWUwc0dWaW50ZWx5",
+   "source": "學生",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
    "title": "公告本校116繁星推薦校內推薦作業實施辦法【115.11.05通過】",
    "date": "2026-11-06 14:00",
    "dept": "",
@@ -561,6 +663,258 @@
    "categories": [
     "教務"
    ],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "115學年第1學期團體活動一覽表",
+   "date": "2026-10-08 20:45",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRYcHJkMDlFWnpWT2VtTTk2MUVST1J6WjY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "115學年度第1學期行事曆",
+   "date": "2026-09-21 09:16",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRXcFZlazVFVlRKT1JHczk2VkZWUFZ6WjY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "115學年度暑假行事曆",
+   "date": "2026-07-13 09:38",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRWUnJOVTVFVFRKUFJFMDk0RkVSUGwzWjY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "114學年第二學期團體活動課程表",
+   "date": "2026-02-24 17:55",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVQxUk5lVTVVWnpGTlJFMDl4a0VWUGgzWTY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [
+    "教務"
+   ],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "114學年度第2學期行事曆",
+   "date": "2026-02-24 12:57",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRVUlZNVTlFWXpCTlJGVTl3Y21lT1JUVzY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "公告：合作社114學年度寒假營業時間(115年1、2月)",
+   "date": "2026-01-23 17:30",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRrUmpNRTVxUlRWTlZHczkzbEZWTlZUVzY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "圖書館寒假開放時間及借閱期限調整",
+   "date": "2026-01-19 09:12",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVQxUkZNRTFxU1RST2Frazl3Y21lT1JUVzY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "圖書館一樓閱覽室開放時間表(1/5-1/23)",
+   "date": "2026-01-13 08:57",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRXcFJNVTFVV1hkT1JHTTl3Y0dWT05UVzY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "114學年度第1學期行事曆",
+   "date": "2025-09-03 07:42",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRucFplVTlFV1RKUFZFRTk1ZEdWT0ZUVjY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "114學年第1學期團體活動一覽表",
+   "date": "2025-09-01 13:34",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRsUnJkMDVFV1hoT1ZFRTl3RWtlT0pUVjY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "公告：合作社114學年度暑假營業時間(114年7、8月)",
+   "date": "2025-06-27 14:09",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRrUlZlVTE2VlhkT1ZGRTl3RUVSTmhYVjY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "114學年度暑假(7-8月)行事曆",
+   "date": "2025-06-26 13:35",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRXcFplVTVxWnpGT2FsVTk2bEVWTmRYVjY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "圖書館一樓閱覽室開放時間調整公告",
+   "date": "2025-03-17 08:29",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVQxUm5lRTFxVFhwUFJHczkzTkdWTmxYVTY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "113學年度第2學期圖書館行事曆",
+   "date": "2025-02-07 08:58",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRucFpNRTVVU1ROTmVtTTkxY0dSUFJUVDY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "113學年度第2學期行事曆",
+   "date": "2025-01-17 12:09",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRrUlZlVTU2U1RKTlJFMDkwTUdSTk5UVDY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "附圖一樓閱覽室開放時間表(12/30-1/17)",
+   "date": "2025-01-06 08:22",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRucFZNVTFxWjNkT2FsVTl5VUVWT0ZUVDY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "附圖一樓閱覽室開放時間表(11/18-11/29)",
+   "date": "2024-11-18 08:58",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRrUk5NazVxV1RKTlZFazk0dEdSUGhYVDY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "113學年度第1學期圖書館行事曆",
+   "date": "2024-10-22 09:18",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRsUkJlRTFxYXpCT2VrVTl3a0VWTkJUUzY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "113學年度第1學期行事曆",
+   "date": "2024-10-09 16:42",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRYcEplVTE2VVhkUFZFRTkzMUVSTkJUUzY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "113學年第1學期團體活動一覽表(0903修正)",
+   "date": "2024-09-05 13:38",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRWUkpNMDlFUVhoT2FsVTk2bEVST0ZUUzY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "圖書館暑假期間開放時間及借閱期限調整公告",
+   "date": "2024-06-28 08:46",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRrUm5lazVVUlRWT1JGRTl4MEVWT1ZUUjY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "113學年度暑假(7-8月)行事曆",
+   "date": "2024-06-26 14:46",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRtcFJlVTFVWnpKT2VtYzl4MGtlTlJUUjY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "附圖一樓閱覽室開放時間表(6/17-6/28)",
+   "date": "2024-06-17 08:28",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRVUlJNazFFVFRCTlJHYzl3Y0dWT1JUUjY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "5/12(日)配合校園環境消毒作業、6/23(日)全校停電，電力維修。圖書館閱覽室全日不開放",
+   "date": "2024-05-06 12:13",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRucHJNVTVVWTNoT2Vrazl6a0ZWUEJUUjY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
+   "topics": [],
+   "for_students": true
+  },
+  {
+   "title": "112學年度第2學期行事曆",
+   "date": "2024-05-03 13:10",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRWUlpNMDU2WnpGUFJFVTl4Y0dSUEZUUTY1RWUwc0dWaW50ZWx5",
+   "source": "行事曆",
+   "categories": [],
    "topics": [],
    "for_students": true
   }

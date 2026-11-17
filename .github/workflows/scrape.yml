@@ -57,4 +57,13 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add scraper/data/seen.json scraper/data/notices.json
           # 沒有新公告就沒有變動，不 commit
-          git diff --cached --quiet || (git commit -m "更新已讀公告" && git push)
+          git diff --cached --quiet && exit 0
+          git commit -m "更新已讀公告"
+          # 執行期間如果有人推了新的 commit，直接 push 會被拒絕，
+          # 已讀紀錄沒存到，下次就會重複發通知。所以先把別人的 commit 拉下來再推，失敗就重試幾次。
+          # （data/ 裡的檔案只有這個機器人會改，不會有衝突）
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && exit 0
+            sleep 5
+          done
+          exit 1

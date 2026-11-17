@@ -13,7 +13,7 @@ from filters import KEYWORD_CATEGORIES, TOPICS, classify, should_push
 import notify_fcm
 from notify_discord import build_messages, post, send
 from parser import ParseError, fetch_all
-from store import find_new, load_seen, save_seen
+from store import find_new, is_recent, load_seen, save_seen
 
 SEEN_PATH = Path(__file__).parent / "data" / "seen.json"
 NOTICES_PATH = Path(__file__).parent / "data" / "notices.json"
@@ -62,9 +62,10 @@ def main() -> int:
         return 0
 
     new = find_new(notices, seen)
-    to_send = [n for n in new if should_push(n, CHANNEL_SUBSCRIBED)]
+    to_send = [n for n in new if should_push(n, CHANNEL_SUBSCRIBED) and is_recent(n)]
     to_send.reverse()  # 舊的先發，Discord 裡最新的就會在最下面
-    print(f"新公告 {len(new)} 則，要發的 {len(to_send)} 則")
+    old = sum(1 for n in new if not is_recent(n))
+    print(f"新公告 {len(new)} 則（其中 {old} 則超過 2 天不推播），要發的 {len(to_send)} 則")
 
     if to_send:
         if webhook:

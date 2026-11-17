@@ -2,6 +2,7 @@
 
 import tempfile
 import unittest
+from datetime import datetime
 from pathlib import Path
 
 from export import load_notices, merge, save_notices
@@ -10,7 +11,7 @@ from notify_fcm import FCM_TOPICS, build_message
 from notice import Notice
 from parser import ParseError, parse_rss
 from notify_discord import MAX_LEN, build_messages, format_notice
-from store import find_new, load_seen, save_seen
+from store import TAIPEI, find_new, is_recent, load_seen, save_seen
 
 
 def make(title, dept="", url=None):
@@ -115,6 +116,15 @@ class StoreTest(unittest.TestCase):
             # 存檔後再比對一次，就不會重複
             save_seen(path, seen | {n.url for n in current})
             self.assertEqual(find_new(current, load_seen(path)), [])
+
+
+class RecentTest(unittest.TestCase):
+    def test_only_recent_notices_are_pushed(self):
+        now = datetime(2026, 11, 17, 13, 0, tzinfo=TAIPEI)
+        self.assertTrue(is_recent(Notice("今天", "2026-11-17 08:00", "", "u1"), now))
+        self.assertTrue(is_recent(Notice("前天下午", "2026-11-15 14:00", "", "u2"), now))
+        self.assertFalse(is_recent(Notice("上學期行事曆", "2026-09-21 09:16", "", "u3"), now))
+        self.assertTrue(is_recent(Notice("日期壞掉", "不知道", "", "u4"), now))  # 寧可推也不要漏
 
 
 class ExportTest(unittest.TestCase):

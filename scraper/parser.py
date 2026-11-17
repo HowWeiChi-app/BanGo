@@ -13,9 +13,15 @@ from notice import Notice
 BASE = "https://www.hs.ntnu.edu.tw"
 
 # 公告分類名稱 → RSS 網址（從校網首頁各分類旁的「RSS 訂閱」按鈕取得）
+# 同一則公告可能同時出現在好幾個分類（網址相同），會以排在前面的分類為準。
+# 校網還有這些分類，目前刻意不抓：
+#   榮譽榜（「賀！本校參與…競賽榮獲佳績」，會被當成比賽公告推播，太吵）
+#   研習資訊（教師研習）、新冠肺炎專區（已停用）、新生專區（只有暑假有用，到時候再加）
 FEEDS = {
     "重要公告": BASE + "/rssfeeds?a=T0RESTEyNTIxODAyNTk2MjI2MVRDaW50ZWx5&b=T0RESTYyaW50ZWx5&c=T0RESU1EVTNOakl5TXpjPXdBek55SWpOeElrVGludGVseQ==",
+    "學生": BASE + "/rssfeeds?a=T0RESTk5OTY1NDU3Njk2MjI2MVRDaW50ZWx5&b=T0RESTYyaW50ZWx5&c=T0RESU1EVTNOakl5TXpjPXdBek55SWpOeElrVGludGVseQ==",
     "來文公告": BASE + "/rssfeeds?a=T0RESTk5ODEzMzE2Mzk2MjI2MVRDaW50ZWx5&b=T0RESTYyaW50ZWx5&c=T0RESU1EVTNOakl5TXpjPXdBek55SWpOeElrVGludGVseQ==",
+    "行事曆": BASE + "/rssfeeds?a=T0RESTQ2OTMxMDQ5MzQ4ODM2MVRDaW50ZWx5&b=T0RESTYyaW50ZWx5&c=T0RESU1EVTNOakl5TXpjPXdBek55SWpOeElrVGludGVseQ==",
 }
 
 # 標明自己是誰，讓學校看得出這不是攻擊
