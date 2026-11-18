@@ -11,6 +11,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 flutter create --platforms=android --org io.github.howweichi --project-name bango .
+# flutter create 會補一份預設說明，這個專案用不到
+grep -qs "A new Flutter project" README.md && rm README.md
 
 python3 - android/app/src/main/AndroidManifest.xml <<'EOF'
 import re
