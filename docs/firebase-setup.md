@@ -31,16 +31,16 @@ FCM 有一個功能叫 topic（主題）：App 在手機上訂閱幾個主題，
 
 1. 打開 <https://console.firebase.google.com/>，用 Google 帳號登入。
    未滿 18 歲的話，Google 帳號的使用規定請先確認（可能需要家長同意）。
-2. 點「建立專案」，名稱填 `hsnu-notice`。
+2. 點「建立專案」，名稱填 `bango`。
 3. 問要不要啟用 Google Analytics：選**不要**（用不到，也少收集資料）。
 4. 等它建好，按「繼續」。
 
 ### 2. 加入 Android App
 
 1. 在專案首頁點 Android 圖示（「將 Firebase 新增至你的 Android 應用程式」）。
-2. **Android 套件名稱**一定要填：`io.github.cyy615.hsnu_notice`
+2. **Android 套件名稱**一定要填：`io.github.cyy615.bango`
    （跟 `app/tool/prepare_android.sh` 裡 `--org` 加 `--project-name` 一致，填錯推播會收不到）
-3. 暱稱隨意，例如「附中公告」。SHA-1 不用填。
+3. 暱稱隨意，例如「BanGo」。SHA-1 不用填。
 4. 下載 `google-services.json`。
 5. 後面「新增 Firebase SDK」的步驟**全部跳過**，按「繼續前往控制台」。程式碼的部分我來改。
 
@@ -59,11 +59,11 @@ FCM 有一個功能叫 topic（主題）：App 在手機上訂閱幾個主題，
 在終端機執行（把路徑換成你下載的檔案位置，檔案可以直接從 Finder 拖進終端機產生路徑）：
 
 ```bash
-gh secret set FIREBASE_SERVICE_ACCOUNT --repo cyy-615/hsnu-notice < ~/Downloads/hsnu-notice-xxxxx.json
+gh secret set FIREBASE_SERVICE_ACCOUNT --repo HowWeiChi-app/bango < ~/Downloads/bango-xxxxx.json
 ```
 
 ```bash
-gh secret set GOOGLE_SERVICES_JSON --repo cyy-615/hsnu-notice < ~/Downloads/google-services.json
+gh secret set GOOGLE_SERVICES_JSON --repo HowWeiChi-app/bango < ~/Downloads/google-services.json
 ```
 
 （`google-services.json` 其實不算機密，Firebase 官方說可以公開；但 repo 是 public，放 secret 比較保險。）
@@ -71,7 +71,7 @@ gh secret set GOOGLE_SERVICES_JSON --repo cyy-615/hsnu-notice < ~/Downloads/goog
 確認有存好（只會列出名稱）：
 
 ```bash
-gh secret list --repo cyy-615/hsnu-notice
+gh secret list --repo HowWeiChi-app/bango
 ```
 
 做完跟 Claude 說「Firebase 設定好了」，接下來的程式碼由 Claude 處理：

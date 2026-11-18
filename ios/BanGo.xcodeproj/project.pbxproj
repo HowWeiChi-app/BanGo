@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		4B0000000000000000000001 /* HSNUNotice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HSNUNotice.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B0000000000000000000001 /* BanGo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BanGo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		4B0000000000000000000002 /* HSNUNotice */ = {
+		4B0000000000000000000002 /* BanGo */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = HSNUNotice;
+			path = BanGo;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -32,7 +32,7 @@
 		4B0000000000000000000003 = {
 			isa = PBXGroup;
 			children = (
-				4B0000000000000000000002 /* HSNUNotice */,
+				4B0000000000000000000002 /* BanGo */,
 				4B0000000000000000000004 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -40,7 +40,7 @@
 		4B0000000000000000000004 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4B0000000000000000000001 /* HSNUNotice.app */,
+				4B0000000000000000000001 /* BanGo.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +48,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		4B0000000000000000000008 /* HSNUNotice */ = {
+		4B0000000000000000000008 /* BanGo */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4B000000000000000000000B /* Build configuration list for PBXNativeTarget "HSNUNotice" */;
+			buildConfigurationList = 4B000000000000000000000B /* Build configuration list for PBXNativeTarget "BanGo" */;
 			buildPhases = (
 				4B0000000000000000000005 /* Sources */,
 				4B0000000000000000000006 /* Frameworks */,
@@ -61,11 +61,11 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				4B0000000000000000000002 /* HSNUNotice */,
+				4B0000000000000000000002 /* BanGo */,
 			);
-			name = HSNUNotice;
-			productName = HSNUNotice;
-			productReference = 4B0000000000000000000001 /* HSNUNotice.app */;
+			name = BanGo;
+			productName = BanGo;
+			productReference = 4B0000000000000000000001 /* BanGo.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -83,12 +83,13 @@
 					};
 				};
 			};
-			buildConfigurationList = 4B000000000000000000000A /* Build configuration list for PBXProject "HSNUNotice" */;
+			buildConfigurationList = 4B000000000000000000000A /* Build configuration list for PBXProject "BanGo" */;
 			developmentRegion = "zh-Hant";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 				"zh-Hant",
 			);
 			mainGroup = 4B0000000000000000000003;
@@ -98,7 +99,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4B0000000000000000000008 /* HSNUNotice */,
+				4B0000000000000000000008 /* BanGo */,
 			);
 		};
 /* End PBXProject section */
@@ -185,8 +186,8 @@
 				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_PREVIEWS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "HSNUNotice-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "校板";
+				INFOPLIST_FILE = "BanGo-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "BanGo";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -195,7 +196,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.github.cyy615.hsnuNotice;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.cyy615.bango;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -214,8 +215,8 @@
 				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_PREVIEWS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "HSNUNotice-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "校板";
+				INFOPLIST_FILE = "BanGo-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "BanGo";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -224,7 +225,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.github.cyy615.hsnuNotice;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.cyy615.bango;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -237,7 +238,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4B000000000000000000000A /* Build configuration list for PBXProject "HSNUNotice" */ = {
+		4B000000000000000000000A /* Build configuration list for PBXProject "BanGo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4B000000000000000000000C /* Debug */,
@@ -246,7 +247,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4B000000000000000000000B /* Build configuration list for PBXNativeTarget "HSNUNotice" */ = {
+		4B000000000000000000000B /* Build configuration list for PBXNativeTarget "BanGo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4B000000000000000000000E /* Debug */,

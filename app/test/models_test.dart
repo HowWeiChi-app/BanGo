@@ -3,10 +3,10 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hsnu_notice/article_page.dart';
-import 'package:hsnu_notice/extras.dart';
-import 'package:hsnu_notice/models.dart';
-import 'package:hsnu_notice/store.dart';
+import 'package:bango/article_page.dart';
+import 'package:bango/extras.dart';
+import 'package:bango/models.dart';
+import 'package:bango/store.dart';
 
 // 跟爬蟲輸出的 notices.json 同樣格式的範例
 const sampleJson = '''

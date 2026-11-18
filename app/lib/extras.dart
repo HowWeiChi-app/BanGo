@@ -242,7 +242,7 @@ class ExtrasLoader {
   ExtrasLoader._();
   static final shared = ExtrasLoader._();
 
-  static const _headers = {'User-Agent': 'SchoolNoticeApp/1.0 (student project)'};
+  static const _headers = {'User-Agent': 'BanGoApp/1.0 (student project)'};
   static const _maxFileBytes = 15000000;
 
   final _pages = <String, Future<PageExtras?>>{};

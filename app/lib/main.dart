@@ -80,7 +80,8 @@ class _NoticeAppState extends State<NoticeApp> with WidgetsBindingObserver {
       child: ListenableBuilder(
         listenable: AppSettings.shared,
         builder: (context, _) => MaterialApp(
-          title: '校板',
+          // 最近使用畫面的名稱，跟桌面圖示一樣依系統語言
+          title: WidgetsBinding.instance.platformDispatcher.locale.languageCode == 'zh' ? '校板' : 'BanGo',
           debugShowCheckedModeBanner: false,
           theme: _theme(Brightness.light),
           darkTheme: _theme(Brightness.dark),

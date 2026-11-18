@@ -1,4 +1,4 @@
-# 校板
+# BanGo
 
 自動抓取師大附中校網公告，過濾出跟學生有關的內容，發到 Discord 頻道和 Android App。
 高中生自主學習專案，企劃見 [PLAN.md](PLAN.md)。
@@ -24,7 +24,7 @@ app/：Android App 下載 notices.json 顯示
 | `scraper/run.py` | 排程每次執行的完整流程 |
 | `scraper/data/` | 爬蟲的資料（GitHub Actions 自動更新，不要手動改） |
 | `app/lib/` | Android App（Flutter）的程式碼 |
-| `ios/HSNUNotice/` | iPhone App（原生 SwiftUI、Liquid Glass）的程式碼 |
+| `ios/BanGo/` | iPhone App（原生 SwiftUI、Liquid Glass）的程式碼 |
 | `.github/workflows/` | 三個自動化流程：抓公告、編譯 Android App、編譯 iPhone App |
 
 ## 爬蟲
@@ -52,7 +52,7 @@ python3 -m unittest -v   # 跑測試
 ### 下載 APK（不用裝任何開發工具）
 
 每次 `app/` 有變動，GitHub Actions 就會自動編譯：
-Actions 分頁 →「編譯 App」→ 點最新一次成功的執行 → 最下面「Artifacts」下載 `hsnu-notice-apk`
+Actions 分頁 →「編譯 App」→ 點最新一次成功的執行 → 最下面「Artifacts」下載 `bango-apk`
 → 解壓縮得到 `app-release.apk`，傳到 Android 手機上安裝（要允許「安裝不明來源的應用程式」）。
 
 ### 發給同學（GitHub Release）
@@ -64,8 +64,8 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-GitHub Actions 會自動編譯，並在 Releases 頁面建立「附中公告 v0.1.0」附上 APK，
-同學不用登入就能從 <https://github.com/cyy-615/hsnu-notice/releases/latest> 下載。
+GitHub Actions 會自動編譯，並在 Releases 頁面建立「BanGo v0.1.0」附上 APK，
+同學不用登入就能從 <https://github.com/HowWeiChi-app/bango/releases/latest> 下載。
 下一版記得改 `app/pubspec.yaml` 的 `version`（例如 `0.2.0+2`，`+` 後面的數字每版都要變大，手機才能直接更新）。
 
 ### 在自己電腦上開發
@@ -83,14 +83,14 @@ GitHub Actions 會自動編譯，並在 Releases 頁面建立「附中公告 v0.
 
 iPhone 版**另外用 SwiftUI 寫**，不是 Flutter。排版完全照 RSS 閱讀器 Reeder：沒有下方分頁列，
 一層一層點進去「側邊欄 → 公告時間軸 → 公告內頁」，打開時直接停在「我的公告」；設定從側邊欄左上角彈出。手勢照 Reeder：三層頁面左右並排，往右拉回上一層、在側邊欄往左拉回到上次看的分類，頁面都跟著手指走，每頁的工具列跟著頁面一起滑，移動中的頁面外圈有亮邊和陰影；在內頁往左滑，換到時間軸上面那則（比較新的）公告。時間軸捲下去後，點左上角的標題可以跳回最上面或上次讀到的地方；長按一則公告跳出自己畫的玻璃選單（閱讀原文、複製連結、分享）。設定裡可以切換語言（中文／English）、字體（系統、圓體、襯線、等寬）和顏色（經典是照 Reeder 量的那組），做法比照 JuanGo。
-玻璃效果用 iOS 26 起蘋果官方的 Liquid Glass：工具列按鈕、選單由系統自動變成玻璃。換頁沒有用系統的導覽堆疊，是照 Reeder 自己做的並排頁面（`ios/HSNUNotice/PageStack.swift`）。
+玻璃效果用 iOS 26 起蘋果官方的 Liquid Glass：工具列按鈕、選單由系統自動變成玻璃。換頁沒有用系統的導覽堆疊，是照 Reeder 自己做的並排頁面（`ios/BanGo/PageStack.swift`）。
 資料跟 Android 一樣讀同一份 `notices.json`。
 **還沒有推播**，要打開 App 下拉更新。需要 iOS 26 以上。
 
 GitHub Actions 只確認能編譯，要裝到手機上得在自己的 Mac 用 Xcode 簽名：
 
-1. 用 Xcode（26 以上）打開 `ios/HSNUNotice.xcodeproj`。
-2. 左邊點「HSNUNotice」→「Signing & Capabilities」→ Team 選你自己的 Apple ID（Personal Team）。
+1. 用 Xcode（26 以上）打開 `ios/BanGo.xcodeproj`。
+2. 左邊點「BanGo」→「Signing & Capabilities」→ Team 選你自己的 Apple ID（Personal Team）。
    Bundle Identifier 如果顯示已被使用，在後面加幾個字改成獨一無二的。
 3. iPhone 接上 Mac，上方選你的 iPhone，按 ▶︎。
 4. 第一次打開會顯示「未受信任的開發者」：iPhone「設定」→「一般」→「VPN 與裝置管理」→ 信任你的 Apple ID。

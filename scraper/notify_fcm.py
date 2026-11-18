@@ -48,7 +48,7 @@ def build_message(notice: Notice) -> dict | None:
         "message": {
             "condition": condition,
             "notification": {
-                "title": f"附中公告 · {tags}",
+                "title": f"BanGo · {tags}",
                 "body": notice.title,
             },
             # App 點通知時用這個網址打開校網原文

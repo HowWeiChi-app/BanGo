@@ -3,8 +3,8 @@
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hsnu_notice/settings.dart';
-import 'package:hsnu_notice/widgets.dart';
+import 'package:bango/settings.dart';
+import 'package:bango/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 
 void main() {
@@ -20,7 +20,7 @@ void main() {
 
   test('每間學校的資料網址都在 GitHub 上的 scraper/data', () {
     for (final s in School.all) {
-      expect(s.dataUrl.toString(), startsWith('https://raw.githubusercontent.com/cyy-615/hsnu-notice/main/scraper/data/'));
+      expect(s.dataUrl.toString(), startsWith('https://raw.githubusercontent.com/HowWeiChi-app/bango/main/scraper/data/'));
     }
     expect(School.all.map((s) => s.cacheKey).toSet().length, School.all.length);
   });

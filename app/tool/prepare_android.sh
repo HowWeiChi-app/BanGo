@@ -10,9 +10,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-flutter create --platforms=android --org io.github.cyy615 --project-name hsnu_notice .
+flutter create --platforms=android --org io.github.cyy615 --project-name bango .
 
 python3 - android/app/src/main/AndroidManifest.xml <<'EOF'
+import re
 import sys
 path = sys.argv[1]
 m = open(path, encoding="utf-8").read()
@@ -34,12 +35,20 @@ if 'android:scheme="https"' not in m:
     else:
         m = m.replace("</manifest>", "    <queries>" + view_https + "\n    </queries>\n</manifest>")
 
-# 3. 手機桌面上顯示的 App 名稱（跟 iPhone 版一樣叫「校板」；舊版產生過「附中公告」的也換掉）
-m = m.replace('android:label="hsnu_notice"', 'android:label="校板"').replace('android:label="附中公告"', 'android:label="校板"')
+# 3. 手機桌面上顯示的 App 名稱：跟著系統語言，實際文字在下面的 strings.xml
+m = re.sub(r'android:label="[^"]*"', 'android:label="@string/app_name"', m, count=1)
 
 open(path, "w", encoding="utf-8").write(m)
 print("AndroidManifest.xml 已更新")
 EOF
+
+# App 名稱：中文系統顯示「校板」，其他語言顯示「BanGo」
+mkdir -p android/app/src/main/res/values android/app/src/main/res/values-zh
+printf '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <string name="app_name">BanGo</string>\n</resources>\n' \
+  > android/app/src/main/res/values/strings.xml
+printf '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <string name="app_name">校板</string>\n</resources>\n' \
+  > android/app/src/main/res/values-zh/strings.xml
+echo "App 名稱已更新"
 
 # 4. App 圖示：全畫幅的 adaptive icon（Android 8 以上）和舊版用的方形圖示，都在 tool/icon/，
 #    蓋掉 flutter create 的預設圖示。圖是 tool/make_android_icon.swift 從 iPhone 版的圖示產生的

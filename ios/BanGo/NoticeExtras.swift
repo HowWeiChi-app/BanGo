@@ -118,7 +118,7 @@ actor ExtrasLoader {
 
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
-        config.httpAdditionalHeaders = ["User-Agent": "SchoolNoticeApp/1.0 (student project)"]
+        config.httpAdditionalHeaders = ["User-Agent": "BanGoApp/1.0 (student project)"]
         config.timeoutIntervalForRequest = 20
         return URLSession(configuration: config)
     }()

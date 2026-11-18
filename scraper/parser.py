@@ -29,7 +29,7 @@ _CREATOR = "{http://purl.org/dc/elements/1.1/}creator"
 TAIPEI = timezone(timedelta(hours=8))
 
 # 標明自己是誰，讓學校看得出這不是攻擊
-USER_AGENT = "SchoolNoticeBot/0.1 (student project; polls every 10+ min)"
+USER_AGENT = "BanGoBot/0.1 (student project; polls every 10+ min)"
 
 
 MAX_CONTENT = 3000  # 內文最多存幾個字，避免 notices.json 太大、App 下載變慢

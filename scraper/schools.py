@@ -1,4 +1,4 @@
-"""支援的學校。新增學校：在這裡加一筆，App 的學校清單（ios/HSNUNotice/AppSettings.swift 的 School）也加一筆。
+"""支援的學校。新增學校：在這裡加一筆，App 的學校清單（ios/BanGo/AppSettings.swift 的 School）也加一筆。
 
 kind 是校網用的系統，決定 RSS 怎麼解析（見 parser.parse_rss）：
   hsnu       師大附中自己的系統：pubDate 是 "2026-11-16 15:16:47"，description 是全文

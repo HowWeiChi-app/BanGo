@@ -26,6 +26,6 @@ jobs:
 
       - name: 編譯（不簽名）
         run: |
-          xcodebuild -project ios/HSNUNotice.xcodeproj -target HSNUNotice \
+          xcodebuild -project ios/BanGo.xcodeproj -target BanGo \
             -configuration Release -sdk iphoneos \
             CODE_SIGNING_ALLOWED=NO build

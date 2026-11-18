@@ -11,7 +11,7 @@ struct SettingsView: View {
     @Environment(NoticeStore.self) private var store
     @Bindable private var settings = AppSettings.shared
     @Environment(\.dismiss) private var dismiss
-    private let repoURL = URL(string: "https://github.com/cyy-615/hsnu-notice")!
+    private let repoURL = URL(string: "https://github.com/HowWeiChi-app/bango")!
 
     var body: some View {
         NavigationStack {
@@ -78,7 +78,7 @@ struct SettingsView: View {
                 }
                 row {
                     Link(destination: repoURL) {
-                        label(L("原始碼", "Source Code"), symbol: "chevron.left.forwardslash.chevron.right", detail: "github.com/cyy-615/hsnu-notice")
+                        label(L("原始碼", "Source Code"), symbol: "chevron.left.forwardslash.chevron.right", detail: "github.com/HowWeiChi-app/bango")
                     }
                 }
                 note(L("只讀取各校校網的公開公告，不需要登入，也不會收集任何個人資料。大約每 10 分鐘檢查一次校網。", "Only reads public notices from school websites. No sign-in, no personal data collected. Sites are checked about every 10 minutes."))

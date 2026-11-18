@@ -97,8 +97,8 @@
 
 ## App 端要改的地方
 
-現在 `ios/HSNUNotice/NoticeStore.swift` 的 `dataURL` 寫死成
-`https://raw.githubusercontent.com/cyy-615/hsnu-notice/main/scraper/data/notices.json`，Android 的 `app/lib/repository.dart` 也一樣。
+現在 `ios/BanGo/NoticeStore.swift` 的 `dataURL` 寫死成
+`https://raw.githubusercontent.com/HowWeiChi-app/bango/main/scraper/data/notices.json`，Android 的 `app/lib/repository.dart` 也一樣。
 
 1. **學校清單**：App 內建一份清單（代號 + 名稱），或讓爬蟲多輸出一個 `scraper/data/schools.json`，App 啟動時讀它，以後新增學校就不用更新 App。建議用後者。
 2. **選學校**：第一次開 App 先出一個「選擇學校」畫面；設定頁也能換。選的代號存在 `AppSettings`（UserDefaults / `@AppStorage`）。

@@ -4,10 +4,10 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hsnu_notice/main.dart';
-import 'package:hsnu_notice/router.dart';
-import 'package:hsnu_notice/settings.dart';
-import 'package:hsnu_notice/store.dart';
+import 'package:bango/main.dart';
+import 'package:bango/router.dart';
+import 'package:bango/settings.dart';
+import 'package:bango/store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 這學期的資料（日期用現在往前推，測試不會過了學期就壞掉）

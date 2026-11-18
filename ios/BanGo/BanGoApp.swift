@@ -3,7 +3,7 @@
 import SwiftUI
 
 @main
-struct HSNUNoticeApp: App {
+struct BanGoApp: App {
     init() {
         // 越早越好：選了圓體、宋體的話，在第一個畫面出來前就開始接上中文字型
         AppFont.shared.prepare()

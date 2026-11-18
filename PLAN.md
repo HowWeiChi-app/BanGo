@@ -1,4 +1,4 @@
-# 校網公告通知 App：專案企劃
+# BanGo：專案企劃
 
 > 這份文件是給 Claude 的專案背景說明。請根據這裡的目標、限制和決定來協助開發，不要擅自擴大範圍。
 
@@ -167,5 +167,5 @@ Firebase 專案還沒建立，所以先用免費、不用帳號設定的方式�
 - [x] App 框架：**Flutter**（FlutterFire 官方 FCM 套件，打包 APK 簡單）
 - [x] 爬蟲語言：**Python**（requests + BeautifulSoup）
 - [x] 第一階段 iPhone 使用者：**Discord webhook**（不用寫機器人；之後要個人化再換 Telegram）
-- [ ] App 名稱（暫定「附中公告」）
+- [x] App 名稱：**BanGo**
 - [ ] 建立 Firebase 專案（手機推播需要）

@@ -1,7 +1,7 @@
 // 產生 Android 的全畫幅圖示（adaptive icon 的整張圖層）。
 // Android 的圖層是 108dp，桌面只露出中間約 72dp，所以 iPhone 的圖示放在中間 2/3，
 // 外圈用圖示最邊緣的像素往外延伸：不管桌面把圖示裁成圓形還是方形，都不會露出白邊。
-// 用法（在 app 資料夾）：swiftc -O tool/make_android_icon.swift -o /tmp/make-android-icon && /tmp/make-android-icon ../ios/HSNUNotice/Assets.xcassets/AppIcon.appiconset/AppIcon.png tool/icon
+// 用法（在 app 資料夾）：swiftc -O tool/make_android_icon.swift -o /tmp/make-android-icon && /tmp/make-android-icon ../ios/BanGo/Assets.xcassets/AppIcon.appiconset/AppIcon.png tool/icon
 import AppKit
 
 let args = CommandLine.arguments

@@ -8,7 +8,7 @@ import 'app_scope.dart';
 import 'settings.dart';
 import 'widgets.dart';
 
-const repoUrl = 'https://github.com/cyy-615/hsnu-notice';
+const repoUrl = 'https://github.com/HowWeiChi-app/bango';
 
 void showSettings(BuildContext context) {
   Navigator.of(context).push(PageRouteBuilder<void>(
@@ -151,7 +151,7 @@ class _SettingsPageState extends State<SettingsPage> {
             GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () => openWeb(repoUrl),
-              child: row(label(L('原始碼', 'Source Code'), Icons.code, detail: 'github.com/cyy-615/hsnu-notice')),
+              child: row(label(L('原始碼', 'Source Code'), Icons.code, detail: 'github.com/HowWeiChi-app/bango')),
             ),
             note(L('只讀取各校校網的公開公告，不需要登入，也不會收集任何個人資料。大約每 10 分鐘檢查一次校網。',
                 'Only reads public notices from school websites. No sign-in, no personal data collected. Sites are checked about every 10 minutes.')),

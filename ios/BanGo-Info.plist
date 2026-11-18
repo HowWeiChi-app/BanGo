@@ -3,7 +3,7 @@
 <!--
   其他設定（App 名稱、啟動畫面…）由 Xcode 自動產生，這裡只放它不會自動產生的：
   CADisableMinimumFrameDurationOnPhone：iPhone 的 App 預設最多 60Hz，打開才能用到 ProMotion 的 120Hz（捲動、動畫都會更順）。
-  這個檔案故意放在 HSNUNotice 資料夾外面，不然會被當成資源複製進 App 而編譯失敗。
+  這個檔案故意放在 BanGo 資料夾外面，不然會被當成資源複製進 App 而編譯失敗。
 -->
 <plist version="1.0">
 <dict>

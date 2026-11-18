@@ -70,7 +70,7 @@ struct SidebarView: View {
         .scrollContentBackground(.hidden)
         .paperBackground()
         .foregroundStyle(Color.ink)
-        .navigationTitle(L("校板", "Campus Board"))
+        .navigationTitle(Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "BanGo")  // 跟主畫面的名稱一樣，依系統語言
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(removing: .title)
         .toolbar {

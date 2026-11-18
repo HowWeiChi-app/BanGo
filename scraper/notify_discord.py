@@ -53,6 +53,6 @@ def post(webhook_url: str, text: str) -> None:
     }).encode("utf-8")
     req = urllib.request.Request(webhook_url, data=body, method="POST", headers={
         "Content-Type": "application/json",
-        "User-Agent": "SchoolNoticeBot/0.1",  # Discord 會擋沒有 User-Agent 的請求
+        "User-Agent": "BanGoBot/0.1",  # Discord 會擋沒有 User-Agent 的請求
     })
     urllib.request.urlopen(req, timeout=20).close()  # 失敗會丟出例外，run.py 就不會存檔
