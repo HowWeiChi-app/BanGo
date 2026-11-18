@@ -1,4 +1,4 @@
-# BanGo：使用說明（給同學）
+# 校板 BanGo：使用說明（給同學）
 
 > 發給同學前，先把下面兩個【】填好。
 
@@ -17,11 +17,11 @@
 
 ### 方法二：安裝 Android App
 
-1. 用 Android 手機打開 <https://github.com/HowWeiChi-app/BanGo/releases/latest>
-2. 下載最下面的 `.apk` 檔。
+1. 用 Android 手機打開 <https://github.com/HowWeiChi-app/BanGo/releases>
+2. 在最新版本下面下載 `.apk` 檔。
 3. 打開下載的檔案。第一次會跳出「基於安全性考量，你的手機無法安裝不明來源的應用程式」，
    點「設定」→ 打開「允許這個來源」→ 回上一頁按「安裝」。
-4. 打開「BanGo」App，到「設定」選你想看的類別。
+4. 打開「校板」App，到「設定」選你想看的類別。
 
 App 有三個分頁：
 - **我的公告**：只顯示你訂閱的類別（預設：教務、學務、考試、停課）

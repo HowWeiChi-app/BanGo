@@ -11,6 +11,6 @@ build/
 .metadata
 pubspec.lock
 
-# android/、ios/ 由 tool/prepare_android.sh、tool/prepare_ios.sh 產生（見 README）
+# android/ 由 tool/prepare_android.sh 產生（見 README）
 android/
 ios/

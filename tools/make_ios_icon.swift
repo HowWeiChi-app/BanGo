@@ -36,5 +36,5 @@ let dot = CGPoint(x: S/2 + 245, y: S/2 + 290)
 c.setFillColor(rgb(30,29,27)); c.fillEllipse(in: CGRect(x: dot.x-100, y: dot.y-100, width: 200, height: 200))
 c.setFillColor(rgb(255,198,0)); c.fillEllipse(in: CGRect(x: dot.x-80, y: dot.y-80, width: 160, height: 160))
 NSGraphicsContext.restoreGraphicsState()
-// 用法：swiftc -O make-icon.swift -o /tmp/make-icon && /tmp/make-icon BanGo/Assets.xcassets/AppIcon.appiconset/AppIcon.png
+// 用法：swiftc -O tools/make_ios_icon.swift -o /tmp/make-icon && /tmp/make-icon ios/BanGo/Assets.xcassets/AppIcon.appiconset/AppIcon.png
 try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: CommandLine.arguments[1]))

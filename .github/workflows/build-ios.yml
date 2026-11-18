@@ -1,6 +1,5 @@
-# 編譯 iPhone App（原生 SwiftUI）：ios/ 資料夾有變動就會執行。
-# 只確認程式能編譯成功，不產生可以安裝的檔案：
-# 要裝到 iPhone 上需要用 Apple ID 簽名，只能在自己的 Mac 上用 Xcode 裝（見 README）。
+# 編譯 iPhone App（原生 SwiftUI）：ios/ 有變動就會執行，確認程式能編譯成功。
+# 發版用 tools/build_release.sh，見 README。
 
 name: 編譯 iPhone App
 

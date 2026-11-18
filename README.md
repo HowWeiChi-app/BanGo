@@ -24,8 +24,10 @@ app/：Android App 下載 notices.json 顯示
 | `app/` | Android App（Flutter），程式碼在 `app/lib/` |
 | `scraper/` | 校網爬蟲。**校網改版時通常改 `parser.py`，調整關鍵字改 `filters.py` 最上面的表**，完整流程在 `run.py` |
 | `scraper/data/` | 爬蟲的資料（GitHub Actions 自動更新，不要手動改） |
+| `tools/` | `build_release.sh` 編譯要發布的 APK 和 IPA，`make_ios_icon.swift` 產生 iPhone 圖示 |
 | `docs/` | 企劃和設定說明 |
 | `.github/workflows/` | 三個自動化流程：抓公告、編譯 Android App、編譯 iPhone App |
+| `dist/` | 本機的發版輸出，不進 repo |
 
 ## 爬蟲
 
@@ -49,24 +51,9 @@ python3 -m unittest -v   # 跑測試
 
 ## App
 
-### 下載 APK（不用裝任何開發工具）
+### 下載
 
-每次 `app/` 有變動，GitHub Actions 就會自動編譯：
-Actions 分頁 →「編譯 App」→ 點最新一次成功的執行 → 最下面「Artifacts」下載 `bango-apk`
-→ 解壓縮得到 `app-release.apk`，傳到 Android 手機上安裝（要允許「安裝不明來源的應用程式」）。
-
-### 發給同學（GitHub Release）
-
-Artifacts 要登入 GitHub 才能下載，而且 30 天後會刪除。要發給同學時，推一個版本標籤：
-
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-GitHub Actions 會自動編譯，並在 Releases 頁面建立「BanGo v0.1.0」附上 APK，
-同學不用登入就能從 <https://github.com/HowWeiChi-app/BanGo/releases/latest> 下載。
-下一版記得改 `app/pubspec.yaml` 的 `version`（例如 `0.2.0+2`，`+` 後面的數字每版都要變大，手機才能直接更新）。
+測試版的 APK 和 IPA 在 [Releases](https://github.com/HowWeiChi-app/BanGo/releases)。APK 傳到 Android 手機安裝（要允許「安裝不明來源的應用程式」），IPA 用 [Sideloadly](https://sideloadly.io) 或 [AltStore](https://altstore.io) 以自己的 Apple ID 簽名安裝。
 
 ### 在自己電腦上開發
 
@@ -106,6 +93,19 @@ GitHub Actions 只確認能編譯，要裝到手機上得在自己的 Mac 用 Xc
 
 點任何一則公告會打開校網原文。iPhone 版先進到公告內頁，按「原文」才在 App 裡打開，從右邊推進來，從螢幕左邊緣往右滑就回來。
 兩個版本功能一樣，iPhone 版的排版照 Reeder。
+
+## 發版
+
+1. 改版本號：`app/pubspec.yaml` 的 `version`（例如 `0.2.0+4`），以及 `ios/BanGo.xcodeproj` 的 `MARKETING_VERSION` 和 `CURRENT_PROJECT_VERSION`。兩個平台的版本要相同，`+` 後面的數字每版都要變大，手機才能直接更新。
+2. 在 repo 根目錄編譯。指令會跑檢查和測試，再把 APK、IPA 放到 `dist/release/`，最後印出 SHA-256。
+
+   ```bash
+   bash tools/build_release.sh
+   ```
+
+3. 到 GitHub Releases 建立 `v` 開頭的版本，附上這兩個檔案。測試版要勾選 Pre-release。
+
+Android 版要用同一把簽名金鑰編譯，已安裝的手機才能直接更新，所以發版都在同一台電腦上做。
 
 ## 給同學試用
 

@@ -43,11 +43,15 @@ print("AndroidManifest.xml 已更新")
 EOF
 
 # App 名稱：中文系統顯示「校板」，其他語言顯示「BanGo」
-mkdir -p android/app/src/main/res/values android/app/src/main/res/values-zh
+mkdir -p android/app/src/main/res/values
 printf '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <string name="app_name">BanGo</string>\n</resources>\n' \
   > android/app/src/main/res/values/strings.xml
-printf '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <string name="app_name">校板</string>\n</resources>\n' \
-  > android/app/src/main/res/values-zh/strings.xml
+# Android 把 values-zh 當成簡體，台灣和香港的手機要另外列出來才會顯示中文名稱
+for dir in values-zh values-zh-rTW values-zh-rHK values-b+zh+Hant; do
+  mkdir -p "android/app/src/main/res/$dir"
+  printf '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <string name="app_name">校板</string>\n</resources>\n' \
+    > "android/app/src/main/res/$dir/strings.xml"
+done
 echo "App 名稱已更新"
 
 # 4. App 圖示：全畫幅的 adaptive icon（Android 8 以上）和舊版用的方形圖示，都在 tool/icon/，
