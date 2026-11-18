@@ -1,7 +1,8 @@
-# BanGo
+# 校板 BanGo
 
-自動抓取師大附中校網公告，過濾出跟學生有關的內容，發到 Discord 頻道和 Android App。
-高中生自主學習專案，企劃見 [PLAN.md](PLAN.md)。
+校板 BanGo 是高中校網公告 App，把五所高中的公告整理到 iPhone 和 Android，並過濾出跟學生有關的內容。師大附中的新公告也會發到 Discord 頻道。
+
+高中生自主學習專案，企劃見 [docs/PLAN.md](docs/PLAN.md)。
 
 ## 怎麼運作
 
@@ -15,16 +16,15 @@ scraper/：分類、排除跟學生無關的、找出新公告
 app/：Android App 下載 notices.json 顯示
 ```
 
-## 資料夾
+## 專案結構
 
 | 路徑 | 內容 |
 |---|---|
-| `scraper/parser.py` | 抓 RSS、轉成公告格式。**校網改版時通常只要改這裡** |
-| `scraper/filters.py` | 分類和排除規則。**要調整關鍵字改這裡最上面的表** |
-| `scraper/run.py` | 排程每次執行的完整流程 |
+| `ios/` | iPhone App（原生 SwiftUI、Liquid Glass），程式碼在 `ios/BanGo/` |
+| `app/` | Android App（Flutter），程式碼在 `app/lib/` |
+| `scraper/` | 校網爬蟲。**校網改版時通常改 `parser.py`，調整關鍵字改 `filters.py` 最上面的表**，完整流程在 `run.py` |
 | `scraper/data/` | 爬蟲的資料（GitHub Actions 自動更新，不要手動改） |
-| `app/lib/` | Android App（Flutter）的程式碼 |
-| `ios/BanGo/` | iPhone App（原生 SwiftUI、Liquid Glass）的程式碼 |
+| `docs/` | 企劃和設定說明 |
 | `.github/workflows/` | 三個自動化流程：抓公告、編譯 Android App、編譯 iPhone App |
 
 ## 爬蟲
@@ -96,7 +96,7 @@ GitHub Actions 只確認能編譯，要裝到手機上得在自己的 Mac 用 Xc
 4. 第一次打開會顯示「未受信任的開發者」：iPhone「設定」→「一般」→「VPN 與裝置管理」→ 信任你的 Apple ID。
 
 ⚠️ 免費 Apple ID 簽的 App **7 天後會打不開**，要重新按一次 ▶︎。
-要發給其他同學（TestFlight）需要 US$99/年的 Apple 開發者帳號，見 PLAN.md 第 6 節。
+要發給其他同學（TestFlight）需要 US$99/年的 Apple 開發者帳號，見 [docs/PLAN.md](docs/PLAN.md) 第 6 節。
 
 ### 畫面
 
@@ -113,5 +113,5 @@ GitHub Actions 只確認能編譯，要裝到手機上得在自己的 Mac 用 Xc
 
 ## 還沒做的
 
-- 手機推播（需要建立 Firebase 專案，見 PLAN.md）
+- 手機推播（需要建立 Firebase 專案，見 [docs/PLAN.md](docs/PLAN.md)）
 - iPhone 版的推播（需要 Apple 付費開發者帳號）
