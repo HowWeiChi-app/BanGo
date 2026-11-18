@@ -38,7 +38,7 @@ FCM 有一個功能叫 topic（主題）：App 在手機上訂閱幾個主題，
 ### 2. 加入 Android App
 
 1. 在專案首頁點 Android 圖示（「將 Firebase 新增至你的 Android 應用程式」）。
-2. **Android 套件名稱**一定要填：`io.github.cyy615.bango`
+2. **Android 套件名稱**一定要填：`io.github.howweichi.bango`
    （跟 `app/tool/prepare_android.sh` 裡 `--org` 加 `--project-name` 一致，填錯推播會收不到）
 3. 暱稱隨意，例如「BanGo」。SHA-1 不用填。
 4. 下載 `google-services.json`。

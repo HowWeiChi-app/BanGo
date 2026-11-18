@@ -10,7 +10,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-flutter create --platforms=android --org io.github.cyy615 --project-name bango .
+flutter create --platforms=android --org io.github.howweichi --project-name bango .
 
 python3 - android/app/src/main/AndroidManifest.xml <<'EOF'
 import re
