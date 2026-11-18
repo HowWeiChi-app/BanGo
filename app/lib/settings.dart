@@ -22,7 +22,7 @@ class School {
   ];
 
   Uri get dataUrl =>
-      Uri.parse('https://raw.githubusercontent.com/HowWeiChi-app/bango/main/scraper/data/$dataPath');
+      Uri.parse('https://raw.githubusercontent.com/HowWeiChi-app/BanGo/main/scraper/data/$dataPath');
 
   /// 手機上的備份，每校一份（附中沿用舊的名字，舊版存的資料還讀得到）
   String get cacheKey => id == 'hsnu' ? 'notices_cache' : 'notices_cache_$id';

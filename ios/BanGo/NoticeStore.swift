@@ -21,6 +21,7 @@ final class NoticeStore {
     var data: NoticeData? { didSet { clearCache() } }
     var isLoading = false
     var errorMessage: String?
+    var lastChecked: String?      // 這間學校最後一次成功檢查更新的時間，公告沒變動也算
 
     @ObservationIgnored private var shownBytes: Data?            // 現在顯示的資料的原始檔，用來判斷下載到的有沒有變
     @ObservationIgnored private var lastAttempt: Date?           // 上一次開始更新的時間
@@ -53,6 +54,7 @@ final class NoticeStore {
 
     /// 先顯示手機上這間學校的備份（沒有就是空的）
     private func loadCache() {
+        lastChecked = UserDefaults.standard.string(forKey: Self.lastCheckedKey(AppSettings.shared.schoolID))
         if let bytes = try? Data(contentsOf: AppSettings.shared.school.cacheURL),
            let cached = try? JSONDecoder().decode(NoticeData.self, from: bytes) {
             data = cached
@@ -215,14 +217,28 @@ final class NoticeStore {
             guard school.id == AppSettings.shared.schoolID else { return }
             errorMessage = nil
             // 跟現在顯示的一模一樣（大部分時候都是）：不用重新解析，畫面也不用重畫
-            guard bytes != shownBytes else { return }
-            let decoded = try await Self.decodeAndSave(bytes, to: school.cacheURL)
-            guard school.id == AppSettings.shared.schoolID else { return }
-            data = decoded
-            shownBytes = bytes
+            if bytes != shownBytes {
+                let decoded = try await Self.decodeAndSave(bytes, to: school.cacheURL)
+                guard school.id == AppSettings.shared.schoolID else { return }
+                data = decoded
+                shownBytes = bytes
+            }
+            markChecked(school.id)
         } catch {
             errorMessage = L("更新失敗，請檢查網路", "Update failed. Check your connection.")
         }
+    }
+
+    private static func lastCheckedKey(_ schoolID: String) -> String { "lastChecked_\(schoolID)" }
+
+    /// 記下這次檢查成功的時間，下次打開 App 也看得到
+    private func markChecked(_ schoolID: String) {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        let text = formatter.string(from: .now)
+        lastChecked = text
+        UserDefaults.standard.set(text, forKey: Self.lastCheckedKey(schoolID))
     }
 
     /// 在背景執行緒解析 JSON、存備份。公告內文很多，放在主執行緒解析會讓畫面頓一下

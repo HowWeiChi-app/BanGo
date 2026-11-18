@@ -8,7 +8,7 @@ import 'app_scope.dart';
 import 'settings.dart';
 import 'widgets.dart';
 
-const repoUrl = 'https://github.com/HowWeiChi-app/bango';
+const repoUrl = 'https://github.com/HowWeiChi-app/BanGo';
 
 void showSettings(BuildContext context) {
   Navigator.of(context).push(PageRouteBuilder<void>(
@@ -146,12 +146,12 @@ class _SettingsPageState extends State<SettingsPage> {
             row(label(L('推播通知', 'Push Notifications'), Icons.notifications_off_outlined,
                 detail: L('還沒有，請打開 App 下拉更新。想即時收到，可以先加入 Discord 公告頻道。',
                     'Not yet. Open the app and pull to refresh, or join the Discord channel for instant updates.'))),
-            if (store.data?.updated.isNotEmpty ?? false)
-              row(label(L('最後一次有新公告', 'Last New Notice'), Icons.schedule, detail: store.data!.updated)),
+            if (store.lastChecked != null)
+              row(label(L('最後一次檢查更新', 'Last Update Check'), Icons.schedule, detail: store.lastChecked)),
             GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () => openWeb(repoUrl),
-              child: row(label(L('原始碼', 'Source Code'), Icons.code, detail: 'github.com/HowWeiChi-app/bango')),
+              child: row(label(L('原始碼', 'Source Code'), Icons.code, detail: 'github.com/HowWeiChi-app/BanGo')),
             ),
             note(L('只讀取各校校網的公開公告，不需要登入，也不會收集任何個人資料。大約每 10 分鐘檢查一次校網。',
                 'Only reads public notices from school websites. No sign-in, no personal data collected. Sites are checked about every 10 minutes.')),

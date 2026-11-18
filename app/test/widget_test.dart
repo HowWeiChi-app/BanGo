@@ -20,7 +20,7 @@ void main() {
 
   test('每間學校的資料網址都在 GitHub 上的 scraper/data', () {
     for (final s in School.all) {
-      expect(s.dataUrl.toString(), startsWith('https://raw.githubusercontent.com/HowWeiChi-app/bango/main/scraper/data/'));
+      expect(s.dataUrl.toString(), startsWith('https://raw.githubusercontent.com/HowWeiChi-app/BanGo/main/scraper/data/'));
     }
     expect(School.all.map((s) => s.cacheKey).toSet().length, School.all.length);
   });

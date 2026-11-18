@@ -59,11 +59,11 @@ FCM 有一個功能叫 topic（主題）：App 在手機上訂閱幾個主題，
 在終端機執行（把路徑換成你下載的檔案位置，檔案可以直接從 Finder 拖進終端機產生路徑）：
 
 ```bash
-gh secret set FIREBASE_SERVICE_ACCOUNT --repo HowWeiChi-app/bango < ~/Downloads/bango-xxxxx.json
+gh secret set FIREBASE_SERVICE_ACCOUNT --repo HowWeiChi-app/BanGo < ~/Downloads/bango-xxxxx.json
 ```
 
 ```bash
-gh secret set GOOGLE_SERVICES_JSON --repo HowWeiChi-app/bango < ~/Downloads/google-services.json
+gh secret set GOOGLE_SERVICES_JSON --repo HowWeiChi-app/BanGo < ~/Downloads/google-services.json
 ```
 
 （`google-services.json` 其實不算機密，Firebase 官方說可以公開；但 repo 是 public，放 secret 比較保險。）
@@ -71,7 +71,7 @@ gh secret set GOOGLE_SERVICES_JSON --repo HowWeiChi-app/bango < ~/Downloads/goog
 確認有存好（只會列出名稱）：
 
 ```bash
-gh secret list --repo HowWeiChi-app/bango
+gh secret list --repo HowWeiChi-app/BanGo
 ```
 
 做完跟 Claude 說「Firebase 設定好了」，接下來的程式碼由 Claude 處理：

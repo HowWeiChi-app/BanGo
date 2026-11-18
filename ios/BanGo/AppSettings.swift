@@ -52,7 +52,7 @@ nonisolated struct School: Identifiable, Hashable, Sendable {
     ]
 
     var dataURL: URL {
-        URL(string: "https://raw.githubusercontent.com/HowWeiChi-app/bango/main/scraper/data/")!.appending(path: dataPath)
+        URL(string: "https://raw.githubusercontent.com/HowWeiChi-app/BanGo/main/scraper/data/")!.appending(path: dataPath)
     }
 
     /// 手機上的備份：每校一份，換學校時才不會先閃一下別校的公告（附中沿用舊檔名）

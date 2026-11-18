@@ -65,7 +65,7 @@ git push origin v0.1.0
 ```
 
 GitHub Actions 會自動編譯，並在 Releases 頁面建立「BanGo v0.1.0」附上 APK，
-同學不用登入就能從 <https://github.com/HowWeiChi-app/bango/releases/latest> 下載。
+同學不用登入就能從 <https://github.com/HowWeiChi-app/BanGo/releases/latest> 下載。
 下一版記得改 `app/pubspec.yaml` 的 `version`（例如 `0.2.0+2`，`+` 後面的數字每版都要變大，手機才能直接更新）。
 
 ### 在自己電腦上開發

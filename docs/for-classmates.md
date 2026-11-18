@@ -17,7 +17,7 @@
 
 ### 方法二：安裝 Android App
 
-1. 用 Android 手機打開 <https://github.com/HowWeiChi-app/bango/releases/latest>
+1. 用 Android 手機打開 <https://github.com/HowWeiChi-app/BanGo/releases/latest>
 2. 下載最下面的 `.apk` 檔。
 3. 打開下載的檔案。第一次會跳出「基於安全性考量，你的手機無法安裝不明來源的應用程式」，
    點「設定」→ 打開「允許這個來源」→ 回上一頁按「安裝」。

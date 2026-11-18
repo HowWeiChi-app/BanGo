@@ -43,6 +43,25 @@ Future<(NoticeStore, AppRouter)> _start(WidgetTester tester, {bool fail = false}
 }
 
 void main() {
+  testWidgets('檢查成功才記時間，內容沒變也算；下次打開還在', (tester) async {
+    final (store, _) = await _start(tester);
+    await tester.runAsync(store.refresh);
+    final first = store.lastChecked;
+    expect(first, matches(RegExp(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$')));
+
+    store.lastChecked = null;
+    await tester.runAsync(store.refresh); // 下載到一樣的內容
+    expect(store.lastChecked, isNotNull);
+
+    final reopened = NoticeStore(fetcher: (_) async => throw Exception('offline'));
+    await tester.runAsync(reopened.load);
+    expect(reopened.lastChecked, isNotNull);
+    final saved = reopened.lastChecked;
+    await tester.runAsync(reopened.refresh); // 失敗不會改時間
+    expect(reopened.errorMessage, isNotNull);
+    expect(reopened.lastChecked, saved);
+  });
+
   testWidgets('打開就是「我的公告」，只有訂閱的類別', (tester) async {
     await _start(tester);
     expect(find.text('我的公告'), findsWidgets);

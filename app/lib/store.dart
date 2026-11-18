@@ -51,6 +51,7 @@ class NoticeStore extends ChangeNotifier {
   NoticeData? data;
   bool isLoading = false;
   String? errorMessage;
+  String? lastChecked; // 這間學校最後一次成功檢查更新的時間，公告沒變動也算
   Set<String> subscribed = {...defaultSubscriptions};
   bool showUnrelated = false; // 全部公告裡要不要顯示跟學生無關的（教師研習、標案…）
 
@@ -69,7 +70,18 @@ class NoticeStore extends ChangeNotifier {
     _loadCache();
   }
 
+  static String _lastCheckedKey(String schoolID) => 'lastChecked_$schoolID';
+
+  /// 記下這次檢查成功的時間，下次打開 App 也看得到
+  Future<void> _markChecked(String schoolID) async {
+    final t = DateTime.now();
+    String two(int n) => n.toString().padLeft(2, '0');
+    lastChecked = '${t.year}-${two(t.month)}-${two(t.day)} ${two(t.hour)}:${two(t.minute)}';
+    await _prefs?.setString(_lastCheckedKey(schoolID), lastChecked!);
+  }
+
   void _loadCache() {
+    lastChecked = _prefs?.getString(_lastCheckedKey(AppSettings.shared.schoolID));
     final text = _prefs?.getString(AppSettings.shared.school.cacheKey);
     data = null;
     _shownText = null;
@@ -204,6 +216,7 @@ class NoticeStore extends ChangeNotifier {
         _shownText = text;
         await _prefs?.setString(school.cacheKey, text); // 解析成功才存，壞掉的資料不會蓋掉備份
       }
+      await _markChecked(school.id);
     } catch (_) {
       errorMessage = L('更新失敗，請檢查網路', 'Update failed. Check your connection.');
     } finally {

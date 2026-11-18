@@ -177,7 +177,7 @@ class _PageStackState extends State<PageStack> with SingleTickerProviderStateMix
   }
 }
 
-/// 把一頁放到 x 的位置。移動中的頁面：圓角、外面一圈 1px 的邊、陰影；被蓋住的頁面變暗
+/// 把一頁放到 x 的位置。移動中的頁面：直角、外面一圈 1px 的邊、陰影；被蓋住的頁面變暗
 class _PageFrame extends StatelessWidget {
   const _PageFrame({super.key, required this.x, required this.width, required this.hidden, required this.interactive, required this.child});
   final double x;
@@ -186,8 +186,6 @@ class _PageFrame extends StatelessWidget {
   final bool interactive;
   final Widget child;
 
-  static const corner = 40.0;
-
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
@@ -195,7 +193,6 @@ class _PageFrame extends StatelessWidget {
     final moving = x > 0.5 && x < width - 0.5;
     final offscreen = x >= width - 0.5 || hidden;
     final dim = x < 0 ? 0.1 * (-x / (0.3 * width)).clamp(0.0, 1.0) : 0.0;
-    final radius = BorderRadius.circular(moving ? corner : 0);
 
     Widget page = IgnorePointer(ignoring: !interactive, child: child);
     if (dim > 0) {
@@ -205,11 +202,11 @@ class _PageFrame extends StatelessWidget {
       ]);
     }
     if (moving) {
-      // 陰影：沿著整個圓角頁面一圈（Reeder：深色黑 40%、淺色黑 15%，半徑 5）；1px 的邊沿著圓角畫在最外圈
+      // 陰影：沿著整個頁面一圈（Reeder：深色黑 40%、淺色黑 15%，半徑 5）；1px 的邊畫在最外圈
       page = Container(
-        decoration: BoxDecoration(borderRadius: radius, boxShadow: [BoxShadow(color: p.pageShadow, blurRadius: 5)]),
-        foregroundDecoration: BoxDecoration(borderRadius: radius, border: Border.all(color: p.pageRim)),
-        child: ClipRRect(borderRadius: radius, child: page),
+        decoration: BoxDecoration(boxShadow: [BoxShadow(color: p.pageShadow, blurRadius: 5)]),
+        foregroundDecoration: BoxDecoration(border: Border.all(color: p.pageRim)),
+        child: page,
       );
     }
     return Positioned.fill(

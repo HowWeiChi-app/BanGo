@@ -11,7 +11,7 @@ struct SettingsView: View {
     @Environment(NoticeStore.self) private var store
     @Bindable private var settings = AppSettings.shared
     @Environment(\.dismiss) private var dismiss
-    private let repoURL = URL(string: "https://github.com/HowWeiChi-app/bango")!
+    private let repoURL = URL(string: "https://github.com/HowWeiChi-app/BanGo")!
 
     var body: some View {
         NavigationStack {
@@ -72,13 +72,13 @@ struct SettingsView: View {
                     label(L("推播通知", "Push Notifications"), symbol: "bell.slash",
                           detail: L("還沒有，請打開 App 下拉更新。想即時收到，可以先加入 Discord 公告頻道。", "Not yet. Open the app and pull to refresh, or join the Discord channel for instant updates."))
                 }
-                if let updated = store.data?.updated, !updated.isEmpty {
-                    // 這個時間只有公告有變動才會更新，好幾天沒變不代表壞掉
-                    row { label(L("最後一次有新公告", "Last New Notice"), symbol: "clock", detail: updated) }
+                if let lastChecked = store.lastChecked {
+                    // App 最後一次成功向伺服器確認的時間，公告沒變動也會更新
+                    row { label(L("最後一次檢查更新", "Last Update Check"), symbol: "clock", detail: lastChecked) }
                 }
                 row {
                     Link(destination: repoURL) {
-                        label(L("原始碼", "Source Code"), symbol: "chevron.left.forwardslash.chevron.right", detail: "github.com/HowWeiChi-app/bango")
+                        label(L("原始碼", "Source Code"), symbol: "chevron.left.forwardslash.chevron.right", detail: "github.com/HowWeiChi-app/BanGo")
                     }
                 }
                 note(L("只讀取各校校網的公開公告，不需要登入，也不會收集任何個人資料。大約每 10 分鐘檢查一次校網。", "Only reads public notices from school websites. No sign-in, no personal data collected. Sites are checked about every 10 minutes."))
