@@ -41,7 +41,7 @@ def merge(old: list[Notice], current: list[Notice]) -> list[Notice]:
 def save_notices(path: Path, notices: list[Notice]) -> bool:
     """寫入 notices.json，回傳有沒有變動。
 
-    公告內容沒變就不寫檔，免得 GitHub Actions 每 30 分鐘都產生一個只改了時間的 commit。
+    公告內容沒變就不寫檔，免得 GitHub Actions 每 10 分鐘都產生一個只改了時間的 commit。
     """
     payload = {
         "categories": list(KEYWORD_CATEGORIES),  # App 的設定頁用這兩個清單產生開關

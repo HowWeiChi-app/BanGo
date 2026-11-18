@@ -3,7 +3,7 @@
 Discord 和手機推播只發師大附中（頻道是附中同學在用）。
 其他學校（schools.py）只抓下來、分類、存成 data/<學校>/notices.json 給 App 讀。
 
-GitHub Actions 每 30 分鐘跑一次  python run.py
+GitHub Actions 每 10 分鐘跑一次  python run.py
 在自己電腦上跑時，沒設定 DISCORD_WEBHOOK_URL 就只會印出「本來要發的內容」，不會真的發。
 """
 
