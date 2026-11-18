@@ -18,7 +18,7 @@ final class NoticeStore {
 
     private static let subscriptionsKey = "subscribed"
 
-    var data: NoticeData?
+    var data: NoticeData? { didSet { clearCache() } }
     var isLoading = false
     var errorMessage: String?
 
@@ -28,12 +28,18 @@ final class NoticeStore {
     @ObservationIgnored private var lastSchool = ""               // 上一次下載的是哪間學校
 
     var subscribed: Set<String> {
-        didSet { UserDefaults.standard.set(Array(subscribed), forKey: Self.subscriptionsKey) }
+        didSet {
+            UserDefaults.standard.set(Array(subscribed), forKey: Self.subscriptionsKey)
+            clearCache()
+        }
     }
 
     /// 全部公告裡要不要顯示跟學生無關的（教師研習、標案…），預設不顯示
     var showUnrelated: Bool {
-        didSet { UserDefaults.standard.set(showUnrelated, forKey: Self.showUnrelatedKey) }
+        didSet {
+            UserDefaults.standard.set(showUnrelated, forKey: Self.showUnrelatedKey)
+            clearCache()
+        }
     }
     private static let showUnrelatedKey = "showUnrelated"
 
@@ -73,8 +79,7 @@ final class NoticeStore {
     /// 「我的公告」：符合訂閱的
     /// 只看這學期的公告：上學期從 8/1 開始（到隔年 1 月底），下學期從 2/1 開始（到 7 月底）
     static func semesterStart(_ now: Date = .now) -> Date {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "Asia/Taipei")!
+        let calendar = taipei
         let year = calendar.component(.year, from: now), month = calendar.component(.month, from: now)
         let start = switch month {
         case 8...12: DateComponents(year: year, month: 8, day: 1)
@@ -84,31 +89,68 @@ final class NoticeStore {
         return calendar.date(from: start) ?? .distantPast
     }
 
-    /// 這學期的公告（時間看不懂的留著，寧可多顯示也不要漏掉）
-    var semesterNotices: [Notice] {
-        let start = Self.semesterStart()
-        return (data?.notices ?? []).filter { ($0.postedAt ?? .distantFuture) >= start }
+    private static let taipei: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Taipei")!
+        return calendar
+    }()
+
+    // MARK: 算好的清單（快取）
+    // 側邊欄每一行的數字、時間軸、副標題都要「這一類有哪些公告」。每次畫面重畫（換頁、按下去、載入中轉圈）
+    // 都重新篩選整份公告的話，側邊欄一次要篩二十幾遍，換頁會頓。資料、訂閱、顯示設定沒變就直接用上次的結果。
+    // 這些快取不參與畫面更新的追蹤（@ObservationIgnored）；讀的時候還是會讀 data、subscribed、showUnrelated，
+    // 所以它們一變，用到的畫面照樣會重畫，那時候快取已經清掉、會重新算
+    @ObservationIgnored private var semesterCache: (start: Date, notices: [Notice])?
+    @ObservationIgnored private var filterCache: [NoticeFilter: [Notice]] = [:]
+    @ObservationIgnored private var sourcesCache: [String]?
+
+    private func clearCache() {
+        semesterCache = nil
+        filterCache = [:]
+        sourcesCache = nil
     }
 
-    var myNotices: [Notice] { semesterNotices.filter { $0.matches(subscribed) } }
+    /// 這學期的公告（時間看不懂的留著，寧可多顯示也不要漏掉）
+    var semesterNotices: [Notice] {
+        let all = data?.notices ?? []  // 先讀 data：資料換了，用到的畫面才會重畫
+        let start = Self.semesterStart()
+        if let cached = semesterCache, cached.start == start { return cached.notices }
+        let result = all.filter { ($0.postedAt ?? .distantFuture) >= start }
+        // 跨學期（例如 App 開著過了 8/1）：其他清單也要重算
+        filterCache = [:]
+        sourcesCache = nil
+        semesterCache = (start, result)
+        return result
+    }
+
+    var myNotices: [Notice] { notices(.mine) }
 
     /// 側邊欄每一項對應的公告
     func notices(_ filter: NoticeFilter) -> [Notice] {
-        let visible = semesterNotices.filter { showUnrelated || $0.forStudents }
-        return switch filter {
-        case .mine: myNotices
-        case .all: visible
-        case .tag(let name): visible.filter { $0.has(name) }
-        case .source(let source): visible.filter { $0.source == source }
+        let unrelated = showUnrelated, subscribed = subscribed  // 先讀：設定改了，用到的畫面才會重畫
+        let semester = semesterNotices
+        if let cached = filterCache[filter] { return cached }
+        let visible = { semester.filter { unrelated || $0.forStudents } }
+        let result = switch filter {
+        case .mine: semester.filter { $0.matches(subscribed) }
+        case .all: visible()
+        case .tag(let name): visible().filter { $0.has(name) }
+        case .source(let source): visible().filter { $0.source == source }
         }
+        filterCache[filter] = result
+        return result
     }
 
     /// 資料裡出現過的來源，照第一次出現的順序
     var sources: [String] {
+        let semester = semesterNotices
+        if let cached = sourcesCache { return cached }
         var seen: [String] = []
-        for notice in semesterNotices where !seen.contains(notice.source) {
+        var set = Set<String>()
+        for notice in semester where set.insert(notice.source).inserted {
             seen.append(notice.source)
         }
+        sourcesCache = seen
         return seen
     }
 

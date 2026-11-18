@@ -216,9 +216,11 @@ private struct PressedCard<Label: View>: View {
         label
             .padding(16)
             .background {
-                // 立體的玻璃卡片（外圈暗線、內圈亮線、淡陰影），圓角跟 Reeder 一樣約 18pt
-                GlassCard(cornerRadius: 18)
-                    .opacity(isPressed || highlighted ? 1 : 0)
+                // 立體的玻璃卡片（外圈暗線、內圈亮線、淡陰影），圓角跟 Reeder 一樣約 18pt。
+                // 要顯示時才放進去：放一張透明度 0 的卡片在每一則後面，捲動時每一則都還要算一次陰影和漸層，會卡
+                if isPressed || highlighted {
+                    GlassCard(cornerRadius: 18).transition(.opacity)
+                }
             }
             .contentShape(.rect(cornerRadius: 18))
             .scaleEffect(sunk ? 0.97 : 1)

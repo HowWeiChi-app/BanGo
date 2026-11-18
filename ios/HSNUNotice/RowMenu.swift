@@ -21,22 +21,43 @@ struct RowMenu: Equatable {
 struct RowMenuTrigger: ViewModifier {
     let notice: Notice
     @Environment(Router.self) private var router
-    /// 這一則在螢幕上的位置。放在一個普通的 class 裡：捲動時位置每一格都在變，
-    /// 存在 @State 的話每一格都會讓這一則重畫，捲動會卡；只有長按那一刻才需要讀它
-    @State private var frame = FrameBox()
-
-    final class FrameBox { var rect: CGRect = .zero }
+    /// 這一則在螢幕上的位置：長按那一刻才去問（FrameReader）。
+    /// 不用 onGeometryChange 一直追：那樣捲動時每一格、每一則都要重算一次位置，捲動會卡
+    @State private var reader = FrameReader.Box()
 
     func body(content: Content) -> some View {
         content
-            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame.rect = $0 }
+            .background(FrameReader(box: reader))
             // 用 simultaneousGesture：一則公告本身是按鈕，直接掛 onLongPressGesture 會被按鈕吃掉，長按沒反應。
             // 長按完放開時按鈕也會收到「點一下」，時間軸那邊看到選單開著就不換頁
             .simultaneousGesture(LongPressGesture(minimumDuration: 0.4).onEnded { _ in
-                router.rowMenu = RowMenu(notice: notice, frame: frame.rect)
+                router.rowMenu = RowMenu(notice: notice, frame: reader.frame)
             })
             .sensoryFeedback(.impact(weight: .medium), trigger: router.rowMenu?.notice.id == notice.id) { _, open in open }
     }
+}
+
+/// 放在一則公告後面的透明 UIView，要的時候才算出自己在螢幕上的位置
+struct FrameReader: UIViewRepresentable {
+    final class Box {
+        weak var view: UIView?
+        /// 在整個螢幕上的位置（跟 SwiftUI 的 .global 一樣）
+        @MainActor var frame: CGRect {
+            guard let view, let window = view.window else { return .zero }
+            return view.convert(view.bounds, to: window.screen.coordinateSpace)
+        }
+    }
+
+    let box: Box
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        view.isUserInteractionEnabled = false
+        box.view = view
+        return view
+    }
+
+    func updateUIView(_ view: UIView, context: Context) { box.view = view }
 }
 
 /// 選單那一層，蓋在整個 App 上面（跟放大圖片一樣）

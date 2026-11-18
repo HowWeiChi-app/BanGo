@@ -81,7 +81,7 @@ struct SettingsView: View {
                         label(L("原始碼", "Source Code"), symbol: "chevron.left.forwardslash.chevron.right", detail: "github.com/cyy-615/hsnu-notice")
                     }
                 }
-                note(L("只讀取各校校網的公開公告，不需要登入，也不會收集任何個人資料。每 30 分鐘檢查一次校網。", "Only reads public notices from school websites. No sign-in, no personal data collected. The site is checked every 30 minutes."))
+                note(L("只讀取各校校網的公開公告，不需要登入，也不會收集任何個人資料。大約每 10 分鐘檢查一次校網。", "Only reads public notices from school websites. No sign-in, no personal data collected. Sites are checked about every 10 minutes."))
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
