@@ -152,7 +152,7 @@ struct ContentView: View {
         .environment(store)
         .environment(router)
         .task { await store.refreshIfStale() }
-        .preferredColorScheme(Demo.isOn ? .light : nil)
+        .preferredColorScheme(Demo.isOn ? (Demo.isDark ? .dark : .light) : nil)
         .task {
             guard let title = Demo.openTitle,
                   let notice = store.semesterNotices.first(where: { $0.title.hasPrefix(title) }) else { return }

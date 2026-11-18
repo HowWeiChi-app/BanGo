@@ -14,6 +14,8 @@ enum Demo {
         #endif
     }()
 
+    static var isDark: Bool { isOn && ProcessInfo.processInfo.environment["BANGO_DARK"] != nil }
+
     /// 一開始就打開標題以這段文字開頭的公告
     static var openTitle: String? {
         isOn ? ProcessInfo.processInfo.environment["BANGO_OPEN"] : nil
