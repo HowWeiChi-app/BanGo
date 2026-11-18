@@ -152,6 +152,12 @@ struct ContentView: View {
         .environment(store)
         .environment(router)
         .task { await store.refreshIfStale() }
+        .preferredColorScheme(Demo.isOn ? .light : nil)
+        .task {
+            guard let title = Demo.openTitle,
+                  let notice = store.semesterNotices.first(where: { $0.title.hasPrefix(title) }) else { return }
+            router.open(notice, in: store.myNotices)
+        }
         // 從背景回到 App 也更新（跟 Reeder 一樣）；10 分鐘內更新過就不重複下載
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await store.refreshIfStale() } }

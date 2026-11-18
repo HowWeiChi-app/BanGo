@@ -63,3 +63,13 @@ for dir in tool/icon/mipmap-*; do
   cp "$dir"/* "android/app/src/main/res/$(basename "$dir")/"
 done
 echo "App 圖示已更新"
+
+# 5. 官網截圖用的展示版：編譯時帶 -Pdemo 就換成另一個套件 ID，資料和平常安裝的 App 分開
+python3 - android/app/build.gradle.kts <<'EOF'
+import sys
+path = sys.argv[1]
+g = open(path, encoding="utf-8").read()
+if 'hasProperty("demo")' not in g:
+    g = g.replace("defaultConfig {", 'defaultConfig {\n        if (project.hasProperty("demo")) applicationIdSuffix = ".demo"', 1)
+open(path, "w", encoding="utf-8").write(g)
+EOF

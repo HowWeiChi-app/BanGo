@@ -189,6 +189,7 @@ final class NoticeStore {
 
     /// 重新下載。已經在下載了就等那一次，不會同時下載兩份
     func refresh() async {
+        if Demo.isOn { return }  // 展示模式固定用截圖腳本放進來的公告
         if let running {
             await running.value
             // 等的那一次是換學校之前開始的：再抓一次現在這間

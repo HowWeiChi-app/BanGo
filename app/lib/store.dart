@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'demo.dart';
 import 'models.dart';
 import 'settings.dart';
 
@@ -82,7 +83,7 @@ class NoticeStore extends ChangeNotifier {
 
   void _loadCache() {
     lastChecked = _prefs?.getString(_lastCheckedKey(AppSettings.shared.schoolID));
-    final text = _prefs?.getString(AppSettings.shared.school.cacheKey);
+    final text = demoNotices ?? _prefs?.getString(AppSettings.shared.school.cacheKey);
     data = null;
     _shownText = null;
     if (text == null) return;
@@ -190,6 +191,7 @@ class NoticeStore extends ChangeNotifier {
 
   /// 重新下載。已經在下載了就等那一次，不會同時下載兩份
   Future<void> refresh() async {
+    if (demoOn) return; // 展示模式固定用截圖腳本放進來的公告
     final running = _running;
     if (running != null) {
       await running;

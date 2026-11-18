@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:pdfrx/pdfrx.dart';
 
 import 'app_scope.dart';
+import 'demo.dart';
 import 'images.dart';
 import 'overlays.dart';
 import 'page_stack.dart';
@@ -38,6 +39,17 @@ class _NoticeAppState extends State<NoticeApp> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     widget.store.refreshIfStale();
+    if (demoOn && demoOpen.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final store = widget.store;
+        for (final notice in store.semesterNotices) {
+          if (notice.title.startsWith(demoOpen)) {
+            widget.router.openNotice(notice, store.myNotices);
+            break;
+          }
+        }
+      });
+    }
   }
 
   @override
@@ -85,6 +97,7 @@ class _NoticeAppState extends State<NoticeApp> with WidgetsBindingObserver {
           debugShowCheckedModeBanner: false,
           theme: _theme(Brightness.light),
           darkTheme: _theme(Brightness.dark),
+          themeMode: demoOn ? ThemeMode.light : ThemeMode.system,
           home: const _Home(),
         ),
       ),
