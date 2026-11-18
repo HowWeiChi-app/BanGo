@@ -34,9 +34,17 @@ if 'android:scheme="https"' not in m:
     else:
         m = m.replace("</manifest>", "    <queries>" + view_https + "\n    </queries>\n</manifest>")
 
-# 3. 手機桌面上顯示的 App 名稱
-m = m.replace('android:label="hsnu_notice"', 'android:label="附中公告"')
+# 3. 手機桌面上顯示的 App 名稱（跟 iPhone 版一樣叫「校板」；舊版產生過「附中公告」的也換掉）
+m = m.replace('android:label="hsnu_notice"', 'android:label="校板"').replace('android:label="附中公告"', 'android:label="校板"')
 
 open(path, "w", encoding="utf-8").write(m)
 print("AndroidManifest.xml 已更新")
 EOF
+
+# 4. App 圖示：全畫幅的 adaptive icon（Android 8 以上）和舊版用的方形圖示，都在 tool/icon/，
+#    蓋掉 flutter create 的預設圖示。圖是 tool/make_android_icon.swift 從 iPhone 版的圖示產生的
+for dir in tool/icon/mipmap-*; do
+  mkdir -p "android/app/src/main/res/$(basename "$dir")"
+  cp "$dir"/* "android/app/src/main/res/$(basename "$dir")/"
+done
+echo "App 圖示已更新"

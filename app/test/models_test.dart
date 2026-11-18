@@ -3,7 +3,10 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hsnu_notice/article_page.dart';
+import 'package:hsnu_notice/extras.dart';
 import 'package:hsnu_notice/models.dart';
+import 'package:hsnu_notice/store.dart';
 
 // 跟爬蟲輸出的 notices.json 同樣格式的範例
 const sampleJson = '''
@@ -53,5 +56,50 @@ void main() {
     expect(n.url, '');
     expect(n.tags, isEmpty);
     expect(n.forStudents, isTrue);
+  });
+
+  test('學期從 8/1、2/1 開始（台灣時間）', () {
+    expect(NoticeStore.semesterStart(DateTime.utc(2026, 11, 18)), DateTime.utc(2026, 7, 31, 16));
+    expect(NoticeStore.semesterStart(DateTime.utc(2027, 1, 10)), DateTime.utc(2026, 7, 31, 16));
+    expect(NoticeStore.semesterStart(DateTime.utc(2027, 3, 1)), DateTime.utc(2027, 1, 31, 16));
+  });
+
+  test('相對時間', () {
+    final exam = data.notices.first; // 2026-11-16 15:16 台灣時間
+    expect(exam.relativeTime(DateTime.utc(2026, 11, 16, 7, 20)), '4 分鐘');
+    expect(exam.relativeTime(DateTime.utc(2026, 11, 17, 7, 16)), '1 天');
+    expect(exam.relativeTime(DateTime.utc(2026, 12, 30)), '11/16');
+  });
+
+  test('附中內頁的附件和參考網站', () {
+    const html = '<div class="file_odd"><h3>參考資料</h3><ul><li>'
+        '<a class="download_btn x" href="/static/webroot/a.pdf" download="考試範圍.pdf">下載</a></li></ul></div>'
+        '<div class="link_odd"><h3>參考網站</h3><ul><li><a href="https://example.org/?a=1&amp;b=2" title="報名">報名網站</a></li></ul></div>';
+    final e = ExtrasParser.parse(html, Uri.parse('https://www.hs.ntnu.edu.tw/content?a=1'));
+    expect(e.files.single.name, '考試範圍.pdf');
+    expect(e.files.single.url.toString(), 'https://www.hs.ntnu.edu.tw/static/webroot/a.pdf');
+    expect(e.files.single.isPdf, isTrue);
+    expect(e.links.single.title, '報名網站');
+    expect(e.links.single.url.toString(), 'https://example.org/?a=1&b=2');
+  });
+
+  test('建中（NSS）的附件', () {
+    const html = r"<h4>{{ $t('FEZ012') }}</h4><button><a href=" '"/uploads/x.pdf"' r"><span><svg><path/></svg> 實施計畫.pdf</span></a></button>"
+        r"<h4>{{ $t('FEZ013') }}</h4><a href=" '"https://ck.example/form"' r">報名表單</a><hr><a href=" '"/other"' r">其他</a>";
+    final e = ExtrasParser.parse(html, Uri.parse('https://www.ck.tp.edu.tw/nss/main/freeze/x'));
+    expect(e.files.map((f) => f.name), ['實施計畫.pdf']);
+    expect(e.files.single.url.toString(), 'https://www.ck.tp.edu.tw/uploads/x.pdf');
+    expect(e.links.map((l) => l.title), ['報名表單']);
+  });
+
+  test('WordPress 學校的附件，重複的只留一個', () {
+    const item = '<ul class="nojs_modal_list"><li><a href="https://www.fg.tp.edu.tw/wp-content/uploads/a.pdf">簡章&#8211;最新.pdf</a></li></ul>';
+    final e = ExtrasParser.parse(item + item, Uri.parse('https://www.fg.tp.edu.tw/?p=1'));
+    expect(e.files.map((f) => f.name), ['簡章–最新.pdf']);
+  });
+
+  test('內文的網址變成連結，後面的中文和標點不算', () {
+    final links = Linkify.find('報名網址：https://forms.gle/abc123。或 www.example.com/x）詳見');
+    expect(links.map((l) => l.url), ['https://forms.gle/abc123', 'https://www.example.com/x']);
   });
 }
