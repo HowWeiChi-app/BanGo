@@ -169,7 +169,8 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 }
 
-/// 顏色主題：一排圓形色票，選中的外面一圈
+/// 選顏色：每一格是紙張顏色的小方塊，下面一條主色寫著名字（照 JuanGo 的 ThemeGrid，和 iPhone 版一樣）。
+/// 色票跟 App 實際的顏色一樣，深色模式就顯示深色的紙和深色模式的主色
 class _ThemeGrid extends StatelessWidget {
   const _ThemeGrid({required this.selected, required this.onSelect});
   final String selected;
@@ -178,52 +179,56 @@ class _ThemeGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [
-        SizedBox(width: 30, child: Icon(Icons.palette_outlined, size: 22, color: p.inkSecondary)),
-        const SizedBox(width: 12),
-        Text(L('顏色', 'Color'), style: AppText.headline.copyWith(color: p.ink)),
-      ]),
-      const SizedBox(height: 14),
-      Wrap(spacing: 14, runSpacing: 14, children: [
-        for (final t in AppTheme.all)
-          Semantics(
-            button: true,
-            selected: t.id == selected,
-            label: t.displayName,
-            child: GestureDetector(
-              onTap: () => onSelect(t.id),
-              child: SizedBox(
-                width: 58,
-                child: Column(children: [
-                  Container(
-                    width: 46,
-                    height: 46,
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: t.id == selected ? p.ink : Colors.transparent, width: 2),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: t.paper(p.dark),
-                        border: Border.all(color: p.edgeDark),
-                      ),
-                      child: Center(
-                        child: Container(width: 18, height: 18, decoration: BoxDecoration(shape: BoxShape.circle, color: t.accent(p.dark))),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: LayoutBuilder(builder: (context, c) {
+        final w = (c.maxWidth - 20) / 3;
+        return Wrap(spacing: 10, runSpacing: 10, children: [
+          for (final t in AppTheme.all)
+            Semantics(
+              button: true,
+              selected: t.id == selected,
+              label: t.displayName,
+              excludeSemantics: true,
+              child: GestureDetector(
+                onTap: () => onSelect(t.id),
+                child: Container(
+                  width: w,
+                  height: 76,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(color: t.paper(p.dark), borderRadius: BorderRadius.circular(12)),
+                  foregroundDecoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: t.id == selected ? Border.all(color: p.ink, width: 2) : null,
+                  ),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Text('Aa', style: AppText.title3.copyWith(fontWeight: FontWeight.w700, color: t.accent(p.dark))),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  ExcludeSemantics(
-                    child: Text(t.displayName, maxLines: 1, style: AppText.footnote.copyWith(color: p.inkSecondary)),
-                  ),
-                ]),
+                    Container(
+                      height: 28,
+                      color: t.accent(p.dark),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      // 字用紙張的顏色：深色模式經典的主色是黃色，白字會看不到
+                      child: Row(children: [
+                        Expanded(
+                          child: Text(t.displayName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppText.caption.copyWith(fontWeight: FontWeight.w700, color: t.paper(p.dark))),
+                        ),
+                        if (t.id == selected) Icon(Icons.check, size: 14, color: t.paper(p.dark)),
+                      ]),
+                    ),
+                  ]),
+                ),
               ),
             ),
-          ),
-      ]),
-    ]);
+        ]);
+      }),
+    );
   }
 }
