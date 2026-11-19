@@ -165,6 +165,8 @@ capture_android() {
   build_android "$ARTICLE"
   shot_android article
   rm -rf "$(dirname "$DEFINES")"
+  # 截完就刪掉展示版，手機上只留平常用的 App
+  "$ADB" uninstall "$BUNDLE" >/dev/null || true
 }
 
 case "$TARGET" in
