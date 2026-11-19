@@ -44,7 +44,7 @@ nonisolated struct Notice: Codable, Identifiable, Hashable {
     var isUrgent: Bool { topics.contains("停課") }
 
     /// 列表右上角的時間，很短。中文：「剛剛」「5 分鐘」「3 小時」「2 天」；
-    /// 英文跟 Reeder 英文版一樣：「now」「5m」「3h」「2d」。超過一週顯示「11/3」
+    /// 英文用短寫：「now」「5m」「3h」「2d」。超過一週顯示「11/3」
     @MainActor var relativeTime: String {
         guard let posted = postedAt else { return "" }
         let minutes = max(0, Int(Date.now.timeIntervalSince(posted) / 60))

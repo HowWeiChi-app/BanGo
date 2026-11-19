@@ -212,7 +212,7 @@ class _ThemeGrid extends StatelessWidget {
                       height: 28,
                       color: t.accent(p.dark),
                       padding: const EdgeInsets.symmetric(horizontal: 10),
-                      // 字用紙張的顏色：深色模式經典的主色是黃色，白字會看不到
+                      // 字用紙張的顏色：深色模式主色調亮了，白字會看不清楚
                       child: Row(children: [
                         Expanded(
                           child: Text(t.displayName,

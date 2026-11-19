@@ -1,12 +1,12 @@
-// 三層頁面左右並排的容器：側邊欄 ｜ 時間軸 ｜ 內頁。照 Reeder 自己寫的導覽（CoreNavigation）做：
+// 三層頁面左右並排的容器：側邊欄 ｜ 時間軸 ｜ 內頁。不用系統的導覽堆疊，自己做：
 //
 //   - 每一頁包在自己的 NavigationStack 裡，只用來放那一頁的工具列和搜尋框。
 //     工具列屬於那一頁，換頁時跟著頁面一起滑，不會像系統導覽列那樣在兩頁之間變形。
 //   - 同一個左右拖曳手勢處理兩個方向：往右拉，上面那頁跟著手指滑走，露出上一層；
 //     往左拉（只有側邊欄可以），時間軸從右邊跟著手指拉進來。
 //   - 被蓋住的那頁往左移 30%、變暗一點；移動中的那頁有螢幕形狀的圓角，外面一圈 1pt 亮邊，左邊緣有陰影。
-//     亮邊畫在頁面「外面」（Reeder 是把邊框放在 CGRectInset(頁面, -1, -1)），不是貼在內側。
-//   - 陰影照 Reeder 的設定：深色模式黑色 40%、淺色模式黑色 15%，半徑 5。
+//     亮邊畫在頁面「外面」（往外 1pt），不是貼在內側。
+//   - 陰影：深色模式黑色 40%、淺色模式黑色 15%，半徑 5。
 
 import SwiftUI
 import UIKit
@@ -164,7 +164,7 @@ struct PageFrame: ViewModifier, Animatable {
             .onGeometryChange(for: EdgeInsets.self) { $0.safeAreaInsets } action: { safeArea = $0 }
             .background {
                 if moving {
-                    // 陰影：沿著整個圓角頁面一圈（Reeder：深色黑 40%、淺色黑 15%，半徑 5）。
+                    // 陰影：沿著整個圓角頁面一圈（深色黑 40%、淺色黑 15%，半徑 5）。
                     // 用系統圖層的陰影，固定好形狀（shadowPath），換頁移動時不會每一格重算
                     PageShadow(radius: Self.screenCorner)
                         .ignoresSafeArea()

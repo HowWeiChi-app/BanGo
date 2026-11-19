@@ -1,5 +1,5 @@
 // 設定（語言、字體、顏色主題、學校）和顏色。跟 iPhone 版的 AppSettings.swift、Theme.swift 同一套規則：
-// 經典 = 照 Reeder 量的顏色；其他主題的紙張、卡片、分隔線都從主色算出來。
+// 預設是「校板」：青綠色配米白紙；所有主題的卡片、分隔線都從紙張和主色算出來。
 
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -109,7 +109,7 @@ class TagName {
 
 // MARK: 顏色
 
-/// 顏色主題。主色決定紙張的色相；經典是照 Reeder 量的
+/// 顏色主題。主色決定紙張的色相；預設的「校板」紙張另外指定成偏暖的米白
 class AppTheme {
   const AppTheme(this.id, this.name, this.englishName, this.accentHex);
   final String id;
@@ -121,7 +121,7 @@ class AppTheme {
   bool get classic => id == 'classic';
 
   static const all = [
-    AppTheme('classic', '經典', 'Classic', 0xE06050),
+    AppTheme('classic', '校板', 'BanGo', 0x128A8F), // id 沿用舊的，選過的人不用重選
     AppTheme('amber', '琥珀', 'Amber', 0xB0661A),
     AppTheme('pine', '松針', 'Pine', 0x2F6B4F),
     AppTheme('ink', '墨藍', 'Ink', 0x24407A),
@@ -134,13 +134,12 @@ class AppTheme {
 
   /// 主色。深色模式往白色調亮一點，在深色紙上才看得清楚
   Color accent(bool dark) {
-    if (classic) return dark ? const Color(0xFFFFC600) : const Color(0xFFE06050);
     return dark ? _mix(_base, Colors.white, 0.38) : _base;
   }
 
-  /// 紙張底色。經典是 Reeder 量的；其他用主色的色相，淺色幾乎白、深色很深
+  /// 紙張底色。「校板」是偏暖的米白、深色是帶一點冷的深灰；其他用主色的色相，淺色幾乎白、深色很深
   Color paper(bool dark) {
-    if (classic) return dark ? const Color(0xFF1F1E1C) : const Color(0xFFFDFDFC);
+    if (classic) return dark ? const Color(0xFF1A1C1D) : const Color(0xFFFAF8F3);
     final hsv = HSVColor.fromColor(_base);
     final k = (hsv.saturation / 0.6).clamp(0.0, 1.0); // 灰色系（石墨）就是中性灰
     return dark
@@ -150,7 +149,6 @@ class AppTheme {
 }
 
 Color _mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
-Color _rgb(int r, int g, int b) => Color.fromARGB(255, r, g, b);
 Color _white(double alpha) => Color.fromRGBO(255, 255, 255, alpha);
 Color _black(double alpha) => Color.fromRGBO(0, 0, 0, alpha);
 
@@ -158,24 +156,23 @@ Color _black(double alpha) => Color.fromRGBO(0, 0, 0, alpha);
 class Palette extends ThemeExtension<Palette> {
   Palette(AppTheme theme, this.dark) {
     final paperColor = theme.paper(dark);
-    final c = theme.classic;
     paper = paperColor;
     if (dark) {
-      // 深色模式的各種深淺都從紙張顏色算：經典的紙張是 31，下面這些比例剛好算回 Reeder 量到的 44、20、47、65、7
-      paperChip = c ? const Color(0xFF33302E) : _mix(paperColor, Colors.white, 0.09);
-      cardFill = c ? _rgb(44, 44, 42) : _mix(paperColor, Colors.white, 0.058);
-      edgeDark = c ? _rgb(20, 20, 18) : _mix(paperColor, Colors.black, 0.35);
-      grooveLight = c ? _rgb(47, 46, 44) : _mix(paperColor, Colors.white, 0.072);
-      cardHighlight = c ? _rgb(65, 65, 63) : _mix(paperColor, Colors.white, 0.152);
-      edgeShadow = c ? _rgb(7, 7, 6) : _mix(paperColor, Colors.black, 0.77);
+      // 深色模式的各種深淺都從紙張顏色算，每個主題用同一套比例
+      paperChip = _mix(paperColor, Colors.white, 0.09);
+      cardFill = _mix(paperColor, Colors.white, 0.058);
+      edgeDark = _mix(paperColor, Colors.black, 0.35);
+      grooveLight = _mix(paperColor, Colors.white, 0.072);
+      cardHighlight = _mix(paperColor, Colors.white, 0.152);
+      edgeShadow = _mix(paperColor, Colors.black, 0.77);
       pageRim = cardHighlight;
       ink = _white(0.9);
       inkSecondary = _white(0.6);
       inkTertiary = _white(0.4);
       pageShadow = _black(0.4);
     } else {
-      paperChip = c ? const Color(0xFFE3E0D9) : _mix(paperColor, Colors.black, 0.11);
-      cardFill = c ? const Color(0xFFEBE8E3) : _mix(paperColor, Colors.black, 0.07);
+      paperChip = _mix(paperColor, Colors.black, 0.11);
+      cardFill = _mix(paperColor, Colors.black, 0.07);
       edgeDark = _black(0.09);
       grooveLight = _white(0.75);
       cardHighlight = _white(0.9);
@@ -190,7 +187,7 @@ class Palette extends ThemeExtension<Palette> {
 
     // 來源的顏色：每個來源的色相固定（重要公告都是橘紅、學生都是藍…），容易分辨；
     // 主題只決定風格：飽和度、亮度跟著主色走（墨藍、松針深而沉，天空藍鮮豔，石墨低彩度）
-    final hsv = HSVColor.fromColor(theme.classic ? const Color(0xFFE06050) : theme._base);
+    final hsv = HSVColor.fromColor(theme._base);
     final gray = hsv.saturation < 0.15;
     final lightS = gray ? 0.24 : hsv.saturation.clamp(0.4, 0.8);
     final lightB = gray ? 0.5 : hsv.value.clamp(0.5, 0.82);

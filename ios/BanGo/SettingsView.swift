@@ -1,5 +1,5 @@
 // 設定頁：選擇要訂閱的類別和主題，還有外觀（語言、字體、顏色，比照 JuanGo）。
-// 照 Reeder：從側邊欄左上角打開的彈出頁，左上角 X 關閉；米白底色、大標題，
+// 從側邊欄左上角打開的彈出頁，左上角 X 關閉；米白底色、大標題，
 // 每一行是灰色圖示加粗體文字，沒有白色卡片，分組之間用細線隔開。
 //
 // 注意：不用 List 的 Section 標題。純列表樣式的段落標題會黏在上方，而且自帶白色底，
@@ -171,7 +171,7 @@ struct ThemeGrid: View {
                             .frame(maxWidth: .infinity, alignment: .leading).padding(10)
                         Spacer(minLength: 0)
                         HStack {
-                            // 字用紙張的顏色：深色模式經典的主色是黃色，白字會看不到
+                            // 字用紙張的顏色：深色模式主色調亮了，白字會看不清楚
                             Text(t.displayName).font(.app(.caption, .bold)).foregroundStyle(t.swatch)
                             Spacer()
                             if selection == t.id {

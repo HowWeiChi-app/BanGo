@@ -1,4 +1,4 @@
-// 公告時間軸，照 iPhone 版 NoticeListView.swift（Reeder 的排版）：
+// 公告時間軸，照 iPhone 版 NoticeListView.swift：
 //   - 左上角膠囊：側邊欄按鈕 ｜ 標題、副標、箭頭；捲下去之後點標題會跳出「捲動到」選單，在最上面時點了沒反應
 //   - 右上角膠囊：重新整理（轉完那一圈之前不能按）、搜尋
 //   - 每則公告：圓形來源頭像 + 來源 + 分類，右上角相對時間，下面粗體標題、灰色摘要、圖片
@@ -251,7 +251,7 @@ class _ScrollToMenu extends StatelessWidget {
       enabled: enabled,
       label: L('捲動到', 'Scroll To'),
       child: IgnorePointer(
-        ignoring: !enabled, // 已經在最上面：點了沒反應（跟 Reeder 一樣）
+        ignoring: !enabled, // 已經在最上面：點了沒反應
         child: PopupMenuButton<int>(
           tooltip: '',
           position: PopupMenuPosition.under,
@@ -347,7 +347,7 @@ class _TimelineRowState extends State<_TimelineRow> {
         onTap: widget.onTap,
         onLongPress: _longPress,
         onLongPressEnd: (_) => _up(),
-        // 每一則外面留 14、卡片裡面再留 16，文字離螢幕邊 30（跟 Reeder 一樣）；分隔線在兩則正中間，離螢幕邊 32
+        // 每一則外面留 14、卡片裡面再留 16，文字離螢幕邊 30；分隔線在兩則正中間，離螢幕邊 32
         child: Column(children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 6, 14, 6),

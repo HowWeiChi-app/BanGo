@@ -1,4 +1,4 @@
-// 公告時間軸、單則公告、公告內頁，以及打開校網原文的 Safari。全部照 Reeder 排版：
+// 公告時間軸、單則公告、公告內頁，以及打開校網原文的 Safari。排版參考 RSS 閱讀器：
 //   - 左上角玻璃膠囊：側邊欄按鈕 ｜ 標題、副標、箭頭；捲下去之後點標題或箭頭會跳出「捲動到」選單
 //     （上次讀到的地方／最上面），在最上面時點了沒反應。右上角膠囊：重新整理、搜尋
 //   - 長按一則公告跳出選單：閱讀原文、複製連結、分享（RowMenu.swift）
@@ -45,11 +45,11 @@ struct NoticeTimeline: View {
                                                 || notice.id == router.rowMenu?.notice.id))
                     // 長按：自己畫的玻璃選單（RowMenu.swift），不用系統的 contextMenu
                     .modifier(RowMenuTrigger(notice: notice))
-                    // 每一則外面都留 14pt，卡片裡面再留 16pt，所以文字離螢幕邊 30pt（跟 Reeder 一樣）。
+                    // 每一則外面都留 14pt，卡片裡面再留 16pt，所以文字離螢幕邊 30pt。
                     // 不管有沒有卡片，大小都一樣，點下去排版不會跳。
                     // 上 6、下 8：分隔線（2pt）畫在這一行的最下面，這樣卡片上下到分隔線都剛好空 6pt，分隔線在正中間
                     .listRowInsets(EdgeInsets(top: 6, leading: 14, bottom: 8, trailing: 14))
-                    // 分隔線自己畫：系統的只有一條線，Reeder 是「暗線＋亮線」像刻出來的溝，離螢幕邊 32pt
+                    // 分隔線自己畫：系統的只有一條線，這裡是「暗線＋亮線」像刻出來的溝，離螢幕邊 32pt
                     .listRowBackground(Color.paper.overlay(alignment: .bottom) { Groove().padding(.horizontal, 32) }
                         .background(ScrollViewFinder(scroller: scroller)))  // 找到列表底下系統的捲動區
                     .listRowSeparator(.hidden)
@@ -58,9 +58,9 @@ struct NoticeTimeline: View {
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
-            // 工具列底下是一整條不透明的模糊底，下緣一條線（Reeder 時間軸量出來是 hard，不是漸層的 soft）
+            // 工具列底下是一整條不透明的模糊底，下緣一條硬邊的線（不是漸層的 soft）
             .scrollEdgeEffectStyle(.hard, for: .top)
-            // Reeder 在最上面時，工具列後面是一整片紙張顏色，沒有底也沒有線；捲下去才出現
+            // 在最上面時，工具列後面是一整片紙張顏色，沒有底也沒有線；捲下去才出現
             .scrollEdgeEffectHidden(atTop && !router.searching, for: .top)
             // 硬邊的光影（亮線、暗線、陰影）系統畫不出來，自己疊上去
             .overlay(alignment: .top) {
@@ -75,7 +75,7 @@ struct NoticeTimeline: View {
             }
             .overlay { placeholder(isEmpty: visible.isEmpty) }
             // 打開公告、或在內頁往左滑換到上面那則時，時間軸把那則捲到中間：回到列表就看得到剛剛讀到哪。
-            // 用系統的捲動動畫（ListScroller），跟內頁滑進來同時進行（Reeder 也是一起捲）；
+            // 用系統的捲動動畫（ListScroller），跟內頁滑進來同時進行；
             // proxy.scrollTo 在 List 裡沒有動畫，點了靠下面的公告，時間軸會瞬移一下
             .onChange(of: router.lastOpened) { _, id in
                 guard let id, router.depth > Router.Depth.timeline,
@@ -101,7 +101,7 @@ struct NoticeTimeline: View {
                 } else {
                     ToolbarItem(placement: .topBarLeading) {
                         HStack(spacing: 11) {
-                            // 回到側邊欄（Reeder 在這裡放的是側邊欄圖示，不是返回箭頭）
+                            // 回到側邊欄（這裡放側邊欄圖示，不是返回箭頭）
                             Button { router.back() } label: {
                                 Image(systemName: "sidebar.left")
                             }
@@ -112,7 +112,7 @@ struct NoticeTimeline: View {
                                 Color.grooveLight.frame(width: 1)
                             }
                             .frame(height: 26)
-                            // 標題和箭頭是同一顆按鈕：跳出「捲動到」選單（Reeder 的 Scroll To）
+                            // 標題和箭頭是同一顆按鈕：跳出「捲動到」選單
                             Menu {
                                 Section(L("捲動到", "Scroll To")) {
                                     Button {
@@ -144,7 +144,7 @@ struct NoticeTimeline: View {
                                         .foregroundStyle(atTop ? AnyShapeStyle(Color.inkTertiary) : AnyShapeStyle(Color.ink))
                                 }
                             }
-                            .allowsHitTesting(!atTop)  // 已經在最上面：點了沒反應（跟 Reeder 一樣）
+                            .allowsHitTesting(!atTop)  // 已經在最上面：點了沒反應
                             .accessibilityLabel(L("捲動到", "Scroll To"))
                         }
                         .padding(.horizontal, 2)
@@ -161,7 +161,7 @@ struct NoticeTimeline: View {
                     }
                 }
             }
-            .tint(Color.ink)  // 工具列圖示用深灰色，跟 Reeder 一樣
+            .tint(Color.ink)  // 工具列圖示用深灰色
         }
     }
 
@@ -195,7 +195,7 @@ struct NoticeTimeline: View {
     }
 }
 
-/// 公告的點擊效果：按下去或是最後看的那則，背後出現立體的玻璃卡片（Reeder 的樣子）
+/// 公告的點擊效果：按下去或是最後看的那則，背後出現立體的玻璃卡片
 private struct CardPressStyle: ButtonStyle {
     let highlighted: Bool
 
@@ -216,7 +216,7 @@ private struct PressedCard<Label: View>: View {
         label
             .padding(16)
             .background {
-                // 立體的玻璃卡片（外圈暗線、內圈亮線、淡陰影），圓角跟 Reeder 一樣約 18pt。
+                // 立體的玻璃卡片（外圈暗線、內圈亮線、淡陰影），圓角約 18pt。
                 // 要顯示時才放進去：放一張透明度 0 的卡片在每一則後面，捲動時每一則都還要算一次陰影和漸層，會卡
                 if isPressed || highlighted {
                     GlassCard(cornerRadius: 18).transition(.opacity)
@@ -263,7 +263,7 @@ struct RefreshButton: View {
 
 /// 重新整理的箭頭。轉動交給 Core Animation（在系統的繪圖程序裡跑），不是 SwiftUI 每一格去算：
 /// 更新的時候 App 正忙著下載、解析公告，SwiftUI 的動畫會跟著卡、抽動。
-/// Reeder 也是這樣：REA 看到它的轉圈（CoreActivityIndicatorView）設定了 usesThreadedAnimation，動畫不在主執行緒上跑
+/// 轉圈的動畫不在主執行緒上跑，載入時才不會卡住
 struct SpinningArrow: UIViewRepresentable {
     var spinning: Bool
     var dimmed = false
@@ -394,7 +394,7 @@ struct NoticeRow: View {
     }
 }
 
-/// 公告內頁的一則：照 Reeder 的文章頁。每一則有自己的 NavigationStack 和工具列，工具列跟著那一頁一起滑。
+/// 公告內頁的一則：排版參考 RSS 閱讀器的文章頁。每一則有自己的 NavigationStack 和工具列，工具列跟著那一頁一起滑。
 /// 往左滑換到時間軸上面那則（比較新的）、往右滑回時間軸，都由 PageStack 處理：
 /// 拉進來的那則跟三層頁面是同一排的頁面（不是包在這一頁裡面），
 /// 兩層頁面疊在一起裁圓角的話，拉進來那則的內文不會畫出來
@@ -482,7 +482,7 @@ private struct NoticeArticle: View, Equatable {
                     ForEach(Array(notice.content.split(separator: "\n").enumerated()), id: \.offset) { _, paragraph in
                         Text(Linkify.attributed(String(paragraph)))  // 內文裡的網址變成可以點的連結
                     }
-                    // 「原文」連結，跟 Reeder 一樣用主色
+                    // 「原文」連結用主色
                     if let url = URL(string: notice.url) {
                         Button { SafariPage.open(url) } label: {
                             Text(L("[原文]", "[Original]")).fontWeight(.semibold)
@@ -491,7 +491,7 @@ private struct NoticeArticle: View, Equatable {
                     }
                 }
                 .font(.app(.body))
-                .foregroundStyle(Color.ink)  // Reeder 的 articleText 跟標題同一個顏色
+                .foregroundStyle(Color.ink)  // 內文跟標題同一個顏色
                 .lineSpacing(5)
                 .textSelection(.enabled)
                 .padding(.top, 24)
@@ -508,7 +508,7 @@ private struct NoticeArticle: View, Equatable {
             .padding(.top, 8)
             .padding(.bottom, 40)
         }
-        // 上方安全區：內文捲到導覽列底下時，越往上越模糊、越暗（iOS 26 的捲動邊緣效果，Reeder 也是）
+        // 上方安全區：內文捲到導覽列底下時，越往上越模糊、越暗（iOS 26 的捲動邊緣效果）
         .scrollEdgeEffectStyle(.soft, for: .top)
         .background { Color.paper.ignoresSafeArea() }  // 不透明：換頁時才蓋得住後面那則
         // 內文連結用 App 裡的 Safari 打開（跟「原文」一樣），不要跳出 App
@@ -573,7 +573,7 @@ private struct BulletLabelStyle: LabelStyle {
 }
 
 /// 在 App 裡用 Safari 打開校網原文。
-/// 照 Reeder：原文是公告內頁的下一層，從右邊推進來，不是從下面彈出來的卡片；
+/// 原文是公告內頁的下一層，從右邊推進來，不是從下面彈出來的卡片；
 /// 看完按左上角，或從螢幕左邊緣往右滑，就回到公告。
 enum SafariPage {
     static func open(_ url: URL) {
@@ -589,7 +589,7 @@ enum SafariPage {
     }
 }
 
-/// 搜尋列。不用系統的 searchable，照 Reeder 自己做（REA：Reeder 用自己的 Glass.SearchPopover）：
+/// 搜尋列。不用系統的 searchable，自己做成玻璃彈出框：
 /// 系統的搜尋框第一次會出現在鍵盤上面、之後又跑到最上面，而且打開、關閉時整個列表會重建，畫面會抽動。
 /// 這裡在時間軸那一頁的最上面疊一層，剛好蓋在工具列的位置（工具列的按鈕這時候收起來了），列表完全不動
 struct SearchBar: View {

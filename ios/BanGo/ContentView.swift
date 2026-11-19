@@ -1,6 +1,6 @@
-// 主畫面：照 Reeder 的結構，沒有下方分頁列，三層頁面左右並排：
+// 主畫面：參考 RSS 閱讀器的結構，沒有下方分頁列，三層頁面左右並排：
 //   側邊欄 ｜ 公告時間軸 ｜ 公告內頁 →（原文：App 裡的 Safari）
-// 不用系統的導覽堆疊（NavigationStack 一層推一層），改成自己的並排頁面（PageStack.swift），跟 Reeder 一樣：
+// 不用系統的導覽堆疊（NavigationStack 一層推一層），改成自己的並排頁面（PageStack.swift）：
 //   - 往右拉回上一層、往左拉到下一層，頁面都跟著手指走
 //   - 每一頁有自己的工具列，換頁時工具列跟著頁面一起滑，不會在兩頁之間變形
 //   - 移動中的頁面外圈有一圈亮邊和陰影
@@ -33,7 +33,7 @@ final class Router {
     var toast: String?                // 畫面下方短暫出現的提示，例如「已複製連結」
     var readingList: [Notice] = []    // 點進內頁時那個時間軸上的公告（由新到舊），內頁往左滑換到上面那則用
 
-    /// 換頁動畫：不彈跳，跟 Reeder 一樣乾脆
+    /// 換頁動畫：不彈跳，乾脆
     static let animation = Animation.spring(duration: 0.35, bounce: 0)
 
     /// 從側邊欄打開一種公告的時間軸
@@ -158,7 +158,7 @@ struct ContentView: View {
                   let notice = store.semesterNotices.first(where: { $0.title.hasPrefix(title) }) else { return }
             router.open(notice, in: store.myNotices)
         }
-        // 從背景回到 App 也更新（跟 Reeder 一樣）；10 分鐘內更新過就不重複下載
+        // 從背景回到 App 也更新；10 分鐘內更新過就不重複下載
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await store.refreshIfStale() } }
         }

@@ -1,4 +1,4 @@
-// 公告內頁，照 iPhone 版 NoticeDetailView（Reeder 的文章頁）：
+// 公告內頁，照 iPhone 版 NoticeDetailView：
 // 來源、大標題、日期、分類（點了跳到那一類）、圖片、內文（網址變成連結）、[原文]，
 // 最後是校網內頁的附件（PDF 每一頁直接放上來）和參考網站。
 // 左上角返回時間軸；右上角打開原文、分享。往左滑換到上面那則、往右滑回時間軸由 PageStack 處理。
@@ -147,7 +147,7 @@ class _ArticleBody extends StatelessWidget {
       const SizedBox(height: 24),
       for (final paragraph in paragraphs)
         Padding(padding: const EdgeInsets.only(bottom: 14), child: _LinkedText(paragraph)),
-      // 「原文」連結，跟 Reeder 一樣用主色
+      // 「原文」連結用主色
       GestureDetector(
         onTap: () => openWeb(notice.url),
         child: Text(L('[原文]', '[Original]'), style: AppText.body.copyWith(fontWeight: FontWeight.w600, color: p.brand)),

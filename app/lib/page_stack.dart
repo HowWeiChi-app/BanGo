@@ -1,4 +1,4 @@
-// 三層頁面左右並排的容器：側邊欄 ｜ 時間軸 ｜ 內頁。跟 iPhone 版 PageStack.swift 同一套規則（照 Reeder 做的）：
+// 三層頁面左右並排的容器：側邊欄 ｜ 時間軸 ｜ 內頁。跟 iPhone 版 PageStack.swift 同一套規則：
 //   - 同一個左右拖曳手勢處理兩個方向：往右拉，上面那頁跟著手指滑走，露出上一層；
 //     往左拉（側邊欄，或內頁有比較新的那則時），下一頁從右邊跟著手指拉進來。
 //   - 被蓋住的那頁往左移 30%、變暗一點；移動中的那頁有圓角、外面一圈 1px 的邊、陰影。
@@ -51,7 +51,7 @@ class _PageStackState extends State<PageStack> with SingleTickerProviderStateMix
     super.dispose();
   }
 
-  /// 不是拖曳造成的換頁（點了公告、按返回）：用動畫滑到新的那一層，不彈跳，跟 Reeder 一樣乾脆
+  /// 不是拖曳造成的換頁（點了公告、按返回）：用動畫滑到新的那一層，不彈跳，乾脆
   void _routerChanged() {
     final articleId = _router.article?.id;
     if (articleId != _shownArticle) {
@@ -202,7 +202,7 @@ class _PageFrame extends StatelessWidget {
       ]);
     }
     if (moving) {
-      // 陰影：沿著整個頁面一圈（Reeder：深色黑 40%、淺色黑 15%，半徑 5）；1px 的邊畫在最外圈
+      // 陰影：沿著整個頁面一圈（深色黑 40%、淺色黑 15%，半徑 5）；1px 的邊畫在最外圈
       page = Container(
         decoration: BoxDecoration(boxShadow: [BoxShadow(color: p.pageShadow, blurRadius: 5)]),
         foregroundDecoration: BoxDecoration(border: Border.all(color: p.pageRim)),

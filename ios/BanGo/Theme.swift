@@ -1,29 +1,29 @@
-// 顏色和小圖示。排版參考 RSS 閱讀器 Reeder：米白色紙張底色、圓形來源頭像。
+// 顏色和小圖示。排版參考 RSS 閱讀器：米白色紙張底色、圓形來源頭像。
 
 import SwiftUI
 
 extension Color {
-    // 跟著設定裡的「顏色」變的那些（AppSettings.swift 的 Palette）。經典 = 照 Reeder 量的那組：
-    /// 紙張底色。經典：REA 從 Reeder 讀出 NSColor.contentBackground，深色 31,30,28
+    // 跟著設定裡的「顏色」變的那些（AppSettings.swift 的 Palette）。括號裡是預設「校板」深色模式的值：
+    /// 紙張底色（淺色 FAF8F3 米白、深色 1A1C1D）
     @MainActor static var paper: Color { Palette.current.paper }
     /// 數字小膠囊、選取狀態的底色
     @MainActor static var paperChip: Color { Palette.current.paperChip }
-    /// 選中卡片的底色（經典：Reeder 44,44,42）
+    /// 選中卡片的底色（紙張往白混 5.8%）
     @MainActor static var cardFill: Color { Palette.current.cardFill }
-    /// 暗線：分隔線的上面那條、卡片的外圈（經典：20,20,18）
+    /// 暗線：分隔線的上面那條、卡片的外圈（紙張往黑混 35%）
     @MainActor static var edgeDark: Color { Palette.current.edgeDark }
-    /// 分隔線下面那條亮線（經典：47,46,44）
+    /// 分隔線下面那條亮線（紙張往白混 7.2%）
     @MainActor static var grooveLight: Color { Palette.current.grooveLight }
-    /// 卡片內圈的亮邊（經典：65,65,63）
+    /// 卡片內圈的亮邊（紙張往白混 15.2%）
     @MainActor static var cardHighlight: Color { Palette.current.cardHighlight }
-    /// 工具列硬邊下面那條很暗的線（經典：7,7,6）
+    /// 工具列硬邊下面那條很暗的線（紙張往黑混 77%）
     @MainActor static var edgeShadow: Color { Palette.current.edgeShadow }
-    /// 換頁時移動中那頁外圈 1pt 的邊：深色是亮邊，淺色是暗邊（Reeder 淺色模式是暗色系）
+    /// 換頁時移動中那頁外圈 1pt 的邊：深色是亮邊，淺色是暗邊
     @MainActor static var pageRim: Color { Palette.current.pageRim }
-    /// App 的主色（經典：Reeder 的 AccentColor，淺色 224,96,80 橘紅、深色 255,198,0 黃）
+    /// App 的主色（校板：淺色 128A8F 青綠，深色往白調亮）
     @MainActor static var brand: Color { Palette.current.brand }
 
-    // 文字的三種深淺，REA 讀 Reeder 的文字顏色，再用 iPhone 截圖逐點量過（深色模式紙張 31）：
+    // 文字的三種深淺：
     /// 標題、內文：淺色黑 75%、深色白 90%（量到 232）
     static let ink = Color(UIColor { $0.userInterfaceStyle == .dark
         ? UIColor(white: 1, alpha: 0.9) : UIColor(white: 0, alpha: 0.75) })
@@ -36,12 +36,12 @@ extension Color {
     static let inkTertiary = Color(UIColor { $0.userInterfaceStyle == .dark
         ? UIColor(white: 1, alpha: 0.4) : UIColor(white: 0, alpha: 0.33) })
 
-    /// 捲動後工具列後面的模糊底再壓暗一點：系統的硬邊底是 39，Reeder 只有 31–34
+    /// 捲動後工具列後面的模糊底再壓暗一點：系統的硬邊底太亮
     static let barShade = Color(UIColor { $0.userInterfaceStyle == .dark
         ? UIColor(white: 0, alpha: 0.25)
         : UIColor(white: 0, alpha: 0) })
 
-    /// 換頁時移動中那頁的陰影（Reeder：深色黑 40%、淺色黑 15%，半徑 5）
+    /// 換頁時移動中那頁的陰影（深色黑 40%、淺色黑 15%，半徑 5）
     static let pageShadow = Color(UIColor { $0.userInterfaceStyle == .dark
         ? UIColor(white: 0, alpha: 0.4)
         : UIColor(white: 0, alpha: 0.15) })
@@ -120,7 +120,7 @@ enum TagStyle {
     }
 }
 
-/// 分隔線：1pt 暗線 + 1pt 亮線，看起來像在紙上刻了一道溝（Reeder 的分隔線）
+/// 分隔線：1pt 暗線 + 1pt 亮線，看起來像在紙上刻了一道溝
 struct Groove: View {
     var body: some View {
         VStack(spacing: 0) {
@@ -131,7 +131,7 @@ struct Groove: View {
     }
 }
 
-/// 選中的卡片（照 Reeder 量的）：比底色亮一點，外圈 1pt 暗線、內圈 1pt 亮線，
+/// 選中的卡片：比底色亮一點，外圈 1pt 暗線、內圈 1pt 亮線，
 /// 亮線像被右上方的光照到，到左下角就淡掉；外面一圈很淡、上下一樣寬的陰影
 struct GlassCard: View {
     var cornerRadius: CGFloat = 18
@@ -140,7 +140,7 @@ struct GlassCard: View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
         shape.fill(Color.cardFill)
             .overlay {
-                // 只有左下角那一塊變暗（Reeder 量的：左上、右上、右下都約 63，左下約 43）。
+                // 只有左下角那一塊變暗（像光從右上照過來）。
                 // 不用「右上到左下」的直線漸層：卡片很寬，直線漸層會連左上角也變暗
                 shape.inset(by: 1).strokeBorder(
                     RadialGradient(colors: [.cardFill, .cardHighlight], center: .bottomLeading,
@@ -152,7 +152,7 @@ struct GlassCard: View {
     }
 }
 
-/// 工具列硬邊的光影（照 Reeder 量的，深色模式 3x 像素）：
+/// 工具列硬邊的光影（深色模式 3x 像素）：
 /// 模糊底壓暗；下緣 1pt 亮線（47）＋ 1pt 暗線（7），再往下約 11pt 的陰影從 24 慢慢亮回紙張 31。
 /// 亮線、暗線、陰影到螢幕左右兩邊約 65pt 內會淡掉，像光從上面打下來。
 /// 放在列表最上面（安全區的下緣）：亮線剛好蓋住系統那條比較亮的細線。

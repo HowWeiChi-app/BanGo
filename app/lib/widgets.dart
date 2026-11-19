@@ -22,7 +22,7 @@ abstract final class AppText {
   static const caption = TextStyle(fontSize: 12, fontWeight: FontWeight.w600);
 }
 
-/// 分隔線：1px 暗線 + 1px 亮線，看起來像在紙上刻了一道溝（Reeder 的分隔線）
+/// 分隔線：1px 暗線 + 1px 亮線，看起來像在紙上刻了一道溝
 class Groove extends StatelessWidget {
   const Groove({super.key, this.vertical = false, this.length});
   final bool vertical;
@@ -40,7 +40,7 @@ class Groove extends StatelessWidget {
   }
 }
 
-/// 選中的卡片（照 Reeder 量的）：比底色亮一點，外圈 1px 暗線、內圈 1px 亮線（左下角淡掉），外面一圈很淡的陰影
+/// 選中的卡片：比底色亮一點，外圈 1px 暗線、內圈 1px 亮線（左下角淡掉），外面一圈很淡的陰影
 class GlassCard extends StatelessWidget {
   const GlassCard({super.key, this.radius = 18});
   final double radius;
@@ -169,7 +169,7 @@ class SourceAvatar extends StatelessWidget {
 }
 
 /// 每一頁最上面的工具列：左右兩顆玻璃膠囊，浮在內容上面。
-/// 捲下去後，工具列後面是一條模糊的紙張底，下緣有硬邊的光影（亮線、暗線、往下淡掉的陰影，Reeder 量的）
+/// 捲下去後，工具列後面是一條模糊的紙張底，下緣有硬邊的光影（亮線、暗線、往下淡掉的陰影）
 class TopBar extends StatelessWidget {
   const TopBar({super.key, this.leading, this.trailing, this.solid = false, this.center});
   final Widget? leading;

@@ -2,7 +2,7 @@
 //   - 設定存在 UserDefaults，改了整個 App 馬上跟著變（@Observable）
 //   - 字體同時換英文和中文：圓體配 SF Rounded、宋體配 New York。中文字型是 iOS 內建、用到才下載，
 //     還沒下載好（或沒網路）時先用蘋方，不會壞掉
-//   - 顏色：主色＋用主色的色相調出來的紙張底色。原本照 Reeder 量出來的那組叫「經典」
+//   - 顏色：主色＋用主色的色相調出來的紙張底色。預設是「校板」：青綠色配米白紙
 
 import SwiftUI
 import UIKit
@@ -104,12 +104,6 @@ struct AppTheme: Identifiable, Hashable {
 
     /// 主色。深色模式往白色調亮一點，在深色紙上才看得清楚（跟 JuanGo 一樣）
     var accent: Color {
-        if id == "classic" {
-            // Reeder 的 AccentColor：淺色 224,96,80（橘紅），深色 255,198,0（黃）
-            return Color(UIColor { $0.userInterfaceStyle == .dark
-                ? UIColor(red: 1, green: 198/255, blue: 0, alpha: 1)
-                : UIColor(red: 224/255, green: 96/255, blue: 80/255, alpha: 1) })
-        }
         let base = RGB(hex: accentHex)
         return Color(UIColor { $0.userInterfaceStyle == .dark ? base.mix(.white, 0.38).ui : base.ui })
     }
@@ -120,10 +114,10 @@ struct AppTheme: Identifiable, Hashable {
         return Color(UIColor { $0.userInterfaceStyle == .dark ? dark : light })
     }
 
-    /// 紙張底色。經典是 Reeder 量的；其他用主色的色相，淺色幾乎白、深色很深
+    /// 紙張底色。預設的「校板」是偏暖的米白、深色是帶一點冷的深灰；其他用主色的色相，淺色幾乎白、深色很深
     func paperRGB(dark: Bool) -> RGB {
         if id == "classic" {
-            return dark ? RGB(31, 30, 28) : RGB(253.45, 253.12, 252.45)
+            return dark ? RGB(hex: 0x1A1C1D) : RGB(hex: 0xFAF8F3)
         }
         var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         RGB(hex: accentHex).ui.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
@@ -134,7 +128,7 @@ struct AppTheme: Identifiable, Hashable {
     }
 
     static let all: [AppTheme] = [
-        .init(id: "classic", name: "經典", englishName: "Classic", accentHex: 0xE06050),
+        .init(id: "classic", name: "校板", englishName: "BanGo", accentHex: 0x128A8F),  // id 沿用舊的，選過的人不用重選
         .init(id: "amber", name: "琥珀", englishName: "Amber", accentHex: 0xB0661A),
         .init(id: "pine", name: "松針", englishName: "Pine", accentHex: 0x2F6B4F),
         .init(id: "ink", name: "墨藍", englishName: "Ink", accentHex: 0x24407A),
@@ -188,29 +182,23 @@ struct RGB: Hashable {
             Color(UIColor { $0.userInterfaceStyle == .dark ? dark : light })
         }
         let darkPaper = theme.paperRGB(dark: true), lightPaper = theme.paperRGB(dark: false)
-        let classic = theme.id == "classic"
-        // 深色模式的各種深淺都從紙張顏色算：經典的紙張是 31，下面這些比例剛好算回 Reeder 量到的 44、20、47、65、7
+        // 深色模式的各種深淺都從紙張顏色算，每個主題用同一套比例
         paper = dynamic(light: lightPaper.ui, dark: darkPaper.ui)
-        paperChip = dynamic(light: classic ? UIColor(red: 0.89, green: 0.88, blue: 0.85, alpha: 1) : lightPaper.mix(.black, 0.11).ui,
-                            dark: classic ? UIColor(red: 0.20, green: 0.19, blue: 0.18, alpha: 1) : darkPaper.mix(.white, 0.09).ui)
-        cardFill = dynamic(light: classic ? UIColor(red: 0.92, green: 0.91, blue: 0.89, alpha: 1) : lightPaper.mix(.black, 0.07).ui,
-                           dark: classic ? RGB(44, 44, 42).ui : darkPaper.mix(.white, 0.058).ui)
-        edgeDark = dynamic(light: UIColor(white: 0, alpha: 0.09),
-                           dark: classic ? RGB(20, 20, 18).ui : darkPaper.mix(.black, 0.35).ui)
-        grooveLight = dynamic(light: UIColor(white: 1, alpha: 0.75),
-                              dark: classic ? RGB(47, 46, 44).ui : darkPaper.mix(.white, 0.072).ui)
-        let highlight = classic ? RGB(65, 65, 63).ui : darkPaper.mix(.white, 0.152).ui
+        paperChip = dynamic(light: lightPaper.mix(.black, 0.11).ui, dark: darkPaper.mix(.white, 0.09).ui)
+        cardFill = dynamic(light: lightPaper.mix(.black, 0.07).ui, dark: darkPaper.mix(.white, 0.058).ui)
+        edgeDark = dynamic(light: UIColor(white: 0, alpha: 0.09), dark: darkPaper.mix(.black, 0.35).ui)
+        grooveLight = dynamic(light: UIColor(white: 1, alpha: 0.75), dark: darkPaper.mix(.white, 0.072).ui)
+        let highlight = darkPaper.mix(.white, 0.152).ui
         cardHighlight = dynamic(light: UIColor(white: 1, alpha: 0.9), dark: highlight)
-        edgeShadow = dynamic(light: UIColor(white: 0, alpha: 0.15),
-                             dark: classic ? RGB(7, 7, 6).ui : darkPaper.mix(.black, 0.77).ui)
-        // 換頁時移動中那頁外圈的邊：深色是亮邊；淺色 Reeder 是暗色的邊
+        edgeShadow = dynamic(light: UIColor(white: 0, alpha: 0.15), dark: darkPaper.mix(.black, 0.77).ui)
+        // 換頁時移動中那頁外圈的邊：深色是亮邊；淺色是暗色的邊
         pageRim = dynamic(light: UIColor(white: 0, alpha: 0.12), dark: highlight)
         brand = theme.accent
 
         // 來源的顏色：每個來源的色相固定（不管哪個主題，重要公告都是橘紅、學生都是藍…），容易分辨；
         // 主題只決定「風格」：飽和度、亮度跟著主色走（墨藍、松針深而沉，天空藍鮮豔，石墨低彩度）
         var h: CGFloat = 0, sat: CGFloat = 0, bri: CGFloat = 0, alpha: CGFloat = 0
-        (classic ? UIColor(red: 224/255, green: 96/255, blue: 80/255, alpha: 1) : RGB(hex: theme.accentHex).ui)
+        RGB(hex: theme.accentHex).ui
             .getHue(&h, saturation: &sat, brightness: &bri, alpha: &alpha)
         let gray = sat < 0.15  // 石墨：主色幾乎是灰的
         let lightS = gray ? 0.24 : min(0.8, max(0.4, sat))
