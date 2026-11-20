@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-20 11:28",
+ "updated": "2026-11-20 13:30",
  "categories": [
   "教務",
   "學務",
@@ -12,6 +12,20 @@
   "停課"
  ],
  "notices": [
+  {
+   "title": "「臺北醫學大學Open Day」活動",
+   "date": "2026-11-20 13:20",
+   "dept": "輔導室",
+   "url": "https://www.fg.tp.edu.tw/news/%e3%80%8c%e8%87%ba%e5%8c%97%e9%86%ab%e5%ad%b8%e5%a4%a7%e5%ad%b8open-day%e3%80%8d%e6%b4%bb%e5%8b%95-2/",
+   "source": "最新消息",
+   "categories": [
+    "輔導"
+   ],
+   "topics": [],
+   "for_students": true,
+   "content": "北醫大訂於115年12月5日(星期六)舉辦「臺北醫學大學Open Day」活動\n說明：\n一、為協助高中學子認識大學學習環境、探索學系特色及未來生涯方向，北醫大訂於115年12月5日（星期六）辦理「臺北醫學大學Open Day」活動，透過醫事體驗及學系介紹，讓師生家長更深入認識學群領域與學系專業，感受大學校園氛圍與環境，有利未來大學生涯規劃。\n二、活動資訊如下：\n(一)活動時間：115年12月5日(星期六)9時30分至16時。\n(二)活動地點：北醫大信義校區(臺北市信義區吳興街250號)。\n(三)參與對象：全國各高中之學生及家長。\n(四)活動說明與報名網址：https://forms.gle/YShHVZVuXV4KM6Q38\n(五)報名時間：即日起至115年11月30日止。",
+   "image": ""
+  },
   {
    "title": "長庚大學 2027 Fun AI Camp",
    "date": "2026-11-20 11:19",
@@ -196,7 +210,7 @@
    "date": "2026-11-18 09:37",
    "dept": "設備組",
    "url": "https://www.fg.tp.edu.tw/news/%e3%80%8a%e5%9c%8b%e9%9a%9b%e7%a7%91%e5%ad%b8%e6%95%99%e8%82%b2%e8%ab%96%e5%a3%87%e7%b3%bb%e5%88%9724%e3%80%8b-%e3%80%8cbrain-ai-and-education%e3%80%8d/",
-   "source": "最新消息",
+   "source": "學生園地",
    "categories": [],
    "topics": [],
    "for_students": true,
