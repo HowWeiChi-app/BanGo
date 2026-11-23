@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-23 16:29",
+ "updated": "2026-11-23 17:51",
  "categories": [
   "教務",
   "學務",
@@ -12,6 +12,32 @@
   "停課"
  ],
  "notices": [
+  {
+   "title": "【129週年校慶】訂於115年12月5日(六)舉行，電子邀請卡歡迎轉發！",
+   "date": "2026-11-23 17:12",
+   "dept": "訓育組",
+   "url": "https://www.csghs.tp.edu.tw/news/%e3%80%90129%e9%80%b1%e5%b9%b4%e6%a0%a1%e6%85%b6%e3%80%91%e8%a8%82%e6%96%bc115%e5%b9%b412%e6%9c%885%e6%97%a5%e5%85%ad%e8%88%89%e8%a1%8c%ef%bc%8c%e9%9b%bb%e5%ad%90%e9%82%80%e8%ab%8b%e5%8d%a1%e6%ad%a1/",
+   "source": "最新消息",
+   "categories": [
+    "學務"
+   ],
+   "topics": [],
+   "for_students": true,
+   "content": "民國115年為中山女高創校129週年，本校特訂於115年12月5日(六)舉行校慶慶祝大會與各項系列活動，歡迎共襄盛舉。\n【小提醒】\n校園恕不開放車位，請搭乘大眾運輸工具。\n響應減塑環保，園遊會不提供一次性免洗餐具，鼓勵自行攜帶環保餐具，或於環保餐具租賃攤位租借。\n園遊會須使用點券交易，校內設有點券攤位供購買。",
+   "image": "https://www.csghs.tp.edu.tw/wp-content/uploads/doc/zs235/129校慶電子邀請卡.jpg"
+  },
+  {
+   "title": "數位／網路性別暴力防治宣導影片及教材",
+   "date": "2026-11-23 16:35",
+   "dept": "生輔組",
+   "url": "https://www.csghs.tp.edu.tw/news/%e6%95%b8%e4%bd%8d%ef%bc%8f%e7%b6%b2%e8%b7%af%e6%80%a7%e5%88%a5%e6%9a%b4%e5%8a%9b%e9%98%b2%e6%b2%bb%e5%ae%a3%e5%b0%8e%e5%bd%b1%e7%89%87%e5%8f%8a%e6%95%99%e6%9d%90/",
+   "source": "最新消息",
+   "categories": [],
+   "topics": [],
+   "for_students": true,
+   "content": "一、財團法人婦女權益促進發展基金會製作中、英文版數位性別暴力防治宣導影片「堅持拒絕無所不在的數位性別暴力 （Stand Against Digital Gender-Based Violence Everywhere）」，請依課程及教學需求推廣運用，影片連結資訊詳如附件。\n二、另教育部為提升學生對數位／網路性別暴力之認識及應對 能力，針對校園常見之「網路性騷擾」、「未經同意散布與性／性別相關之個人私密資料」及「基於性別歧視或仇 恨言論與行為」等類型，開發3款數位／網路性別暴力防治 案例沉浸式遊戲教材《鍵盤戰青春》。\n三、前開教材結合劇情互動、情境挑戰、多重分支選項及不同結局設計，引導學生透過遊戲體驗，認識相關事件可能造成之影響，並學習適當之因應方式，請依教學及學習需求下載運用（下載網址：https://www.gender.edu.tw/web/index.php/m7/m7_11_02_01?sid=828）",
+   "image": ""
+  },
   {
    "title": "轉知：【衛武營藝企學】上半年節目申請訊息",
    "date": "2026-11-23 15:52",
@@ -117,7 +143,7 @@
    "date": "2026-11-23 12:34",
    "dept": "社團活動組",
    "url": "https://www.csghs.tp.edu.tw/news/%e5%b4%87%e5%8f%b3%e5%ad%b8%e6%a0%a1%e8%b2%a1%e5%9c%98%e6%b3%95%e4%ba%ba%e5%b4%87%e5%8f%b3%e5%bd%b1%e8%97%9d%e7%a7%91%e6%8a%80%e5%a4%a7%e5%ad%b8%e8%a1%a8%e6%bc%94%e8%97%9d%e8%a1%93%e7%b3%bb%e8%be%a6/",
-   "source": "最新消息",
+   "source": "學生專區",
    "categories": [],
    "topics": [],
    "for_students": true,
@@ -129,7 +155,7 @@
    "date": "2026-11-23 12:32",
    "dept": "社團活動組",
    "url": "https://www.csghs.tp.edu.tw/news/%e8%87%ba%e5%8c%97%e5%b8%82%e6%94%bf%e5%ba%9c%e6%95%99%e8%82%b2%e5%b1%80%e8%be%a6%e7%90%86%e3%80%8c115%e5%ad%b8%e5%b9%b4%e5%ba%a6%e7%ac%ac2%e5%ad%b8%e6%9c%9f%e8%a3%9c%e5%8a%a9%e5%85%ac%e7%ab%8b/",
-   "source": "最新消息",
+   "source": "學生專區",
    "categories": [
     "學務"
    ],
