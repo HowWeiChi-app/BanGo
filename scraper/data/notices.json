@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-23 11:26",
+ "updated": "2026-11-23 12:42",
  "categories": [
   "教務",
   "學務",
@@ -12,6 +12,22 @@
   "停課"
  ],
  "notices": [
+  {
+   "title": "115學年第1學期_第二次期中考_考試範圍",
+   "date": "2026-11-23 12:02",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRXcE5NRTlFWXpKT2Vtczk2VkVSUEJ6YTY1RWUwc0dWaW50ZWx5",
+   "source": "重要公告",
+   "categories": [
+    "教務"
+   ],
+   "topics": [
+    "考試"
+   ],
+   "for_students": true,
+   "content": "詳如附件\n1117修正高一國文語資班考試範圍\n1119新增高一作文考試範圍\n1123修正高一作文考試範圍",
+   "image": ""
+  },
   {
    "title": "急難救助金申請辦法",
    "date": "2026-11-23 10:45",
@@ -288,22 +304,6 @@
    "topics": [],
    "for_students": true,
    "content": "",
-   "image": ""
-  },
-  {
-   "title": "115學年第1學期_第二次期中考_考試範圍",
-   "date": "2026-11-19 16:29",
-   "dept": "",
-   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRXcE5NRTlFWXpKT2Vtczk2VkVSUEJ6YTY1RWUwc0dWaW50ZWx5",
-   "source": "重要公告",
-   "categories": [
-    "教務"
-   ],
-   "topics": [
-    "考試"
-   ],
-   "for_students": true,
-   "content": "詳如附件\n1117修正高一國文語資班考試範圍\n1119新增高一作文考試範圍",
    "image": ""
   },
   {
