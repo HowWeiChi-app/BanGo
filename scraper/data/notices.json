@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-24 09:14",
+ "updated": "2026-11-24 10:27",
  "categories": [
   "教務",
   "學務",
@@ -12,6 +12,99 @@
   "停課"
  ],
  "notices": [
+  {
+   "title": "臺北市立南港高級工業職業學校智慧電動車技術教學中心辦理「專題實作及創意競賽經驗分享」及「新菱利電動車e-VERYCA」教師研習",
+   "date": "2026-11-24 10:25",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRWUkpkMDVFYTNkT2Vrazl6Y0dST0Z6YTY1RWUwc0dWaW50ZWx5",
+   "source": "來文公告",
+   "categories": [
+    "比賽"
+   ],
+   "topics": [],
+   "for_students": false,
+   "content": "",
+   "image": ""
+  },
+  {
+   "title": "轉知國家表演藝術中心國家兩廳院辦理「重心關係學：在平衡與失衡之間的身體發現」教師研習",
+   "date": "2026-11-24 10:22",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVQwUnJkMDFxWjNkTlZHczl5Y0dST0Z6YTY1RWUwc0dWaW50ZWx5",
+   "source": "來文公告",
+   "categories": [],
+   "topics": [],
+   "for_students": false,
+   "content": "",
+   "image": ""
+  },
+  {
+   "title": "教育部國民及學前教育署委請國立和美實驗學校辦理「115年度全國高級中等學校性別平等教育議題融入教學教案設計甄選活動頒獎暨課程研討觀摩發表會」",
+   "date": "2026-11-24 10:20",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRtcG5kMDFVU1hsTmFtczl5Y0dST0Z6YTY1RWUwc0dWaW50ZWx5",
+   "source": "來文公告",
+   "categories": [
+    "教務"
+   ],
+   "topics": [],
+   "for_students": true,
+   "content": "",
+   "image": ""
+  },
+  {
+   "title": "臺北市立陽明高級中學辦理「AI導入數位教學示範學校計畫」115學年度第1學期公開觀議課一案",
+   "date": "2026-11-24 10:17",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRtcEJNRTFVYTNoUFJGVTl5Y0dST0Z6YTY1RWUwc0dWaW50ZWx5",
+   "source": "來文公告",
+   "categories": [],
+   "topics": [],
+   "for_students": true,
+   "content": "",
+   "image": ""
+  },
+  {
+   "title": "115學年度第1學期三項競賽第十二週11/15-11/21總成績",
+   "date": "2026-11-24 10:15",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVQwUkplVTVxWTNsTmFrVTl4Y0dST0Z6YTY1RWUwc0dWaW50ZWx5",
+   "source": "重要公告",
+   "categories": [
+    "教務",
+    "比賽"
+   ],
+   "topics": [],
+   "for_students": true,
+   "content": "如以下參考附件檔案\n有任何疑問，請至學務處找承辦人員 : 張教官",
+   "image": ""
+  },
+  {
+   "title": "建國科技大學辦理兩場「教師 AI Skills 系列研習」",
+   "date": "2026-11-24 10:15",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRsUkJkMDVVVVROTmVtTTl5Y0dST0Z6YTY1RWUwc0dWaW50ZWx5",
+   "source": "來文公告",
+   "categories": [],
+   "topics": [],
+   "for_students": false,
+   "content": "",
+   "image": ""
+  },
+  {
+   "title": "檢送國立臺北大學「116學年度第1學期會計師資格學士學分班及記帳士國考輔導班」招生簡章",
+   "date": "2026-11-24 10:13",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRucEZlVTVxVlRKUFJHTTl4Y0dST0Z6YTY1RWUwc0dWaW50ZWx5",
+   "source": "來文公告",
+   "categories": [
+    "教務"
+   ],
+   "topics": [],
+   "for_students": true,
+   "content": "",
+   "image": ""
+  },
   {
    "title": "臺北市立大同高級中學辦理「臺北市深度學習（New Pedagogies for Deep Learning）校群 115學年度第1學期教師增能工作坊」",
    "date": "2026-11-24 09:08",
