@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-25 14:47",
+ "updated": "2026-11-25 16:17",
  "categories": [
   "教務",
   "學務",
@@ -12,6 +12,50 @@
   "停課"
  ],
  "notices": [
+  {
+   "title": "115學年第1學期_第二次期中考_考試範圍(1125更新)",
+   "date": "2026-11-25 15:56",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRXcE5NRTlFWXpKT2Vtczk2VkVSUEJ6YTY1RWUwc0dWaW50ZWx5",
+   "source": "重要公告",
+   "categories": [
+    "教務"
+   ],
+   "topics": [
+    "考試"
+   ],
+   "for_students": true,
+   "content": "詳如附件\n1117修正高一國文語資班考試範圍\n1119新增高一作文考試範圍\n1123修正高一作文考試範圍\n1125新增高一地理(美術班除外)考試範圍\n新增高二地理數資班考試範圍\n新增高二數學科學班考試範圍\n新增高二物理科學班考試範圍",
+   "image": ""
+  },
+  {
+   "title": "2027日本早稻田大學校內推薦辦法",
+   "date": "2026-11-25 15:38",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRVUnJNazU2V1RCTmFtYzkzRkVWT1J6WjY1RWUwc0dWaW50ZWx5",
+   "source": "學生",
+   "categories": [
+    "教務"
+   ],
+   "topics": [],
+   "for_students": true,
+   "content": "2027年日本早稻田大學海外指定校推薦， 本校共可推薦5名學生，包含國際教養學部2名、政治經濟學部2名、社會科學部1名。\n一、報考資格:\n1. 以日本早稻田大學為第一志願，且具有強烈入學意願者。\n2.預定能夠於2027年9月20日前畢業者。\n二、確認經本校推薦者，須詳讀簡章、備妥必要文件，自行參與該校初試（依申請者提交的報名資料審核）及後續選考流程。\n三、請欲申請參加學校推薦的同學，於2026年11月6日(五) 中午12:00前，填妥申請表並檢附相關證明文件，向輔導室謝未遲老師提出申請，校內推薦辦法及申請表請參考附件「 2027日本早稻田大學校內推薦辦法_申請表(核定)」。\n(註：高一上至高二下共4學成績請向教務處註冊組提出申請。)",
+   "image": ""
+  },
+  {
+   "title": "2026/2027香港大學校長推薦計畫",
+   "date": "2026-11-25 15:37",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRWUmpNazVxVlRSTlJFVTl3VWxlTmgzYTY1RWUwc0dWaW50ZWx5",
+   "source": "學生",
+   "categories": [
+    "教務"
+   ],
+   "topics": [],
+   "for_students": true,
+   "content": "香港大學誠摯邀請本校推薦2位高三符合資格的學生，被推薦者將獲得入學面試的機會及錄取或獎學金的特別考量。\n詳情請參閱推薦計畫(附件一)，並請有意願申請同學：\n1. 完成附件之報名表(附件二)，並準備成績單及/或其他佐證符合報名資格之證明文件，於 2026年10月19日下午16:00前 交至輔導室謝未遲老師。\n2. 校內獲得推薦後，以 email 個別通知申請學生於 2026年10月26日前 自行至香港大學網站完成網上申請，申請網址：https://ug.hku.hk/hku-applicant/hku/index/login.xhtml\n3. 完成申請後會得到一組Application Number，請於2026年10月26日下午16:00前回報輔導室(t260016@gs.hs.ntnu.edu.tw)，逾期視同放棄。\n如有疑問請洽輔導室謝老師\n註：10/23(五)香港大學留學講座亦歡迎有興趣的高一至高三同學報名\n報名連結： https://reurl.cc/Reed9n (請使用附中GS信箱報名)",
+   "image": ""
+  },
   {
    "title": "教育部檢送本（115）年度詐騙防制宣導「教育部與內政部致家長/同學的一封信」",
    "date": "2026-11-25 14:18",
@@ -77,20 +121,6 @@
    "image": ""
   },
   {
-   "title": "2026/2027香港大學校長推薦計畫",
-   "date": "2026-11-25 10:56",
-   "dept": "",
-   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRWUmpNazVxVlRSTlJFVTl3VWxlTmgzYTY1RWUwc0dWaW50ZWx5",
-   "source": "重要公告",
-   "categories": [
-    "教務"
-   ],
-   "topics": [],
-   "for_students": true,
-   "content": "香港大學誠摯邀請本校推薦2位高三符合資格的學生，被推薦者將獲得入學面試的機會及錄取或獎學金的特別考量。\n詳情請參閱推薦計畫(附件一)，並請有意願申請同學：\n1. 完成附件之報名表(附件二)，並準備成績單及/或其他佐證符合報名資格之證明文件，於 2026年10月19日下午16:00前 交至輔導室謝未遲老師。\n2. 校內獲得推薦後，以 email 個別通知申請學生於 2026年10月26日前 自行至香港大學網站完成網上申請，申請網址：https://ug.hku.hk/hku-applicant/hku/index/login.xhtml\n3. 完成申請後會得到一組Application Number，請於2026年10月26日下午16:00前回報輔導室(t260016@gs.hs.ntnu.edu.tw)，逾期視同放棄。\n如有疑問請洽輔導室謝老師\n註：10/23(五)香港大學留學講座亦歡迎有興趣的高一至高三同學報名\n報名連結： https://reurl.cc/Reed9n (請使用附中GS信箱報名)",
-   "image": ""
-  },
-  {
    "title": "臺北交通安心行",
    "date": "2026-11-25 10:24",
    "dept": "",
@@ -126,20 +156,6 @@
    "topics": [],
    "for_students": false,
    "content": "轉知國立政治大學「圖書資訊學數位碩士在職專班」116學年度招生訊息，請查照。",
-   "image": ""
-  },
-  {
-   "title": "2027日本早稻田大學校內推薦辦法",
-   "date": "2026-11-24 17:29",
-   "dept": "",
-   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRVUnJNazU2V1RCTmFtYzkzRkVWT1J6WjY1RWUwc0dWaW50ZWx5",
-   "source": "重要公告",
-   "categories": [
-    "教務"
-   ],
-   "topics": [],
-   "for_students": true,
-   "content": "2027年日本早稻田大學海外指定校推薦， 本校共可推薦5名學生，包含國際教養學部2名、政治經濟學部2名、社會科學部1名。\n一、報考資格:\n1. 以日本早稻田大學為第一志願，且具有強烈入學意願者。\n2.預定能夠於2027年9月20日前畢業者。\n二、確認經本校推薦者，須詳讀簡章、備妥必要文件，自行參與該校初試（依申請者提交的報名資料審核）及後續選考流程。\n三、請欲申請參加學校推薦的同學，於2026年11月6日(五) 中午12:00前，填妥申請表並檢附相關證明文件，向輔導室謝未遲老師提出申請，校內推薦辦法及申請表請參考附件「 2027日本早稻田大學校內推薦辦法_申請表(核定)」。\n(註：高一上至高二下共4學成績請向教務處註冊組提出申請。)",
    "image": ""
   },
   {
@@ -568,22 +584,6 @@
    "topics": [],
    "for_students": true,
    "content": "美國紐約州立石溪大學臺灣見面會\n時間：2026/12/5 (六) 下午14:00-16:30\n地點：台北喜來登大飯店 B1 彩蝶+逸絢廳（捷運善導寺站 3 號出口）\n報名：https://www.isc-edu.com/meet_sbu_2026/\n如有疑問請洽詢 ISC國際學生中心 02 2755 6363",
-   "image": ""
-  },
-  {
-   "title": "115學年第1學期_第二次期中考_考試範圍",
-   "date": "2026-11-23 12:02",
-   "dept": "",
-   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRXcE5NRTlFWXpKT2Vtczk2VkVSUEJ6YTY1RWUwc0dWaW50ZWx5",
-   "source": "重要公告",
-   "categories": [
-    "教務"
-   ],
-   "topics": [
-    "考試"
-   ],
-   "for_students": true,
-   "content": "詳如附件\n1117修正高一國文語資班考試範圍\n1119新增高一作文考試範圍\n1123修正高一作文考試範圍",
    "image": ""
   },
   {
