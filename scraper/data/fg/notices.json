@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-25 09:46",
+ "updated": "2026-11-25 10:44",
  "categories": [
   "教務",
   "學務",
@@ -12,6 +12,18 @@
   "停課"
  ],
  "notices": [
+  {
+   "title": "【校外活動】Formosa Founders House 創業交流活動",
+   "date": "2026-11-25 09:46",
+   "dept": "社團活動組",
+   "url": "https://www.fg.tp.edu.tw/news/%e3%80%90%e6%a0%a1%e5%a4%96%e6%b4%bb%e5%8b%95%e3%80%91formosa-founders-house-%e5%89%b5%e6%a5%ad%e4%ba%a4%e6%b5%81%e6%b4%bb%e5%8b%95/",
+   "source": "最新消息",
+   "categories": [],
+   "topics": [],
+   "for_students": true,
+   "content": "Formosa Founders House is a hacker house in San Francisco’s Lower Haight where Taiwanese founders live and build together. For one night, we’re bringing our dinner-table conversations home to Taipei, hosted at PicCollage.\nDavid Day (Co-founder of LunaBill [YC F25]), Eric Wang (Co-founder of Olvia [YC W27]), Jarshan Chen (Co-founder of Sugar AI Lab), and Peter Wang (Co-founder of Hermai) will share what it’s really like to build in San Francisco, and answer the questions everyone asks at the starting line:\n1.​How do you know if an idea is worth chasing?\n2.What’s it actually like to live in a hacker house?​\n3.Who should you talk to, and what should you stop worrying about?\n4.What does it really take to build in Silicon Valley?\n​Expect candid conversation, not polished theory. Stay after for Q&A and mingling.\n​NT$200 will be charged for food and drinks.\n報名連結：https://luma.com/llk3v8sl",
+   "image": "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/uploads/x9/edc74f9c-9534-4990-90fa-040928d8fc0b.jpg"
+  },
   {
    "title": "【校外活動】2027年臺北國際書展「寒假閱讀節－閱讀學習護照」，歡迎各位同學踴躍參加",
    "date": "2026-11-25 09:43",
@@ -257,7 +269,7 @@
    "date": "2026-11-23 09:26",
    "dept": "校安中心",
    "url": "https://www.fg.tp.edu.tw/news/%e8%87%ba%e5%8c%97%e5%b8%82%e6%94%bf%e5%ba%9c%e6%95%99%e8%82%b2%e5%b1%80%e3%80%8c%e7%9c%8b%e8%a6%8b%e5%b0%8a%e9%87%8d%e7%9a%84%e7%9e%ac%e9%96%93%e3%80%8d%ef%bc%8d%e8%87%ba%e5%8c%97%e5%b8%82115/",
-   "source": "最新消息",
+   "source": "來文宣導",
    "categories": [],
    "topics": [],
    "for_students": true,
