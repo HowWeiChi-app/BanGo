@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-26 12:40",
+ "updated": "2026-11-26 14:35",
  "categories": [
   "教務",
   "學務",
@@ -12,6 +12,18 @@
   "停課"
  ],
  "notices": [
+  {
+   "title": "115學年度第二學期教科書版本",
+   "date": "2026-11-26 14:05",
+   "dept": "",
+   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRucFplRTE2U1hkT1ZHczl5RUVWT0Z6YTY1RWUwc0dWaW50ZWx5",
+   "source": "重要公告",
+   "categories": [],
+   "topics": [],
+   "for_students": true,
+   "content": "",
+   "image": ""
+  },
   {
    "title": "115學年第1學期_第二次期中考_考試範圍(1126更新)",
    "date": "2026-11-26 11:35",
@@ -192,18 +204,6 @@
    "topics": [],
    "for_students": false,
    "content": "轉知國立政治大學「圖書資訊學數位碩士在職專班」116學年度招生訊息，請查照。",
-   "image": ""
-  },
-  {
-   "title": "115學年度第二學期教科書版本",
-   "date": "2026-11-24 15:55",
-   "dept": "",
-   "url": "https://www.hs.ntnu.edu.tw/content?a=T0RESVRucFplRTE2U1hkT1ZHczl5RUVWT0Z6YTY1RWUwc0dWaW50ZWx5",
-   "source": "重要公告",
-   "categories": [],
-   "topics": [],
-   "for_students": true,
-   "content": "",
    "image": ""
   },
   {
